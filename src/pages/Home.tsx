@@ -1,13 +1,7 @@
 import React, { useState } from "react";
-import { AppBar, Toolbar, Typography, IconButton, Drawer, Box, List, ListItem, ListItemIcon, ListItemText, Divider, useMediaQuery } from "@mui/material";
+import { AppBar, Toolbar, Typography, IconButton, Box, useMediaQuery } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import ChatIcon from "@mui/icons-material/Chat";
-import SettingsIcon from "@mui/icons-material/Settings";
-
-import Chat from "../components/Chat"; // Import the Chat component
-
-
-const drawerWidth = 240; // Sidebar width
+import Chat from "../components/Chat/Chat"; // Import the Chat component
 
 const Home = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -18,9 +12,9 @@ const Home = () => {
     };
 
     return (
-        <Box sx={{ display: "flex", width: "100vw", height: "100vh" }}>
+        <Box sx={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
             {/* AppBar */}
-            <AppBar position="fixed" sx={{ zIndex: 1300 }}>
+            <AppBar position="fixed">
                 <Toolbar>
                     {isMobile && (
                         <IconButton color="inherit" edge="start" onClick={handleDrawerToggle} sx={{ mr: 2 }}>
@@ -33,76 +27,15 @@ const Home = () => {
                 </Toolbar>
             </AppBar>
 
-            {/* Sidebar Drawer - Always Open on Desktop, Toggles on Mobile */}
-            {!isMobile && (
-                <Drawer
-                    variant="permanent"
-                    open
-                    sx={{
-                        width: drawerWidth,
-                        flexShrink: 0,
-                        "& .MuiDrawer-paper": { width: drawerWidth, boxSizing: "border-box" },
-                    }}
-                >
-                    <Toolbar />
-                    <Divider />
-                    <List>
-                        <ListItem>
-                            <ListItemIcon>
-                                <ChatIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Chat History" />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemIcon>
-                                <SettingsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Settings" />
-                        </ListItem>
-                    </List>
-                </Drawer>
-            )}
-
-            {/* Mobile Drawer */}
-            {isMobile && (
-                <Drawer
-                    variant="temporary"
-                    open={isDrawerOpen}
-                    onClose={handleDrawerToggle}
-                    sx={{
-                        "& .MuiDrawer-paper": { width: drawerWidth, boxSizing: "border-box" },
-                    }}
-                >
-                    <Toolbar />
-                    <Divider />
-                    <List>
-                        <ListItem onClick={handleDrawerToggle}>
-                            <ListItemIcon>
-                                <ChatIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Chat History" />
-                        </ListItem>
-                        <ListItem onClick={handleDrawerToggle}>
-                            <ListItemIcon>
-                                <SettingsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Settings" />
-                        </ListItem>
-                    </List>
-                </Drawer>
-            )}
-
-            {/* Main Content - Adjusting Width Based on Sidebar */}
-            <Box
+            {/* Main Content - Pushes Chat down below AppBar */}
+            <Box 
                 component="main"
                 sx={{
                     flexGrow: 1,
-                    p: 3,
-                    width: isMobile ? "100vw" : `calc(100vw - ${drawerWidth}px)`,
-                    transition: "width 0.3s ease-in-out",
+                    mt: "64px", // Offset for AppBar (Toolbar height)
+                    overflowY: "auto", // Page-level scroll
                 }}
             >
-                <Toolbar />
                 <Chat />
             </Box>
         </Box>
