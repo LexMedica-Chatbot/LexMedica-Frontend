@@ -3,12 +3,16 @@ import { Box } from "@mui/material";
 import ChatMessages from "./ChatMessages";
 import ChatInput from "./ChatInput";
 
+interface ChatProps {
+    selectedChat: string | null;
+}
+
 interface Message {
     text: string;
     sender: "user" | "bot";
 }
 
-const Chat: React.FC = () => {
+const Chat: React.FC<ChatProps> = ({ selectedChat }) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputHeight, setInputHeight] = useState(56); // Default height of ChatInput
 
@@ -26,6 +30,16 @@ const Chat: React.FC = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, inputHeight]);
 
+    useEffect(() => {
+        if (selectedChat === null) {
+            // Load a new chat (clear messages)
+            setMessages([]);
+        } else {
+            // Load the selected chat history (can replace with actual history)
+            setMessages([{ text: `History of ${selectedChat}`, sender: "bot" }]);
+        }
+    }, [selectedChat]);
+
     return (
         <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100%" }}>
             {/* Chat Messages with Dynamic Padding */}
@@ -35,7 +49,9 @@ const Chat: React.FC = () => {
             </Box>
 
             {/* Chat Input (Updates its height dynamically) */}
-            <ChatInput onSendMessage={handleSendMessage} onHeightChange={setInputHeight} />
+            <Box alignItems={"center"}>
+                <ChatInput onSendMessage={(msg) => setMessages((prev) => [...prev, { text: msg, sender: "user" }])} onHeightChange={setInputHeight} />
+            </Box>
         </Box>
     );
 };

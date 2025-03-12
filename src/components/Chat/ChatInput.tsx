@@ -37,10 +37,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onHeightChange }) 
             ref={inputRef}
             sx={{
                 position: "fixed",
+
                 bottom: 10,
                 left: "50%",
                 transform: "translateX(-50%)",
-                width: "95%",
+                width: "60%",
                 bgcolor: "background.paper",
                 p: 1,
                 boxShadow: "0px -2px 5px rgba(0,0,0,0.1)",
