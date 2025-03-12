@@ -1,5 +1,3 @@
-import React from 'react'
-
 import './App.css'
 
 import {
@@ -8,15 +6,20 @@ import {
 } from "react-router-dom"
 
 // ** Client Pages
-import Home from './pages/Home'
+import QnAPage from './pages/QnAPage'
+
+// ** Components
+import Layout from "./layout/Layout"
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home /> } />
+      <Route path="/" element={<Layout> <QnAPage /> </Layout>} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       {/* <Route path="/not-found" element={<Layout> <NotFound /> </Layout>} />
-      <Route path="/login" element={<Layout> <Login /> </Layout>} />
-      <Route path="/register" element={<Layout> <Register /> </Layout>} /> */}
 
       {/* Catch-all route for not-found */}
       {/* <Route path="*" element={<NotFoundPageHandler />} /> */}
