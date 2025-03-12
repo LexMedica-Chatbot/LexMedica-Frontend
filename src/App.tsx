@@ -13,17 +13,27 @@ import Layout from "./layout/Layout"
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 
+// ** MUI Imports
+import { ThemeProvider, createTheme } from '@mui/material/styles'
+
+// ** Configs
+import { themeOptions } from './configs/themeOptions'
+
 function App() {
+  const theme = createTheme(themeOptions)
+
   return (
-    <Routes>
-      <Route path="/" element={<Layout> <QnAPage /> </Layout>} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      {/* <Route path="/not-found" element={<Layout> <NotFound /> </Layout>} />
+    <ThemeProvider theme={theme}>
+      <Routes>
+        <Route path="/" element={<Layout> <QnAPage /> </Layout>} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        {/* <Route path="/not-found" element={<Layout> <NotFound /> </Layout>} />
 
       {/* Catch-all route for not-found */}
-      {/* <Route path="*" element={<NotFoundPageHandler />} /> */}
-    </Routes>
+        {/* <Route path="*" element={<NotFoundPageHandler />} /> */}
+      </Routes>
+    </ThemeProvider>
   );
 }
 
