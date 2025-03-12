@@ -7,36 +7,15 @@ import AppBar from '@mui/material/AppBar'
 import Button from '@mui/material/Button'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-
-// ** MUI Icons
-import CreateIcon from '@mui/icons-material/Create';
-import Tooltip from '@mui/material/Tooltip'
 
 const Navbar = () => {
 
     return (
-        <Box sx={{ mb: 10 }}>
+        <Box mb={8}>
             <AppBar position="fixed">
                 <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     {/* Left side buttons */}
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                        <Box>
-                            <Tooltip title="Chat Baru" arrow>
-                                <IconButton
-                                    onClick={() => window.scrollTo(0, 0)} // Handle the action
-                                    sx={{
-                                        p: 1,
-                                        display: 'flex',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        borderRadius: '8px',
-                                    }}
-                                >
-                                    <CreateIcon />
-                                </IconButton>
-                            </Tooltip>
-                        </Box>
                         <Typography fontWeight="bold" variant="h5">
                             LexMedica
                         </Typography>
@@ -47,7 +26,6 @@ const Navbar = () => {
                         <Link to={'/login'}>
                             <Button
                                 variant={"contained"}
-                                sx={{ backgroundColor: 'black' }}
                                 onClick={() => window.scrollTo(0, 0)}
                             >
                                 <Typography fontWeight={'bold'}>Masuk</Typography>
@@ -56,9 +34,9 @@ const Navbar = () => {
 
                         <Link to={'/register'}>
                             <Button
-                                variant={"contained"}
-                                sx={{ backgroundColor: 'gray' }}
+                                variant={"outlined"}
                                 onClick={() => window.scrollTo(0, 0)}
+                                sx={{border: '2px solid'}}
                             >
                                 <Typography fontWeight={'bold'}>Daftar</Typography>
                             </Button>

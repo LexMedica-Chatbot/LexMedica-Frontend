@@ -22,7 +22,7 @@ export const themeOptions: ThemeOptions = {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "#f5f7fa",
+          backgroundColor: "lightgray",
         },
       },
     },

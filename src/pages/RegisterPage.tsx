@@ -1,11 +1,14 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, Grid, Alert, InputAdornment, IconButton } from "@mui/material";
+import { Box, TextField, Button, Typography, Grid, Alert, InputAdornment, IconButton, createTheme } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { themeOptions } from "../configs/themeOptions";
 
 const RegisterPage = () => {
+    const theme = createTheme(themeOptions)
+
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -78,126 +81,148 @@ const RegisterPage = () => {
                 height: "100vh",
                 flexDirection: "column",
                 gap: 2,
+                backgroundColor: theme.palette.secondary.main, // Set a background color (can be theme-based)
             }}
         >
-            <Typography variant="h4" gutterBottom>
-                Daftar Akun LexMedica
-            </Typography>
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    flexDirection: "column",
+                    gap: 2,
+                    width: "100%",
+                    maxWidth: 400,
+                    backgroundColor: "white",
+                    padding: 4,
+                    borderRadius: 2,
+                    boxShadow: 2,
+                }}
+            >
+                <Typography variant="h4" gutterBottom>
+                    Daftar Akun LexMedica
+                </Typography>
 
-            {/* Registration Form */}
-            <Box component="form" onSubmit={handleRegister} sx={{ width: "100%", maxWidth: 400 }}>
-                {/* Email input */}
-                <TextField
-                    label="Email"
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    error={!!error && !email}
-                    helperText={error && !email ? "Email is required" : ""}
-                />
+                {/* Registration Form */}
+                <Box component="form" onSubmit={handleRegister} sx={{ width: "100%", maxWidth: 400 }}>
+                    {/* Email input */}
+                    <TextField
+                        label="Email"
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        error={!!error && !email}
+                        helperText={error && !email ? "Email is required" : ""}
+                    />
 
-                {/* Password input */}
-                <TextField
-                    label="Password"
-                    type={showPassword ? "text" : "password"}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    error={!!error && !password}
-                    helperText={error && !password ? "Password is required" : ""}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    edge="end"
-                                >
-                                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                    {/* Password input */}
+                    <TextField
+                        label="Password"
+                        type={showPassword ? "text" : "password"}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        error={!!error && !password}
+                        helperText={error && !password ? "Password is required" : ""}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        edge="end"
+                                    >
+                                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
 
-                {/* Confirm Password input */}
-                <TextField
-                    label="Confirm Password"
-                    type={showConfirmPassword ? "text" : "password"}
-                    variant="outlined"
-                    fullWidth
-                    margin="normal"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    error={!!error && confirmPassword !== password}
-                    helperText={error && confirmPassword !== password ? "Passwords do not match" : ""}
-                    InputProps={{
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                <IconButton
-                                    aria-label="toggle password visibility"
-                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    edge="end"
-                                >
-                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                                </IconButton>
-                            </InputAdornment>
-                        ),
-                    }}
-                />
+                    {/* Confirm Password input */}
+                    <TextField
+                        label="Confirm Password"
+                        type={showConfirmPassword ? "text" : "password"}
+                        variant="outlined"
+                        fullWidth
+                        margin="normal"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        error={!!error && confirmPassword !== password}
+                        helperText={error && confirmPassword !== password ? "Passwords do not match" : ""}
+                        InputProps={{
+                            endAdornment: (
+                                <InputAdornment position="end">
+                                    <IconButton
+                                        aria-label="toggle password visibility"
+                                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                        edge="end"
+                                    >
+                                        {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                    </IconButton>
+                                </InputAdornment>
+                            ),
+                        }}
+                    />
 
-                {/* Error or Success Message */}
-                {error && (
-                    <Alert severity="error" sx={{ marginBottom: 2 }}>
-                        {error}
-                    </Alert>
-                )}
-                {success && (
-                    <Alert severity="success" sx={{ marginBottom: 2 }}>
-                        Registration successful! Please check your email for the verification link.
-                    </Alert>
-                )}
+                    {/* Error or Success Message */}
+                    {error && (
+                        <Alert severity="error" sx={{ marginBottom: 2 }}>
+                            {error}
+                        </Alert>
+                    )}
+                    {success && (
+                        <Alert severity="success" sx={{ marginBottom: 2 }}>
+                            Registration successful! Please check your email for the verification link.
+                        </Alert>
+                    )}
 
-                {/* Submit button */}
-                <Button
-                    variant="contained"
-                    fullWidth
-                    type="submit"
-                    disabled={loading || email === "" || password === "" || confirmPassword !== password}
-                    sx={{ mt: 2 }}
-                >
-                    {loading ? "Loading" : "Daftar"}
-                </Button>
-            </Box>
+                    {/* Submit button */}
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        type="submit"
+                        disabled={loading || email === "" || password === "" || confirmPassword !== password}
+                        sx={{ mt: 2 }}
+                    >
+                        <Typography fontWeight={"bold"}> {loading ? "Loading" : "Daftar"} </Typography>
+                    </Button>
+                </Box>
 
-            {/* Link to Login */}
-            <Grid container justifyContent="center" sx={{ marginTop: 2 }}>
-                <Grid item>
-                    <Typography variant="body2">
-                        Sudah punya akun?{" "}
-                        <Link to="/login" style={{ textDecoration: "none", color: "#1976d2" }}>
-                            Masuk di sini
+                {/* Link to Login */}
+                <Grid container justifyContent="center" sx={{ marginTop: 2 }}>
+                    <Grid item>
+                        <Typography variant="body1">
+                            Sudah punya akun?{" "}
+                            <Link to="/login" style={{ textDecoration: "none", color: "#1976d2" }}>
+                                Masuk di sini
+                            </Link>
+                        </Typography>
+                    </Grid>
+                </Grid>
+
+                <Grid container justifyContent="center">
+                    <Grid item>
+                        <Link to={'/'} >
+                            <Button
+                                variant="contained"
+                                sx={{
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    gap: 1,
+                                }}
+                            >
+                                <Typography fontWeight={"bold"}>Akses Tanpa Akun</Typography>
+                                <ArrowForwardIcon />
+                            </Button>
                         </Link>
-                    </Typography>
+                    </Grid>
                 </Grid>
-            </Grid>
-
-            <Grid container justifyContent="center">
-                <Grid item>
-                    <Link to={'/'}>
-                        <Button
-                            variant="contained"
-                            fullWidth
-                        >
-                            {"AKSES TANPA AKUN"} <ArrowForwardIcon />
-                        </Button>
-                    </Link>
-                </Grid>
-            </Grid>
+            </Box>
         </Box>
     );
 };
