@@ -1,6 +1,9 @@
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, Grid, Alert } from "@mui/material";
+import { Box, TextField, Button, Typography, Grid, Alert, InputAdornment, IconButton } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 
 const RegisterPage = () => {
     const [email, setEmail] = useState<string>("");
@@ -9,6 +12,8 @@ const RegisterPage = () => {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
     const [success, setSuccess] = useState<boolean>(false);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
     const navigate = useNavigate();
 
     const handleRegister = async (e: React.FormEvent) => {
@@ -76,10 +81,7 @@ const RegisterPage = () => {
             }}
         >
             <Typography variant="h4" gutterBottom>
-                Register for LexMedica
-            </Typography>
-            <Typography variant="body1" sx={{ textAlign: "center", mb: 3 }}>
-                Create an account to access the latest legal and health documents for Indonesia.
+                Daftar Akun LexMedica
             </Typography>
 
             {/* Registration Form */}
@@ -99,7 +101,7 @@ const RegisterPage = () => {
                 {/* Password input */}
                 <TextField
                     label="Password"
-                    type="password"
+                    type={showPassword ? "text" : "password"}
                     variant="outlined"
                     fullWidth
                     margin="normal"
@@ -107,12 +109,25 @@ const RegisterPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     error={!!error && !password}
                     helperText={error && !password ? "Password is required" : ""}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    edge="end"
+                                >
+                                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
                 />
 
                 {/* Confirm Password input */}
                 <TextField
                     label="Confirm Password"
-                    type="password"
+                    type={showConfirmPassword ? "text" : "password"}
                     variant="outlined"
                     fullWidth
                     margin="normal"
@@ -120,6 +135,19 @@ const RegisterPage = () => {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     error={!!error && confirmPassword !== password}
                     helperText={error && confirmPassword !== password ? "Passwords do not match" : ""}
+                    InputProps={{
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                <IconButton
+                                    aria-label="toggle password visibility"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                    edge="end"
+                                >
+                                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                                </IconButton>
+                            </InputAdornment>
+                        ),
+                    }}
                 />
 
                 {/* Error or Success Message */}
@@ -139,10 +167,10 @@ const RegisterPage = () => {
                     variant="contained"
                     fullWidth
                     type="submit"
-                    disabled={loading}
+                    disabled={loading || email === "" || password === "" || confirmPassword !== password}
                     sx={{ mt: 2 }}
                 >
-                    {loading ? "Registering..." : "Register"}
+                    {loading ? "Loading" : "Daftar"}
                 </Button>
             </Box>
 
@@ -150,11 +178,24 @@ const RegisterPage = () => {
             <Grid container justifyContent="center" sx={{ marginTop: 2 }}>
                 <Grid item>
                     <Typography variant="body2">
-                        Already have an account?{" "}
+                        Sudah punya akun?{" "}
                         <Link to="/login" style={{ textDecoration: "none", color: "#1976d2" }}>
-                            Login here
+                            Masuk di sini
                         </Link>
                     </Typography>
+                </Grid>
+            </Grid>
+
+            <Grid container justifyContent="center">
+                <Grid item>
+                    <Link to={'/'}>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                        >
+                            {"AKSES TANPA AKUN"} <ArrowForwardIcon />
+                        </Button>
+                    </Link>
                 </Grid>
             </Grid>
         </Box>
