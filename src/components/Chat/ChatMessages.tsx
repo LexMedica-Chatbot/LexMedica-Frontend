@@ -1,5 +1,6 @@
 import React from "react";
-import { Paper, List, ListItem, ListItemText } from "@mui/material";
+import { Paper, List, ListItem, ListItemText, Box, Typography } from "@mui/material";
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface Message {
     text: string;
@@ -46,6 +47,23 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
                                 wordWrap: "break-word", // Ensure word wrapping inside ListItemText
                             }}
                         />
+
+                        {msg.sender === "bot" && (
+                            <Box sx={{ backgroundColor: "white", border: "1px solid", borderRadius: 2, padding: 1, marginTop: 1 }}>
+                                <Box display={"flex"} alignItems={"center"} gap={1}>
+                                    <ErrorOutlineIcon color="error" />
+                                    <Typography fontWeight={"bold"} variant={"h6"}> Terdapat potensi disharmoni regulasi </Typography>
+                                </Box>
+                                <Box>
+                                    <ListItemText
+                                        primary={formatMessageText("Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ....")} // Use the function to format text
+                                        sx={{
+                                            wordWrap: "break-word", // Ensure word wrapping inside ListItemText
+                                        }}
+                                    />
+                                </Box>
+                            </Box>
+                        )}
                     </Paper>
                 </ListItem>
             ))}

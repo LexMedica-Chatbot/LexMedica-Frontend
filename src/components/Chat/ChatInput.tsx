@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Box, TextField, IconButton } from "@mui/material";
+import { Box, TextField, IconButton, Tooltip } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import CreateIcon from '@mui/icons-material/Create';
 
 interface ChatInputProps {
     onSendMessage: (message: string) => void;
@@ -36,20 +37,34 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onHeightChange }) 
         <Box
             ref={inputRef}
             sx={{
-                position: "fixed",
-
-                bottom: 10,
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: "60%",
-                bgcolor: "background.paper",
+                width: "100%",
+                bgcolor: "lightgray",
                 p: 1,
-                boxShadow: "0px -2px 5px rgba(0,0,0,0.1)",
+                boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
+                borderRadius: 2,
                 display: "flex",
                 alignItems: "center",
-                borderRadius: 2,
+                gap: 1,
             }}
         >
+
+            <Box>
+                <Tooltip title="Chat Baru" arrow>
+                    <IconButton
+                        color="secondary"
+                        onClick={() => window.scrollTo(0, 0)} // Handle the action
+                        sx={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: '8px',
+                            alignSelf: "flex-start"
+                        }}
+                    >
+                        <CreateIcon />
+                    </IconButton>
+                </Tooltip>
+            </Box>
+
             <TextField
                 fullWidth
                 variant="outlined"
@@ -60,15 +75,28 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onHeightChange }) 
                 multiline
                 maxRows={7} // Expands up to 7 lines
                 sx={{
+                    border: "none",
                     flexGrow: 1,
                     "& .MuiOutlinedInput-root": {
                         padding: "10px",
                     },
                 }}
             />
-            <IconButton color="primary" onClick={handleSend} sx={{ ml: 1, alignSelf: "flex-end" }}>
-                <SendIcon />
-            </IconButton>
+            <Box>
+                <Tooltip title="Kirim" arrow>
+                    <IconButton color="secondary"
+                        onClick={handleSend} // Handle the action
+                        sx={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: '8px',
+                            alignSelf: "flex-end"
+                        }}
+                    >
+                        <SendIcon />
+                    </IconButton>
+                </Tooltip>
+            </Box>
         </Box>
     );
 };

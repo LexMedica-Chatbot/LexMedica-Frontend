@@ -21,7 +21,7 @@ const Navbar = () => {
                         </Typography>
                     </Box>
 
-                    {/* Right side buttons (only visible on 'sm' and up) */}
+                    {/* Right side buttons */}
                     <Box sx={{ display: { xs: 'flex' }, gap: 2 }}>
                         <Link to={'/login'}>
                             <Button
