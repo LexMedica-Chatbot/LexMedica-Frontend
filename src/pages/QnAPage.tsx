@@ -1,117 +1,175 @@
-import { useState, useEffect, useRef } from "react";
-import { Box, createTheme, Typography } from "@mui/material";
+import { useState, useRef } from "react";
+import { Box, createTheme, Grid, Typography, Button, IconButton, Toolbar } from "@mui/material";
 import ChatMessages from "../components/Chat/ChatMessages";
 import ChatInput from "../components/Chat/ChatInput";
-
 import { themeOptions } from "../configs/themeOptions";
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
-interface ChatProps {
-    selectedChat: string | null;
-}
+// ** React Import
+import { Link } from 'react-router-dom'
 
 interface Message {
     text: string;
     sender: "user" | "bot";
 }
 
-const QnAPage = () => {
+interface ChatHistory {
+    title: string;
+    messages: Message[];
+}
+
+const QnAPage: React.FC = () => {
     const theme = createTheme(themeOptions);
 
-    const [selectedChat, setSelectedChat] = useState<string | null>(null); // Store selected chat
+    const [inputHeight, setInputHeight] = useState<number>(56);
+    const [selectedChat, setSelectedChat] = useState<string | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
+    const [isHistoryVisible, setIsHistoryVisible] = useState<boolean>(true);
+
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     const handleNewChat = () => {
-        setSelectedChat(null); // Reset chat selection to start a new one
+        setSelectedChat(null);
+        setMessages([]);
     };
 
     const handleSelectChat = (chat: string) => {
-        setSelectedChat(chat); // Load the selected chat history
+        setSelectedChat(chat);
     };
-
-
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [inputHeight, setInputHeight] = useState(56); // Default height of ChatInput
-
-    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const handleSendMessage = (message: string) => {
         const newMessage: Message = { text: message, sender: "user" };
         const aiResponse: Message = { text: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`, sender: "bot" };
 
         setMessages((prev) => [...prev, newMessage, aiResponse]);
+
+        const newHistory: ChatHistory = {
+            title: message,
+            messages: [...messages, newMessage, aiResponse],
+        };
+        setChatHistory((prev) => [...prev, newHistory]);
     };
 
-    // Scroll to bottom when new messages are added
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, inputHeight]);
+    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
 
-    useEffect(() => {
-        if (selectedChat === null) {
-            // Load a new chat (clear messages)
-            setMessages([]);
-        } else {
-            // Load the selected chat history (can replace with actual history)
-            setMessages([{ text: `History of ${selectedChat}`, sender: "bot" }]);
-        }
-    }, [selectedChat]);
+    // Function to toggle sidebar visibility
+    const toggleSidebar = () => {
+        setIsSidebarVisible(!isSidebarVisible);
+    };
 
     return (
-        <Box
-            display={"flex"}
-            justifyContent={"center"}
-            sx={{height: "100%", minHeight: "90.9vh" }} >
-            <Box
+        <Grid container sx={{ height: "100vh", display: "flex" }}>
+            {/* Left Sidebar */}
+            {isSidebarVisible && (
+                <Grid
+                    item
+                    xs={2}
+                    sx={{
+                        bgcolor: 'secondary.dark',
+                        display: "flex",
+                        flexDirection: "column",
+                    }}
+                >
+                    {/* First Box: History Chat Toggle Button */}
+                    <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                        <IconButton onClick={toggleSidebar} sx={{ position: "absolute", left: 10, color: "white" }}>
+                            <FormatListBulletedIcon />
+                        </IconButton>
+                        <Typography variant="h6" sx={{ color: "white" }}>
+                            Riwayat Chat
+                        </Typography>
+                    </Box>
+
+                    {/* Third Box: History Chat List */}
+                    <Box sx={{ flex: 9, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        Third Box
+                    </Box>
+                </Grid>
+            )}
+
+            {/* Right Content*/}
+            <Grid
+                item
+                xs={isSidebarVisible ? 10 : 12}
                 sx={{
-                    overflowY: "auto",
-                    width: "50%",
+                    display: "flex",
+                    height: "100vh",
+                    flexDirection: "column",
                 }}
             >
-                <Box display={"flex"} justifyContent={"center"} sx={{ flexDirection: "column", minHeight: "100%" }}>
-                    {/* Chat Messages with Dynamic Padding */}
-                    <Box sx={{ flexGrow: 1, overflowY: "auto", paddingBottom: 10 }}>
-                        <ChatMessages messages={messages} />
-                        <div ref={messagesEndRef} />
-                    </Box>
+                {/* Second Box: Toolbar */}
+                <Box sx={{ flex: 1, bgcolor: 'lightgray', display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                    <Toolbar sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "space-between", px: 2 }}>
 
-                    {/* Chat Input (Centered) */}
-                    <Box
-                        sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            position: "fixed",
-                            width: "50%",
-                            bottom: 0,
-                            pb: 2,
-                            pt: 1,
-                            height: inputHeight,
-                            backgroundColor: theme.palette.secondary.main,
-                        }}>
-                        <ChatInput onSendMessage={(msg) => handleSendMessage(msg)} onHeightChange={setInputHeight} />
-                    </Box>
+                        {/* Left Section: LexMedica App Name */}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            {!isSidebarVisible && (
+                                <IconButton onClick={toggleSidebar} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
+                                    <FormatListBulletedIcon />
+                                </IconButton>
+                            )}
+
+                            <Typography fontWeight="bold" variant="h5" sx={{ ml: isSidebarVisible ? 0 : 5 }}>
+                                LexMedica
+                            </Typography>
+                        </Box>
+
+                        {/* Right Section: Account Buttons */}
+                        <Box sx={{ display: "flex", gap: 2, marginLeft: "auto" }}>
+                            <Link to="/login" style={{ textDecoration: "none" }}>
+                                <Button variant="contained">
+                                    <Typography fontWeight="bold">Masuk</Typography>
+                                </Button>
+                            </Link>
+                            <Link to="/register" style={{ textDecoration: "none" }}>
+                                <Button variant="outlined" sx={{ border: "2px solid" }}>
+                                    <Typography fontWeight="bold">Daftar</Typography>
+                                </Button>
+                            </Link>
+                        </Box>
+                    </Toolbar>
                 </Box>
 
-                {/* Fixed Centered Welcome Message (Hidden if there's a chat) */}
-                {messages.length == 0 && (
-                    <Box
-                        sx={{
-                            position: "fixed",
-                            top: "50%",
-                            left: "50%",
-                            transform: "translate(-50%, -50%)",
-                            padding: "16px",
-                            textAlign: "center",
-                        }}
-                    >
-                        <Typography variant="h5" color="white">
-                            Selamat datang di LexMedica!
-                        </Typography>
-                        <Typography variant="body1" color="white">
-                            Silakan masukkan pertanyaan seputar hukum kesehatan
-                        </Typography>
+                {/* Fourth Box: Chat Messages */}
+                <Box sx={{
+                    flex: 8.5,
+                    display: "flex",
+                    position: "relative",
+                    overflowY: "auto", // Only this box will be scrollable
+                    justifyContent: "center"
+                }}>
+                    {messages.length === 0 ? (
+                        <Box
+                            sx={{
+                                textAlign: "center",
+                                display: "flex",
+                                flexDirection: "column",
+                                justifyContent: "center",
+                            }}
+                        >
+                            <Typography variant="h5" color="white">
+                                Selamat datang di LexMedica!
+                            </Typography>
+                            <Typography variant="body1" color="white">
+                                Silakan masukkan pertanyaan seputar hukum kesehatan
+                            </Typography>
+                        </Box>
+                    ) : (
+                        <Box sx={{ width: '70%' }}>
+                            <ChatMessages messages={messages} />
+                        </Box>
+                    )}
+                </Box>
+
+                {/* Fixed Chat Input */}
+                <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
+                    <Box sx={{ width: '80%' }}>
+                        <ChatInput onSendMessage={handleSendMessage} onHeightChange={setInputHeight} />
                     </Box>
-                )}
-            </Box>
-        </Box >
+                </Box>
+            </Grid>
+        </Grid >
     );
 };
 
