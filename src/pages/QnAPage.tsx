@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
+// ** React Imports
+import { useEffect, useRef, useState } from "react";
+import { Link } from 'react-router-dom';
+
+// ** MUI Imports
 import { Box, createTheme, Grid, Typography, Button, IconButton, Toolbar } from "@mui/material";
-import ChatMessages from "../components/Chat/ChatMessages";
-import ChatInput from "../components/Chat/ChatInput";
-import { themeOptions } from "../configs/themeOptions";
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
-// ** React Import
-import { Link } from 'react-router-dom'
+// ** Components
+import ChatMessages from "../components/Chat/ChatMessages";
+import ChatInput from "../components/Chat/ChatInput";
 
 interface Message {
     text: string;
@@ -19,7 +21,6 @@ interface ChatHistory {
 }
 
 const QnAPage: React.FC = () => {
-    const theme = createTheme(themeOptions);
 
     const [inputHeight, setInputHeight] = useState<number>(56);
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
@@ -27,17 +28,7 @@ const QnAPage: React.FC = () => {
     const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
     const [isHistoryVisible, setIsHistoryVisible] = useState<boolean>(true);
 
-    const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-    const handleNewChat = () => {
-        setSelectedChat(null);
-        setMessages([]);
-    };
-
-    const handleSelectChat = (chat: string) => {
-        setSelectedChat(chat);
-    };
-
+    // Handling send message
     const handleSendMessage = (message: string) => {
         const newMessage: Message = { text: message, sender: "user" };
         const aiResponse: Message = { text: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`, sender: "bot" };
@@ -51,17 +42,37 @@ const QnAPage: React.FC = () => {
         setChatHistory((prev) => [...prev, newHistory]);
     };
 
-    const [isSidebarVisible, setIsSidebarVisible] = useState(false);
+    // Adjust auto scroll to newest message
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-    // Function to toggle sidebar visibility
-    const toggleSidebar = () => {
-        setIsSidebarVisible(!isSidebarVisible);
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+    }, [messages]);
+
+    // History Chat visibility
+    const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
+
+    const toggleHistoryChat = () => {
+        setIsHistoryChatVisible(!isHistoryChatVisible);
+    };
+
+    // New Chat
+    const handleNewChat = () => {
+        setSelectedChat(null);
+        setMessages([]);
+    };
+
+    // Selecting history chat
+    const handleSelectChat = (chat: string) => {
+        setSelectedChat(chat);
     };
 
     return (
         <Grid container sx={{ height: "100vh", display: "flex" }}>
             {/* Left Sidebar */}
-            {isSidebarVisible && (
+            {isHistoryChatVisible && (
                 <Grid
                     item
                     xs={2}
@@ -73,7 +84,7 @@ const QnAPage: React.FC = () => {
                 >
                     {/* First Box: History Chat Toggle Button */}
                     <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                        <IconButton onClick={toggleSidebar} sx={{ position: "absolute", left: 10, color: "white" }}>
+                        <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: "white" }}>
                             <FormatListBulletedIcon />
                         </IconButton>
                         <Typography variant="h6" sx={{ color: "white" }}>
@@ -91,7 +102,7 @@ const QnAPage: React.FC = () => {
             {/* Right Content*/}
             <Grid
                 item
-                xs={isSidebarVisible ? 10 : 12}
+                xs={isHistoryChatVisible ? 10 : 12}
                 sx={{
                     display: "flex",
                     height: "100vh",
@@ -104,13 +115,13 @@ const QnAPage: React.FC = () => {
 
                         {/* Left Section: LexMedica App Name */}
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            {!isSidebarVisible && (
-                                <IconButton onClick={toggleSidebar} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
+                            {!isHistoryChatVisible && (
+                                <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
                                     <FormatListBulletedIcon />
                                 </IconButton>
                             )}
 
-                            <Typography fontWeight="bold" variant="h5" sx={{ ml: isSidebarVisible ? 0 : 5 }}>
+                            <Typography fontWeight="bold" variant="h5" sx={{ ml: isHistoryChatVisible ? 0 : 5 }}>
                                 LexMedica
                             </Typography>
                         </Box>
@@ -158,6 +169,7 @@ const QnAPage: React.FC = () => {
                     ) : (
                         <Box sx={{ width: '70%' }}>
                             <ChatMessages messages={messages} />
+                            <div ref={messagesEndRef} />
                         </Box>
                     )}
                 </Box>
