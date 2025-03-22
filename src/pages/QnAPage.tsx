@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from 'react-router-dom';
 
 // ** MUI Imports
-import { Box, createTheme, Grid, Typography, Button, IconButton, Toolbar } from "@mui/material";
+import { Box, Grid, Typography, Button, IconButton, Toolbar } from "@mui/material";
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
 // ** Components
@@ -26,7 +26,6 @@ const QnAPage: React.FC = () => {
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
-    const [isHistoryVisible, setIsHistoryVisible] = useState<boolean>(true);
 
     // Handling send message
     const handleSendMessage = (message: string) => {
@@ -177,7 +176,7 @@ const QnAPage: React.FC = () => {
                 {/* Fixed Chat Input */}
                 <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
                     <Box sx={{ width: '80%' }}>
-                        <ChatInput onSendMessage={handleSendMessage} onHeightChange={setInputHeight} />
+                        <ChatInput onNewChat={handleNewChat} onSendMessage={handleSendMessage} onHeightChange={setInputHeight} />
                     </Box>
                 </Box>
             </Grid>

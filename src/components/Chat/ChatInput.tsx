@@ -1,24 +1,29 @@
+// ** React Imports
 import React, { useState, useEffect, useRef } from "react";
+
+// ** MUI Imports
 import { Box, TextField, IconButton, Tooltip } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import CreateIcon from '@mui/icons-material/Create';
 
 interface ChatInputProps {
+    onNewChat: () => void;
     onSendMessage: (message: string) => void;
     onHeightChange: (height: number) => void; // Callback to report height
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onHeightChange }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage, onHeightChange }) => {
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLDivElement>(null);
 
+    // Handle sending message
     const handleSend = () => {
         if (!input) return;  // Prevent sending empty messages
         onSendMessage(input); // Send the message with exact content
         setInput(""); // Clear input after sending
     };
 
-    // Handle key press
+    // enter key press
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault(); // Prevents new line
@@ -52,7 +57,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, onHeightChange }) 
                 <Tooltip title="Chat Baru" arrow>
                     <IconButton
                         color="secondary"
-                        onClick={() => window.scrollTo(0, 0)} // Handle the action
+                        onClick={onNewChat}
                         sx={{
                             justifyContent: 'center',
                             alignItems: 'center',
