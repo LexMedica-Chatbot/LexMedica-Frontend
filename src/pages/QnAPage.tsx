@@ -1,9 +1,17 @@
+// Desc: Main QnA page for LexMedica
 // ** React Imports
 import { useEffect, useRef, useState } from "react";
 import { Link } from 'react-router-dom';
 
 // ** MUI Imports
-import { Box, Grid, Typography, Button, IconButton, Toolbar } from "@mui/material";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
+
+// ** MUI Icons
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
 // ** Components

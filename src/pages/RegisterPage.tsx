@@ -1,14 +1,24 @@
+// Desc: Register page for LexMedica
+// ** React Imports
 import React, { useState } from "react";
-import { Box, TextField, Button, Typography, Grid, Alert, InputAdornment, IconButton, createTheme } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
 
+// ** MUI Imports
+import Alert from "@mui/material/Alert";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+
+// ** MUI Icons
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { themeOptions } from "../configs/themeOptions";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const RegisterPage = () => {
-    const theme = createTheme(themeOptions)
-
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -81,7 +91,7 @@ const RegisterPage = () => {
                 height: "100vh",
                 flexDirection: "column",
                 gap: 2,
-                backgroundColor: theme.palette.secondary.main, // Set a background color (can be theme-based)
+                bgcolor: 'secondary.main'
             }}
         >
             <Box

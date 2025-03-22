@@ -1,8 +1,14 @@
+// Desc: Chat input component for user to send messages to bot
 // ** React Imports
 import React, { useState, useEffect, useRef } from "react";
 
 // ** MUI Imports
-import { Box, TextField, IconButton, Tooltip } from "@mui/material";
+import Box from "@mui/material/Box";
+import IconButton from "@mui/material/IconButton";
+import TextField from "@mui/material/TextField";
+import Tooltip from "@mui/material/Tooltip";
+
+// ** MUI Icons
 import SendIcon from "@mui/icons-material/Send";
 import CreateIcon from '@mui/icons-material/Create';
 
@@ -31,7 +37,6 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage, onHeigh
         }
     };
 
-    // Report input height to Chat.tsx
     useEffect(() => {
         if (inputRef.current) {
             onHeightChange(inputRef.current.offsetHeight);

@@ -1,5 +1,16 @@
+// Desc: Chat messages component containing the bubble messages between user and bot
+// ** React Import
 import React from "react";
-import { Paper, List, ListItem, ListItemText, Box, Typography } from "@mui/material";
+
+// ** MUI Imports
+import Box from "@mui/material/Box";
+import List from "@mui/material/List";
+import ListItem from "@mui/material/ListItem";
+import ListItemText from "@mui/material/ListItemText";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+
+// ** MUI Icons
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface Message {
