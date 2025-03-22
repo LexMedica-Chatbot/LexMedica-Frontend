@@ -26,6 +26,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage }) => {
         if (!input) return;  // Prevent sending empty messages
         onSendMessage(input);
         setInput(""); // Clear input after sending
+        setTimeout(() => inputRef.current?.focus(), 100); // Auto-focus after state update
     };
 
     // Enter key press
