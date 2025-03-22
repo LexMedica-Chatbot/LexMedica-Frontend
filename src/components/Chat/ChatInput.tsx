@@ -1,6 +1,6 @@
 // Desc: Chat input component for user to send messages to bot
 // ** React Imports
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
@@ -15,21 +15,20 @@ import CreateIcon from '@mui/icons-material/Create';
 interface ChatInputProps {
     onNewChat: () => void;
     onSendMessage: (message: string) => void;
-    onHeightChange: (height: number) => void; // Callback to report height
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage, onHeightChange }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage }) => {
     const [input, setInput] = useState<string>("");
-    const inputRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
     // Handle sending message
     const handleSend = () => {
         if (!input) return;  // Prevent sending empty messages
-        onSendMessage(input); // Send the message with exact content
+        onSendMessage(input);
         setInput(""); // Clear input after sending
     };
 
-    // enter key press
+    // Enter key press
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault(); // Prevents new line
@@ -37,15 +36,15 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage, onHeigh
         }
     };
 
-    useEffect(() => {
-        if (inputRef.current) {
-            onHeightChange(inputRef.current.offsetHeight);
-        }
-    }, [input]);
+    // Handle new chat
+    const handleNewChat = () => {
+        onNewChat();
+        setInput(""); // Clear input
+        setTimeout(() => inputRef.current?.focus(), 100); // Auto-focus after state update
+    };
 
     return (
         <Box
-            ref={inputRef}
             sx={{
                 width: "100%",
                 bgcolor: "lightgray",
@@ -57,33 +56,33 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage, onHeigh
                 gap: 1,
             }}
         >
+            {/* New Chat Button */}
+            <Tooltip title="Chat Baru" arrow>
+                <IconButton
+                    color="secondary"
+                    onClick={handleNewChat}
+                    sx={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: '8px',
+                        alignSelf: "flex-start"
+                    }}
+                >
+                    <CreateIcon />
+                </IconButton>
+            </Tooltip>
 
-            <Box>
-                <Tooltip title="Chat Baru" arrow>
-                    <IconButton
-                        color="secondary"
-                        onClick={onNewChat}
-                        sx={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: '8px',
-                            alignSelf: "flex-start"
-                        }}
-                    >
-                        <CreateIcon />
-                    </IconButton>
-                </Tooltip>
-            </Box>
-
+            {/* Input Field */}
             <TextField
                 fullWidth
                 variant="outlined"
                 placeholder="Type a message..."
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown} // Updated to handle Enter properly
+                onKeyDown={handleKeyDown}
                 multiline
-                maxRows={7} // Expands up to 7 lines
+                maxRows={7}
+                inputRef={inputRef} // Attach ref to input
                 sx={{
                     border: "none",
                     flexGrow: 1,
@@ -92,21 +91,22 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage, onHeigh
                     },
                 }}
             />
-            <Box>
-                <Tooltip title="Kirim" arrow>
-                    <IconButton color="secondary"
-                        onClick={handleSend} // Handle the action
-                        sx={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: '8px',
-                            alignSelf: "flex-end"
-                        }}
-                    >
-                        <SendIcon />
-                    </IconButton>
-                </Tooltip>
-            </Box>
+
+            {/* Send Button */}
+            <Tooltip title="Kirim" arrow>
+                <IconButton
+                    color="secondary"
+                    onClick={handleSend}
+                    sx={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        borderRadius: '8px',
+                        alignSelf: "flex-end"
+                    }}
+                >
+                    <SendIcon />
+                </IconButton>
+            </Tooltip>
         </Box>
     );
 };

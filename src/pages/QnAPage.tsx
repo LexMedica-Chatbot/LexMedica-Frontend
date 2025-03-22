@@ -29,24 +29,44 @@ interface ChatHistory {
 }
 
 const QnAPage: React.FC = () => {
-
-    const [inputHeight, setInputHeight] = useState<number>(56);
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
 
-    // Handling send message
+    // Handling send message and chat history
+    const chatHistoryRef = useRef<HTMLDivElement | null>(null);
+
     const handleSendMessage = (message: string) => {
         const newMessage: Message = { text: message, sender: "user" };
         const aiResponse: Message = { text: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`, sender: "bot" };
 
-        setMessages((prev) => [...prev, newMessage, aiResponse]);
+        const updatedMessages = [...messages, newMessage, aiResponse];
+        setMessages(updatedMessages);
 
-        const newHistory: ChatHistory = {
-            title: message,
-            messages: [...messages, newMessage, aiResponse],
-        };
-        setChatHistory((prev) => [...prev, newHistory]);
+        setChatHistory((prev) => {
+            if (selectedChat) {
+                // Update existing chat session
+                return prev.map((chat) =>
+                    chat.title === selectedChat ? { ...chat, messages: updatedMessages } : chat
+                );
+            } else {
+                // Create new chat session if none selected
+                // trim title to max 20 characters and add "..." if longer
+                const trimmedTitle = message.trim().length > 20 ? message.trim().slice(0, 20) + " ..." : message.trim();
+                const newHistory: ChatHistory = { title: trimmedTitle, messages: updatedMessages };
+                return [newHistory, ...prev];
+            }
+        });
+
+        // If it's a new chat, set the title
+        if (!selectedChat) setSelectedChat(message);
+
+        // Scroll to top after adding new chat
+        setTimeout(() => {
+            if (chatHistoryRef.current) {
+                chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        }, 100);
     };
 
     // Adjust auto scroll to newest message
@@ -72,8 +92,12 @@ const QnAPage: React.FC = () => {
     };
 
     // Selecting history chat
-    const handleSelectChat = (chat: string) => {
-        setSelectedChat(chat);
+    const handleSelectChat = (chatTitle: string) => {
+        const selectedChatHistory = chatHistory.find((chat) => chat.title === chatTitle);
+        if (selectedChatHistory) {
+            setSelectedChat(chatTitle);
+            setMessages(selectedChatHistory.messages);
+        }
     };
 
     return (
@@ -84,6 +108,7 @@ const QnAPage: React.FC = () => {
                     item
                     xs={2}
                     sx={{
+                        height: "100vh",
                         bgcolor: 'secondary.dark',
                         display: "flex",
                         flexDirection: "column",
@@ -100,8 +125,40 @@ const QnAPage: React.FC = () => {
                     </Box>
 
                     {/* Third Box: History Chat List */}
-                    <Box sx={{ flex: 9, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        Third Box
+                    <Box
+                        ref={chatHistoryRef}
+                        sx={{
+                            flex: 9,
+                            display: "flex",
+                            flexDirection: "column",
+                            padding: 2,
+                            overflowY: "auto"
+                        }}>
+                        {chatHistory.length > 0 ? (
+                            chatHistory.map((chat, index) => (
+                                <Button
+                                    key={index}
+                                    fullWidth
+                                    variant={selectedChat === chat.title ? "contained" : "text"}
+                                    sx={{
+                                        marginBottom: 1,
+                                        justifyContent: "flex-start",
+                                        textTransform: "none",
+                                        backgroundColor: selectedChat === chat.title ? "primary.main" : "transparent",
+                                        color: selectedChat === chat.title ? "white" : "black",
+                                    }}
+                                    onClick={() => handleSelectChat(chat.title)}
+                                >
+                                    <Typography variant="body1" noWrap color="white">
+                                        {chat.title}
+                                    </Typography>
+                                </Button>
+                            ))
+                        ) : (
+                            <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
+                                Tidak ada riwayat chat
+                            </Typography>
+                        )}
                     </Box>
                 </Grid>
             )}
@@ -181,10 +238,10 @@ const QnAPage: React.FC = () => {
                     )}
                 </Box>
 
-                {/* Fixed Chat Input */}
+                {/* Fifth Box: Fixed Chat Input */}
                 <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
                     <Box sx={{ width: '80%' }}>
-                        <ChatInput onNewChat={handleNewChat} onSendMessage={handleSendMessage} onHeightChange={setInputHeight} />
+                        <ChatInput onNewChat={handleNewChat} onSendMessage={handleSendMessage} />
                     </Box>
                 </Box>
             </Grid>
