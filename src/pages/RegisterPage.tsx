@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+// ** Custom Hooks
+import { useAuth } from "../hooks/useAuth";
+
 // ** MUI Imports
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
@@ -21,65 +24,26 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 const RegisterPage = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [confirmPassword, setConfirmPassword] = useState<string>("");
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
-    const [success, setSuccess] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+
+    const { handleRegister, error, loading } = useAuth();
+    const [success, setSuccess] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    const handleRegister = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-        setSuccess(false);
-
-        // Simple validation
-        if (!email || !password || !confirmPassword) {
-            setError("Please fill in all fields.");
-            setLoading(false);
-            return;
-        }
-
         if (password !== confirmPassword) {
-            setError("Passwords do not match.");
-            setLoading(false);
+            alert("Passwords do not match");
             return;
         }
 
-        try {
-            // Simulate an API call for registration
-            const response = await fakeRegisterApiCall(email, password);
-            if (response.success) {
-                setSuccess(true);
-                // Simulate sending the verification email
-                setTimeout(() => {
-                    alert(`A verification link has been sent to ${email}. Please check your inbox.`);
-                    navigate("/login"); // Redirect to login page after registration
-                }, 1500);
-            } else {
-                setError("response.message");
-            }
-        } catch (error) {
-            setError("An error occurred. Please try again later.");
-        } finally {
-            setLoading(false);
+        const response = await handleRegister(email, password);
+        if (response) {
+            setSuccess(true);
+            setTimeout(() => navigate("/login"), 2000);
         }
-    };
-
-    // Simulate an API call (replace with actual API call)
-    const fakeRegisterApiCall = (email: string, password: string) => {
-        return new Promise<{ success: boolean; message?: string }>((resolve, reject) => {
-            setTimeout(() => {
-                // Simulate email validation
-                if (email === "test@example.com") {
-                    resolve({ success: false, message: "Email is already registered." });
-                } else {
-                    resolve({ success: true });
-                }
-            }, 1500);
-        });
     };
 
     return (
@@ -114,7 +78,7 @@ const RegisterPage = () => {
                 </Typography>
 
                 {/* Registration Form */}
-                <Box component="form" onSubmit={handleRegister} sx={{ width: "100%", maxWidth: 400 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 400 }}>
                     {/* Email input */}
                     <TextField
                         label="Email"
