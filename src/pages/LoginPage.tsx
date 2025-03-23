@@ -1,7 +1,8 @@
 // Desc: Login page for LexMedica
 // ** React Imports
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 // ** MUI Imports
 import Alert from "@mui/material/Alert";
@@ -21,48 +22,15 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 const LoginPage = () => {
     const [email, setEmail] = useState<string>("");
     const [password, setPassword] = useState<string>("");
-    const [error, setError] = useState<string | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
     const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const handleLogin = async (e: React.FormEvent) => {
+    const navigate = useNavigate();
+    const { handleLogin, error, loading } = useAuth();
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setLoading(true);
-        setError(null);
-
-        // Simple validation (for demo purposes)
-        if (!email || !password) {
-            setError("Silakan isi email dan password");
-            setLoading(false);
-            return;
-        }
-
-        try {
-            // Simulate an API call for login
-            const response = await fakeLoginApiCall(email, password);
-            if (!response.success) {
-                setError(response.message!);
-            }
-        } catch (error) {
-            setError("Terjadi kesalahan, mohon coba lagi dalam beberapa saat");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // Simulate an API call (replace with actual API call)
-    const fakeLoginApiCall = (email: string, password: string) => {
-        return new Promise<{ success: boolean; message?: string }>((resolve, reject) => {
-            setTimeout(() => {
-                if (email === "test@example.com" && password === "password123") {
-                    resolve({ success: true });
-                } else if (email !== "test@example.com") {
-                    resolve({ success: false, message: "Email belum terdaftar" });
-                } else {
-                    resolve({ success: false, message: "Password salah" });
-                }
-            }, 1500);
-        });
+        const response = await handleLogin(email, password);
+        if (response) navigate("/");
     };
 
     return (
@@ -99,7 +67,7 @@ const LoginPage = () => {
                 </Typography>
 
                 {/* Form */}
-                <Box component="form" onSubmit={handleLogin} sx={{ width: "100%", maxWidth: 400 }}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 400 }}>
                     {/* Email input */}
                     <TextField
                         label="Email"
