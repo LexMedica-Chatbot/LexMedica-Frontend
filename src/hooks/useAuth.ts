@@ -20,17 +20,19 @@ export const useAuth = () => {
   };
 
   const handleLogin = async (email: string, password: string) => {
-    setLoading(true);
-    setError(null);
     try {
       const response = await login(email, password);
-      localStorage.setItem("token", response.token); // Store token
+
+      // Store in local storage
+      localStorage.setItem("emailLexMedica", response.email);
+      localStorage.setItem("tokenLexMedica", response.token);
+      localStorage.setItem("refreshTokenLexMedica", response.refreshToken);
+
+      console.log("Login successful:", response.email);
       return response;
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
+    } catch (error) {
+      console.error("Login failed:", error);
       return null;
-    } finally {
-      setLoading(false);
     }
   };
 

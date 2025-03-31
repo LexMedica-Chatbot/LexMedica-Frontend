@@ -1,5 +1,3 @@
-// Desc: Main QnA page for LexMedica
-// ** React Imports
 import { useEffect, useRef, useState } from "react";
 import { Link } from 'react-router-dom';
 
@@ -32,8 +30,22 @@ const QnAPage: React.FC = () => {
     const [selectedChat, setSelectedChat] = useState<string | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
+    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [userEmail, setUserEmail] = useState<string | null>(null);
 
-    // Handling send message and chat history
+    useEffect(() => {
+        // Check if user is logged in (Token exists)
+        const token = localStorage.getItem("tokenLexMedica");
+        const email = localStorage.getItem("emailLexMedica");
+
+        if (token) {
+            setIsAuthenticated(true);
+            if (email) {
+                setUserEmail(email);
+            }
+        }
+    }, []);
+
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
     const handleSendMessage = (message: string) => {
@@ -45,23 +57,18 @@ const QnAPage: React.FC = () => {
 
         setChatHistory((prev) => {
             if (selectedChat) {
-                // Update existing chat session
                 return prev.map((chat) =>
                     chat.title === selectedChat ? { ...chat, messages: updatedMessages } : chat
                 );
             } else {
-                // Create new chat session if none selected
-                // trim title to max 20 characters and add "..." if longer
                 const trimmedTitle = message.trim().length > 20 ? message.trim().slice(0, 20) + " ..." : message.trim();
                 const newHistory: ChatHistory = { title: trimmedTitle, messages: updatedMessages };
                 return [newHistory, ...prev];
             }
         });
 
-        // If it's a new chat, set the title
         if (!selectedChat) setSelectedChat(message);
 
-        // Scroll to top after adding new chat
         setTimeout(() => {
             if (chatHistoryRef.current) {
                 chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
@@ -69,7 +76,6 @@ const QnAPage: React.FC = () => {
         }, 100);
     };
 
-    // Adjust auto scroll to newest message
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -78,20 +84,17 @@ const QnAPage: React.FC = () => {
         }
     }, [messages]);
 
-    // History Chat visibility
     const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
 
     const toggleHistoryChat = () => {
         setIsHistoryChatVisible(!isHistoryChatVisible);
     };
 
-    // New Chat
     const handleNewChat = () => {
         setSelectedChat(null);
         setMessages([]);
     };
 
-    // Selecting history chat
     const handleSelectChat = (chatTitle: string) => {
         const selectedChatHistory = chatHistory.find((chat) => chat.title === chatTitle);
         if (selectedChatHistory) {
@@ -100,10 +103,19 @@ const QnAPage: React.FC = () => {
         }
     };
 
+    const handleLogout = () => {
+        // Remove user data from local storage
+        localStorage.removeItem("tokenLexMedica");
+        localStorage.removeItem("emailLexMedica");
+
+        // Refresh the page to reflect changes
+        window.location.reload();
+    };
+
     return (
         <Grid container sx={{ height: "100vh", display: "flex" }}>
             {/* Left Sidebar */}
-            {isHistoryChatVisible && (
+            {isAuthenticated && isHistoryChatVisible && (
                 <Grid
                     item
                     xs={2}
@@ -179,12 +191,11 @@ const QnAPage: React.FC = () => {
 
                         {/* Left Section: LexMedica App Name */}
                         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            {!isHistoryChatVisible && (
+                            {isAuthenticated && !isHistoryChatVisible && (
                                 <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
                                     <FormatListBulletedIcon />
                                 </IconButton>
                             )}
-
                             <Typography fontWeight="bold" variant="h5" sx={{ ml: isHistoryChatVisible ? 0 : 5 }}>
                                 LexMedica
                             </Typography>
@@ -192,16 +203,27 @@ const QnAPage: React.FC = () => {
 
                         {/* Right Section: Account Buttons */}
                         <Box sx={{ display: "flex", gap: 2, marginLeft: "auto" }}>
-                            <Link to="/login" style={{ textDecoration: "none" }}>
-                                <Button variant="contained">
-                                    <Typography fontWeight="bold">Masuk</Typography>
-                                </Button>
-                            </Link>
-                            <Link to="/register" style={{ textDecoration: "none" }}>
-                                <Button variant="outlined" sx={{ border: "2px solid" }}>
-                                    <Typography fontWeight="bold">Daftar</Typography>
-                                </Button>
-                            </Link>
+                            {!isAuthenticated ? (
+                                <>
+                                    <Link to="/login" style={{ textDecoration: "none" }}>
+                                        <Button variant="contained">
+                                            <Typography fontWeight="bold">Masuk</Typography>
+                                        </Button>
+                                    </Link>
+                                    <Link to="/register" style={{ textDecoration: "none" }}>
+                                        <Button variant="outlined" sx={{ border: "2px solid" }}>
+                                            <Typography fontWeight="bold">Daftar</Typography>
+                                        </Button>
+                                    </Link>
+                                </>
+                            ) : (
+                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                    <Typography fontWeight="bold" variant="body2">{userEmail}</Typography>
+                                    <Button variant="contained" color="error" onClick={handleLogout}>
+                                        Logout
+                                    </Button>
+                                </Box>
+                            )}
                         </Box>
                     </Toolbar>
                 </Box>
@@ -245,7 +267,7 @@ const QnAPage: React.FC = () => {
                     </Box>
                 </Box>
             </Grid>
-        </Grid >
+        </Grid>
     );
 };
 
