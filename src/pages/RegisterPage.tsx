@@ -17,7 +17,7 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 
 // ** MUI Icons
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -27,6 +27,14 @@ const RegisterPage = () => {
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+
+    const [passwordValidations, setPasswordValidations] = useState({
+        length: false,
+        uppercase: false,
+        lowercase: false,
+        number: false,
+        specialChar: false,
+    });
 
     const { handleRegister, error, loading } = useAuth();
     const [success, setSuccess] = useState<boolean>(false);
@@ -46,6 +54,19 @@ const RegisterPage = () => {
         }
     };
 
+    const validatePassword = (pwd: string) => {
+        const validations = {
+            length: pwd.length >= 8,
+            uppercase: /[A-Z]/.test(pwd),
+            lowercase: /[a-z]/.test(pwd),
+            number: /[0-9]/.test(pwd),
+            specialChar: /[^A-Za-z0-9]/.test(pwd),
+        };
+        setPasswordValidations(validations);
+    };
+
+    const allValid = Object.values(passwordValidations).every((v) => v);
+
     return (
         <Box
             sx={{
@@ -55,7 +76,7 @@ const RegisterPage = () => {
                 height: "100vh",
                 flexDirection: "column",
                 gap: 2,
-                bgcolor: 'secondary.main'
+                bgcolor: "secondary.main",
             }}
         >
             <Box
@@ -87,8 +108,8 @@ const RegisterPage = () => {
                         margin="normal"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        error={!!error && !email}
-                        helperText={error && !email ? "Email is required" : ""}
+                        error={!email}
+                        helperText={!email ? "Email harus diisi" : ""}
                     />
 
                     {/* Password input */}
@@ -99,9 +120,13 @@ const RegisterPage = () => {
                         fullWidth
                         margin="normal"
                         value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        error={!!error && !password}
-                        helperText={error && !password ? "Password is required" : ""}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setPassword(value);
+                            validatePassword(value);
+                        }}
+                        error={!password}
+                        helperText={!password ? "Password harus diisi" : ""}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -117,7 +142,31 @@ const RegisterPage = () => {
                         }}
                     />
 
-                    {/* Confirm Password input */}
+                    {/* Password validation criteria */}
+                    <Box sx={{ mb: 1 }}>
+                        <Typography variant="subtitle2" gutterBottom>Password harus terdiri dari minimal:</Typography>
+                        {[
+                            { label: "8 karakter", valid: passwordValidations.length },
+                            { label: "1 huruf besar", valid: passwordValidations.uppercase },
+                            { label: "1 huruf kecil", valid: passwordValidations.lowercase },
+                            { label: "1 angka", valid: passwordValidations.number },
+                            { label: "1 simbol", valid: passwordValidations.specialChar },
+                        ].map((item, index) => (
+                            <Typography
+                                key={index}
+                                variant="body2"
+                                sx={{
+                                    color: item.valid ? "green" : "gray",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 1,
+                                }}
+                            >
+                                {item.valid ? "✅" : "❌"} {item.label}
+                            </Typography>
+                        ))}
+                    </Box>
+
                     <TextField
                         label="Confirm Password"
                         type={showConfirmPassword ? "text" : "password"}
@@ -126,8 +175,10 @@ const RegisterPage = () => {
                         margin="normal"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        error={!!error && confirmPassword !== password}
-                        helperText={error && confirmPassword !== password ? "Passwords do not match" : ""}
+                        error={confirmPassword !== password}
+                        helperText={
+                            confirmPassword !== password ? "Password tidak cocok" : ""
+                        }
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -151,7 +202,7 @@ const RegisterPage = () => {
                     )}
                     {success && (
                         <Alert severity="success" sx={{ marginBottom: 2 }}>
-                            Registration successful! Please check your email for the verification link.
+                            Registrasi berhasil! Silakan cek email untuk verifikasi (jika tidak ada, cek folder spam)
                         </Alert>
                     )}
 
@@ -160,10 +211,12 @@ const RegisterPage = () => {
                         variant="contained"
                         fullWidth
                         type="submit"
-                        disabled={loading || email === "" || password === "" || confirmPassword !== password}
+                        disabled={loading || email === "" || password === "" || confirmPassword !== password || !allValid}
                         sx={{ mt: 2 }}
                     >
-                        <Typography fontWeight={"bold"}> {loading ? "Loading" : "Daftar"} </Typography>
+                        <Typography fontWeight={"bold"}>
+                            {loading ? "Loading" : "Daftar"}
+                        </Typography>
                     </Button>
                 </Box>
 
@@ -181,12 +234,12 @@ const RegisterPage = () => {
 
                 <Grid container justifyContent="center">
                     <Grid item>
-                        <Link to={'/'} >
+                        <Link to={"/"}>
                             <Button
                                 variant="contained"
                                 sx={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
+                                    justifyContent: "center",
+                                    alignItems: "center",
                                     gap: 1,
                                 }}
                             >
