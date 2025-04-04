@@ -22,7 +22,12 @@ import ChatMessages from "../components/Chat/ChatMessages";
 import ChatInput from "../components/Chat/ChatInput";
 
 // ** API Imports
-import { getChatHistory, getChatMessages, createChatSession, sendChatMessage } from "../api/chat";
+import {
+    getChatHistory,
+    getChatMessages,
+    createChatSession,
+    sendChatMessage
+} from "../api/chat";
 
 interface Message {
     text: string;
@@ -30,6 +35,7 @@ interface Message {
 }
 
 interface ChatHistory {
+    id?: number;
     title: string;
     messages: Message[];
 }
@@ -91,26 +97,49 @@ const QnAPage: React.FC = () => {
     //     }
     // };
 
-    const handleSendMessage = (message: string) => {
+    const handleSendMessage = async (message: string) => {
+        const userId = localStorage.getItem("userIdLexMedica");
+        if (!userId) return;
+
         const newMessage: Message = { text: message, sender: "user" };
-        const aiResponse: Message = { text: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`, sender: "bot" };
+        const aiResponse: Message = {
+            text: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`,
+            sender: "bot",
+        };
 
         const updatedMessages = [...messages, newMessage, aiResponse];
-        setMessages(updatedMessages);
 
-        setChatHistory((prev) => {
-            if (selectedChat) {
-                return prev.map((chat) =>
+        // If there's already a selected chat, update that session
+        if (selectedChat) {
+            setMessages(updatedMessages);
+            setChatHistory((prev) =>
+                prev.map((chat) =>
                     chat.title === selectedChat ? { ...chat, messages: updatedMessages } : chat
-                );
-            } else {
-                const trimmedTitle = message.trim().length > 20 ? message.trim().slice(0, 20) + " ..." : message.trim();
-                const newHistory: ChatHistory = { title: trimmedTitle, messages: updatedMessages };
-                return [newHistory, ...prev];
-            }
-        });
+                )
+            );
+        } else {
+            // Create a new chat session via API
+            try {
+                const trimmedTitle =
+                    message.trim().length > 20
+                        ? message.trim().slice(0, 20) + " ..."
+                        : message.trim();
 
-        if (!selectedChat) setSelectedChat(message);
+                const newSession = await createChatSession(Number(userId), trimmedTitle);
+
+                const newHistory: ChatHistory = {
+                    id: newSession.id,
+                    title: newSession.title,
+                    messages: updatedMessages,
+                };
+
+                setMessages(updatedMessages);
+                setChatHistory((prev) => [newHistory, ...prev]);
+                setSelectedChat(newSession.title);
+            } catch (error) {
+                console.error("Failed to create chat session:", error);
+            }
+        }
 
         setTimeout(() => {
             if (chatHistoryRef.current) {
