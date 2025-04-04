@@ -14,7 +14,7 @@ import Typography from "@mui/material/Typography";
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
 interface Message {
-    text: string;
+    message: string;
     sender: "user" | "bot";
 }
 
@@ -24,8 +24,8 @@ interface ChatMessagesProps {
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
     // Function to convert newline characters into <br /> tags
-    const formatMessageText = (text: string) => {
-        return text.split("\n").map((line, index) => (
+    const formatMessageText = (message: string) => {
+        return message.split("\n").map((line, index) => (
             <span key={index}>
                 {line}
                 <br />
@@ -53,7 +53,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
                         }}
                     >
                         <ListItemText
-                            primary={formatMessageText(msg.text)} // Use the function to format text
+                            primary={formatMessageText(msg.message)} // Use the function to format message
                             sx={{
                                 wordWrap: "break-word", // Ensure word wrapping inside ListItemText
                             }}
@@ -67,7 +67,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
                                 </Box>
                                 <Box>
                                     <ListItemText
-                                        primary={formatMessageText("Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ....")} // Use the function to format text
+                                        primary={formatMessageText("Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ....")} // Use the function to format message
                                         sx={{
                                             wordWrap: "break-word", // Ensure word wrapping inside ListItemText
                                         }}

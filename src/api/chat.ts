@@ -11,7 +11,7 @@ interface ChatMessage {
   id: number;
   session_id: number;
   sender: "user" | "bot";
-  text: string;
+  message: string;
   created_at: string;
 }
 
@@ -20,16 +20,45 @@ interface ChatMessage {
  * @param userId The user ID.
  * @param title The title of the chat session.
  */
-export const createChatSession = async (userId: number, title: string): Promise<ChatSession> => {
-  const response = await httpClient.post<ChatSession>("/history/sessions", { user_id: userId, title });
+export const createChatSession = async (
+  userId: number,
+  title: string
+): Promise<ChatSession> => {
+  const response = await httpClient.post<ChatSession>("/history/session", {
+    user_id: userId,
+    title,
+  });
   return response.data;
 };
 
 /**
  * Fetch chat history (sessions) for the logged-in user.
  */
-export const getChatHistory = async (userId: number): Promise<ChatSession[]> => {
-  const response = await httpClient.get<ChatSession[]>("/history/sessions?user_id=" + userId);
+export const getChatSessions = async (
+  userId: number
+): Promise<ChatSession[]> => {
+  const response = await httpClient.get<ChatSession[]>(
+    "/history/session?user_id=" + userId
+  );
+  return response.data;
+};
+
+/**
+ * Send a new message to a chat session.
+ * @param sessionId The chat session ID.
+ * @param sender The sender type ("user" or "bot").
+ * @param message The message text.
+ */
+export const createChatMessage = async (
+  sessionId: number,
+  sender: "user" | "bot",
+  message: string
+): Promise<ChatMessage> => {
+  const response = await httpClient.post<ChatMessage>(`/history/message`, {
+    session_id: sessionId,
+    sender,
+    message,
+  });
   return response.data;
 };
 
@@ -37,21 +66,11 @@ export const getChatHistory = async (userId: number): Promise<ChatSession[]> => 
  * Fetch messages of a specific chat session.
  * @param sessionId The ID of the chat session.
  */
-export const getChatMessages = async (sessionId: number): Promise<ChatMessage[]> => {
-  const response = await httpClient.get<ChatMessage[]>(`/history/sessions/${sessionId}/messages`);
-  return response.data;
-};
-
-/**
- * Send a new message to a chat session.
- * @param sessionId The chat session ID.
- * @param text The message text.
- * @param sender The sender type ("user" or "bot").
- */
-export const sendChatMessage = async (sessionId: number, text: string, sender: "user" | "bot"): Promise<ChatMessage> => {
-  const response = await httpClient.post<ChatMessage>(`/history/sessions/${sessionId}/messages`, {
-    text,
-    sender
-  });
+export const getChatMessages = async (
+  sessionId: number
+): Promise<ChatMessage[]> => {
+  const response = await httpClient.get<ChatMessage[]>(
+    "/history/message?session_id=" + sessionId
+  );
   return response.data;
 };

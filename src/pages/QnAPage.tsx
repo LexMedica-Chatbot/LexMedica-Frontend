@@ -23,14 +23,14 @@ import ChatInput from "../components/Chat/ChatInput";
 
 // ** API Imports
 import {
-    getChatHistory,
-    getChatMessages,
     createChatSession,
-    sendChatMessage
+    getChatSessions,
+    createChatMessage,
+    getChatMessages,
 } from "../api/chat";
 
 interface Message {
-    text: string;
+    message: string;
     sender: "user" | "bot";
 }
 
@@ -41,7 +41,7 @@ interface ChatHistory {
 }
 
 const QnAPage: React.FC = () => {
-    const [selectedChat, setSelectedChat] = useState<string | null>(null);
+    const [selectedChat, setSelectedChat] = useState<number | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
@@ -68,12 +68,12 @@ const QnAPage: React.FC = () => {
 
     const fetchChatHistory = async (userId: number) => {
         try {
-            const data = await getChatHistory(userId);
-
+            const data = await getChatSessions(userId);
             setChatHistory(
                 data.map(chat => ({
+                    id: chat.id, // make sure to keep this!
                     title: chat.title,
-                    messages: []
+                    messages: [],
                 }))
             );
         } catch (error) {
@@ -81,44 +81,42 @@ const QnAPage: React.FC = () => {
         }
     };
 
-    // const handleSelectChat = async (chatTitle: string) => {
-    //     const session = chatHistory.find(chat => chat.title === chatTitle);
-    //     if (!session) return;
-
-    //     try {
-    //         const messages = await getChatMessages(session.id);
-    //         setSelectedChat(chatTitle);
-    //         setMessages(messages.map(msg => ({
-    //             text: msg.text,
-    //             sender: msg.sender
-    //         })));
-    //     } catch (error) {
-    //         console.error("Error fetching chat messages:", error);
-    //     }
-    // };
-
     const handleSendMessage = async (message: string) => {
         const userId = localStorage.getItem("userIdLexMedica");
         if (!userId) return;
 
-        const newMessage: Message = { text: message, sender: "user" };
-        const aiResponse: Message = {
-            text: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`,
+        const userMessage: Message = { message, sender: "user" };
+        const botReply: Message = {
+            message: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`,
             sender: "bot",
         };
 
-        const updatedMessages = [...messages, newMessage, aiResponse];
-
-        // If there's already a selected chat, update that session
+        // If there's already a selected chat
         if (selectedChat) {
-            setMessages(updatedMessages);
-            setChatHistory((prev) =>
-                prev.map((chat) =>
-                    chat.title === selectedChat ? { ...chat, messages: updatedMessages } : chat
-                )
-            );
+            const session = chatHistory.find((chat) => chat.id === selectedChat);
+            if (!session || !session.id) return;
+
+            try {
+                // Save user message to backend
+                await createChatMessage(session.id, "user", message);
+                // Save bot message to backend
+                await createChatMessage(session.id, "bot", botReply.message);
+
+                const updatedMessages = [...messages, userMessage, botReply];
+                setMessages(updatedMessages);
+
+                setChatHistory((prev) =>
+                    prev.map((chat) =>
+                        chat.id === selectedChat
+                            ? { ...chat, messages: updatedMessages }
+                            : chat
+                    )
+                );
+            } catch (error) {
+                console.error("Error saving messages:", error);
+            }
         } else {
-            // Create a new chat session via API
+            // Create a new chat session
             try {
                 const trimmedTitle =
                     message.trim().length > 20
@@ -126,6 +124,12 @@ const QnAPage: React.FC = () => {
                         : message.trim();
 
                 const newSession = await createChatSession(Number(userId), trimmedTitle);
+
+                // Save user and bot messages to backend
+                await createChatMessage(newSession.id, "user", message);
+                await createChatMessage(newSession.id, "bot", botReply.message);
+
+                const updatedMessages = [userMessage, botReply];
 
                 const newHistory: ChatHistory = {
                     id: newSession.id,
@@ -135,9 +139,9 @@ const QnAPage: React.FC = () => {
 
                 setMessages(updatedMessages);
                 setChatHistory((prev) => [newHistory, ...prev]);
-                setSelectedChat(newSession.title);
+                setSelectedChat(newSession.id);
             } catch (error) {
-                console.error("Failed to create chat session:", error);
+                console.error("Failed to create chat session or messages:", error);
             }
         }
 
@@ -167,11 +171,21 @@ const QnAPage: React.FC = () => {
         setMessages([]);
     };
 
-    const handleSelectChat = (chatTitle: string) => {
-        const selectedChatHistory = chatHistory.find((chat) => chat.title === chatTitle);
-        if (selectedChatHistory) {
-            setSelectedChat(chatTitle);
-            setMessages(selectedChatHistory.messages);
+    const handleSelectChat = async (chatId: number) => {
+        const selectedChatHistory = chatHistory.find(chat => chat.id === chatId);
+        if (!selectedChatHistory || !selectedChatHistory.id) return;
+
+        try {
+            const fetchedMessages = await getChatMessages(chatId);
+            const formattedMessages = fetchedMessages.map(msg => ({
+                message: msg.message,
+                sender: msg.sender as "user" | "bot",
+            }));
+
+            setSelectedChat(chatId);
+            setMessages(formattedMessages);
+        } catch (error) {
+            console.error("Error fetching chat messages:", error);
         }
     };
 
@@ -264,16 +278,17 @@ const QnAPage: React.FC = () => {
                                 >
                                     <Button
                                         fullWidth
-                                        variant={selectedChat === chat.title ? "contained" : "text"}
+                                        variant={selectedChat === chat.id ? "contained" : "text"}
                                         sx={{
                                             marginBottom: 1,
                                             justifyContent: "flex-start",
                                             textTransform: "none",
-                                            backgroundColor: selectedChat === chat.title ? "primary.main" : "transparent",
-                                            color: selectedChat === chat.title ? "white" : "black",
+                                            backgroundColor: selectedChat === chat.id ? "primary.main" : "transparent",
+                                            color: selectedChat === chat.id ? "white" : "black",
                                         }}
-                                        onClick={() => handleSelectChat(chat.title)}
+                                        onClick={() => handleSelectChat(chat.id!)}
                                     >
+
                                         <Typography variant="body1" noWrap color="white">
                                             {chat.title}
                                         </Typography>
@@ -412,7 +427,7 @@ const QnAPage: React.FC = () => {
                             </Typography>
                         </Box>
                     ) : (
-                        <Box sx={{ width: '70%' }}>
+                        <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
                             <ChatMessages messages={messages} />
                             <div ref={messagesEndRef} />
                         </Box>
