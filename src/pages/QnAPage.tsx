@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, MouseEvent } from "react";
 import { Link } from 'react-router-dom';
 
 // ** MUI Imports
@@ -6,15 +6,23 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 // ** MUI Icons
+import DeleteIcon from '@mui/icons-material/Delete';
+import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 // ** Components
 import ChatMessages from "../components/Chat/ChatMessages";
 import ChatInput from "../components/Chat/ChatInput";
+
+// ** API Imports
+import { getChatHistory, getChatMessages, createChatSession, sendChatMessage } from "../api/chat";
 
 interface Message {
     text: string;
@@ -34,19 +42,54 @@ const QnAPage: React.FC = () => {
     const [userEmail, setUserEmail] = useState<string | null>(null);
 
     useEffect(() => {
-        // Check if user is logged in (Token exists)
-        const token = localStorage.getItem("tokenLexMedica");
-        const email = localStorage.getItem("emailLexMedica");
+        // Check if user is logged in
+        const userId = localStorage.getItem("userIdLexMedica");
+        const userEmail = localStorage.getItem("userEmailLexMedica");
+        const userToken = localStorage.getItem("userTokenLexMedica");
 
-        if (token) {
+        if (userId) {
+            fetchChatHistory(userId as unknown as number);
+        }
+        if (userEmail) {
+            setUserEmail(userEmail);
+        }
+        if (userToken) {
             setIsAuthenticated(true);
-            if (email) {
-                setUserEmail(email);
-            }
         }
     }, []);
 
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
+
+    const fetchChatHistory = async (userId: number) => {
+        try {
+            const data = await getChatHistory(userId);
+
+            setChatHistory(
+                data.map(chat => ({
+                    title: chat.title,
+                    messages: []
+                }))
+            );
+        } catch (error) {
+            console.error("Error fetching chat history:", error);
+        }
+    };
+
+    // const handleSelectChat = async (chatTitle: string) => {
+    //     const session = chatHistory.find(chat => chat.title === chatTitle);
+    //     if (!session) return;
+
+    //     try {
+    //         const messages = await getChatMessages(session.id);
+    //         setSelectedChat(chatTitle);
+    //         setMessages(messages.map(msg => ({
+    //             text: msg.text,
+    //             sender: msg.sender
+    //         })));
+    //     } catch (error) {
+    //         console.error("Error fetching chat messages:", error);
+    //     }
+    // };
 
     const handleSendMessage = (message: string) => {
         const newMessage: Message = { text: message, sender: "user" };
@@ -105,11 +148,44 @@ const QnAPage: React.FC = () => {
 
     const handleLogout = () => {
         // Remove user data from local storage
-        localStorage.removeItem("tokenLexMedica");
-        localStorage.removeItem("emailLexMedica");
+        localStorage.removeItem("userIdLexMedica");
+        localStorage.removeItem("userEmailLexMedica");
+        localStorage.removeItem("userTokenLexMedica");
+        localStorage.removeItem("userRefreshTokenLexMedica");
 
         // Refresh the page to reflect changes
         window.location.reload();
+    };
+
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+    const [activeChatIndex, setActiveChatIndex] = useState<number | null>(null);
+
+    const handleMoreClick = (
+        event: MouseEvent<HTMLElement>,
+        index: number
+    ) => {
+        event.stopPropagation(); // prevent triggering the chat select
+        setAnchorEl(event.currentTarget);
+        setActiveChatIndex(index);
+    };
+
+    const handleClose = () => {
+        setAnchorEl(null);
+        setActiveChatIndex(null);
+    };
+
+    const handleUpdate = () => {
+        if (activeChatIndex !== null) {
+            console.log("Update chat:", chatHistory[activeChatIndex]);
+        }
+        handleClose();
+    };
+
+    const handleDelete = () => {
+        if (activeChatIndex !== null) {
+            console.log("Delete chat:", chatHistory[activeChatIndex]);
+        }
+        handleClose();
     };
 
     return (
@@ -148,23 +224,76 @@ const QnAPage: React.FC = () => {
                         }}>
                         {chatHistory.length > 0 ? (
                             chatHistory.map((chat, index) => (
-                                <Button
+                                <Box
                                     key={index}
-                                    fullWidth
-                                    variant={selectedChat === chat.title ? "contained" : "text"}
                                     sx={{
-                                        marginBottom: 1,
-                                        justifyContent: "flex-start",
-                                        textTransform: "none",
-                                        backgroundColor: selectedChat === chat.title ? "primary.main" : "transparent",
-                                        color: selectedChat === chat.title ? "white" : "black",
+                                        position: "relative",
+                                        "&:hover .more-icon": {
+                                            visibility: "visible",
+                                        },
                                     }}
-                                    onClick={() => handleSelectChat(chat.title)}
                                 >
-                                    <Typography variant="body1" noWrap color="white">
-                                        {chat.title}
-                                    </Typography>
-                                </Button>
+                                    <Button
+                                        fullWidth
+                                        variant={selectedChat === chat.title ? "contained" : "text"}
+                                        sx={{
+                                            marginBottom: 1,
+                                            justifyContent: "flex-start",
+                                            textTransform: "none",
+                                            backgroundColor: selectedChat === chat.title ? "primary.main" : "transparent",
+                                            color: selectedChat === chat.title ? "white" : "black",
+                                        }}
+                                        onClick={() => handleSelectChat(chat.title)}
+                                    >
+                                        <Typography variant="body1" noWrap color="white">
+                                            {chat.title}
+                                        </Typography>
+
+                                        {/* More icon, shown on hover */}
+                                        <IconButton
+                                            size="small"
+                                            onClick={(e) => handleMoreClick(e, index)}
+                                            className="more-icon"
+                                            sx={{
+                                                position: "absolute",
+                                                right: 8,
+                                                top: "50%",
+                                                transform: "translateY(-50%)",
+                                                visibility: "hidden",
+                                                color: "white",
+                                            }}
+                                        >
+                                            <MoreHorizIcon />
+                                        </IconButton>
+                                    </Button>
+
+                                    {/* Menu for More options */}
+                                    <Menu
+                                        anchorEl={anchorEl}
+                                        open={Boolean(anchorEl)}
+                                        onClose={handleClose}
+                                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                                        transformOrigin={{ vertical: "top", horizontal: "right" }}
+                                        PaperProps={{
+                                            sx: {
+                                                backgroundColor: "lightgray",
+                                                borderRadius: 2,
+                                                px: 1,
+                                                boxShadow: 3,
+                                            },
+                                        }}
+                                    >
+                                        <MenuItem onClick={handleUpdate}>
+                                            <DriveFileRenameOutlineIcon sx={{ mr: 1 }} />
+                                            <Typography variant="body2">Rename</Typography>
+                                        </MenuItem>
+
+                                        <MenuItem onClick={handleDelete}>
+                                            <DeleteIcon sx={{ mr: 1, color: 'red' }} />
+                                            <Typography variant="body2" color="red">Delete</Typography>
+                                        </MenuItem>
+                                    </Menu>
+                                </Box>
                             ))
                         ) : (
                             <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
@@ -173,7 +302,8 @@ const QnAPage: React.FC = () => {
                         )}
                     </Box>
                 </Grid>
-            )}
+            )
+            }
 
             {/* Right Content*/}
             <Grid
@@ -267,7 +397,7 @@ const QnAPage: React.FC = () => {
                     </Box>
                 </Box>
             </Grid>
-        </Grid>
+        </Grid >
     );
 };
 

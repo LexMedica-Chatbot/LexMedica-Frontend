@@ -10,7 +10,7 @@ const httpClient = axios.create({
 
 // Add authentication token if available
 httpClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem("tokenLexMedica");
+  const token = localStorage.getItem("userTokenLexMedica");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

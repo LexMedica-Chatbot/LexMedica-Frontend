@@ -24,9 +24,10 @@ export const useAuth = () => {
       const response = await login(email, password);
 
       // Store in local storage
-      localStorage.setItem("emailLexMedica", response.email);
-      localStorage.setItem("tokenLexMedica", response.token);
-      localStorage.setItem("refreshTokenLexMedica", response.refreshToken);
+      localStorage.setItem("userIdLexMedica", response.id);
+      localStorage.setItem("userEmailLexMedica", response.email);
+      localStorage.setItem("userTokenLexMedica", response.token);
+      localStorage.setItem("userRefreshTokenLexMedica", response.refreshToken);
 
       console.log("Login successful:", response.email);
       return response;
