@@ -148,7 +148,7 @@ const RegisterPage = () => {
                     />
 
                     {/* Password validation criteria */}
-                    <Box sx={{ mb: 1 }}>
+                    <Box>
                         <Typography variant="subtitle2" gutterBottom>Password harus terdiri dari minimal:</Typography>
                         {[
                             { label: "8 karakter", valid: passwordValidations.length },
