@@ -28,6 +28,9 @@ const RegisterPage = () => {
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
+    const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     const [passwordValidations, setPasswordValidations] = useState({
         length: false,
         uppercase: false,
@@ -107,9 +110,13 @@ const RegisterPage = () => {
                         fullWidth
                         margin="normal"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={!email}
-                        helperText={!email ? "Email harus diisi" : ""}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setEmail(value);
+                            setIsEmailValid(emailRegex.test(value));
+                        }}
+                        error={!isEmailValid}
+                        helperText={!isEmailValid ? "Format email tidak valid" : ""}
                     />
 
                     {/* Password input */}
@@ -125,8 +132,6 @@ const RegisterPage = () => {
                             setPassword(value);
                             validatePassword(value);
                         }}
-                        error={!password}
-                        helperText={!password ? "Password harus diisi" : ""}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -211,8 +216,15 @@ const RegisterPage = () => {
                         variant="contained"
                         fullWidth
                         type="submit"
-                        disabled={loading || email === "" || password === "" || confirmPassword !== password || !allValid}
                         sx={{ mt: 2 }}
+                        disabled={
+                            loading ||
+                            email === "" ||
+                            !isEmailValid ||
+                            password === "" ||
+                            confirmPassword !== password ||
+                            !allValid
+                        }
                     >
                         <Typography fontWeight={"bold"}>
                             {loading ? "Loading" : "Daftar"}
