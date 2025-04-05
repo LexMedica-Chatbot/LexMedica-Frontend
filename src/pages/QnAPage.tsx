@@ -82,67 +82,64 @@ const QnAPage: React.FC = () => {
     };
 
     const handleSendMessage = async (message: string) => {
-        const userId = localStorage.getItem("userIdLexMedica");
-        if (!userId) return;
-
         const userMessage: Message = { message, sender: "user" };
         const botReply: Message = {
             message: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`,
             sender: "bot",
         };
 
-        // If there's already a selected chat
-        if (selectedChat) {
-            const session = chatHistory.find((chat) => chat.id === selectedChat);
-            if (!session || !session.id) return;
+        const updatedMessages = [...messages, userMessage, botReply];
 
-            try {
-                // Save user message to backend
-                await createChatMessage(session.id, "user", message);
-                // Save bot message to backend
-                await createChatMessage(session.id, "bot", botReply.message);
+        if (isAuthenticated) {
+            const userId = localStorage.getItem("userIdLexMedica");
+            if (!userId) return;
 
-                const updatedMessages = [...messages, userMessage, botReply];
-                setMessages(updatedMessages);
+            if (selectedChat) {
+                const session = chatHistory.find((chat) => chat.id === selectedChat);
+                if (!session || !session.id) return;
 
-                setChatHistory((prev) =>
-                    prev.map((chat) =>
-                        chat.id === selectedChat
-                            ? { ...chat, messages: updatedMessages }
-                            : chat
-                    )
-                );
-            } catch (error) {
-                console.error("Error saving messages:", error);
+                try {
+                    await createChatMessage(session.id, "user", message);
+                    await createChatMessage(session.id, "bot", botReply.message);
+
+                    setMessages(updatedMessages);
+                    setChatHistory((prev) =>
+                        prev.map((chat) =>
+                            chat.id === selectedChat
+                                ? { ...chat, messages: updatedMessages }
+                                : chat
+                        )
+                    );
+                } catch (error) {
+                    console.error("Error saving messages:", error);
+                }
+            } else {
+                try {
+                    const trimmedTitle =
+                        message.trim().length > 20
+                            ? message.trim().slice(0, 20) + " ..."
+                            : message.trim();
+
+                    const newSession = await createChatSession(Number(userId), trimmedTitle);
+                    await createChatMessage(newSession.id, "user", message);
+                    await createChatMessage(newSession.id, "bot", botReply.message);
+
+                    const newHistory: ChatHistory = {
+                        id: newSession.id,
+                        title: newSession.title,
+                        messages: updatedMessages,
+                    };
+
+                    setMessages(updatedMessages);
+                    setChatHistory((prev) => [newHistory, ...prev]);
+                    setSelectedChat(newSession.id);
+                } catch (error) {
+                    console.error("Failed to create chat session or messages:", error);
+                }
             }
         } else {
-            // Create a new chat session
-            try {
-                const trimmedTitle =
-                    message.trim().length > 20
-                        ? message.trim().slice(0, 20) + " ..."
-                        : message.trim();
-
-                const newSession = await createChatSession(Number(userId), trimmedTitle);
-
-                // Save user and bot messages to backend
-                await createChatMessage(newSession.id, "user", message);
-                await createChatMessage(newSession.id, "bot", botReply.message);
-
-                const updatedMessages = [userMessage, botReply];
-
-                const newHistory: ChatHistory = {
-                    id: newSession.id,
-                    title: newSession.title,
-                    messages: updatedMessages,
-                };
-
-                setMessages(updatedMessages);
-                setChatHistory((prev) => [newHistory, ...prev]);
-                setSelectedChat(newSession.id);
-            } catch (error) {
-                console.error("Failed to create chat session or messages:", error);
-            }
+            // For unauthenticated users: just update the local state
+            setMessages(updatedMessages);
         }
 
         setTimeout(() => {
