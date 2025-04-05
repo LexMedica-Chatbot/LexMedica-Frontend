@@ -10,6 +10,10 @@ import { useAuth } from "../hooks/useAuth";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogActions from "@mui/material/DialogActions";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -22,15 +26,15 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const RegisterPage = () => {
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [confirmPassword, setConfirmPassword] = useState<string>("");
-    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+    const navigate = useNavigate();
+    const { handleRegister, error, loading } = useAuth();
 
+    const [email, setEmail] = useState<string>("");
     const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+    const [password, setPassword] = useState<string>("");
+    const [showPassword, setShowPassword] = useState<boolean>(false);
     const [passwordValidations, setPasswordValidations] = useState({
         length: false,
         uppercase: false,
@@ -38,24 +42,13 @@ const RegisterPage = () => {
         number: false,
         specialChar: false,
     });
+    const isValidPassword = Object.values(passwordValidations).every((v) => v);
 
-    const { handleRegister, error, loading } = useAuth();
-    const [success, setSuccess] = useState<boolean>(false);
-    const navigate = useNavigate();
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState<boolean>(true);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (password !== confirmPassword) {
-            alert("Passwords do not match");
-            return;
-        }
-
-        const response = await handleRegister(email, password);
-        if (response) {
-            setSuccess(true);
-            setTimeout(() => navigate("/login"), 2000);
-        }
-    };
+    const [successRegistration, setSuccessRegistration] = useState<boolean>(false);
 
     const validatePassword = (pwd: string) => {
         const validations = {
@@ -68,7 +61,22 @@ const RegisterPage = () => {
         setPasswordValidations(validations);
     };
 
-    const allValid = Object.values(passwordValidations).every((v) => v);
+    const validateConfirmPassword = (confirmPwd: string) => {
+        setIsConfirmPasswordValid(confirmPwd === password);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (password !== confirmPassword) {
+            alert("Passwords do not match");
+            return;
+        }
+
+        const response = await handleRegister(email, password);
+        if (response) {
+            setSuccessRegistration(true);
+        }
+    };
 
     return (
         <Box
@@ -78,7 +86,6 @@ const RegisterPage = () => {
                 alignItems: "center",
                 height: "100vh",
                 flexDirection: "column",
-                gap: 2,
                 bgcolor: "secondary.main",
             }}
         >
@@ -88,21 +95,19 @@ const RegisterPage = () => {
                     justifyContent: "center",
                     alignItems: "center",
                     flexDirection: "column",
-                    gap: 2,
-                    width: "100%",
-                    maxWidth: 400,
                     backgroundColor: "white",
-                    padding: 4,
+                    px: 4,
+                    py: 3,
                     borderRadius: 2,
                     boxShadow: 2,
                 }}
             >
-                <Typography variant="h4" gutterBottom>
+                <Typography variant="h5" gutterBottom>
                     Daftar Akun LexMedica
                 </Typography>
 
                 {/* Registration Form */}
-                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 400 }}>
+                <Box component="form" onSubmit={handleSubmit}>
                     {/* Email input */}
                     <TextField
                         label="Email"
@@ -179,10 +184,14 @@ const RegisterPage = () => {
                         fullWidth
                         margin="normal"
                         value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)}
-                        error={confirmPassword !== password}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setConfirmPassword(value);
+                            validateConfirmPassword(value);
+                        }}
+                        error={!isConfirmPasswordValid}
                         helperText={
-                            confirmPassword !== password ? "Password tidak cocok" : ""
+                            !isConfirmPasswordValid ? "Password tidak cocok" : ""
                         }
                         InputProps={{
                             endAdornment: (
@@ -205,10 +214,25 @@ const RegisterPage = () => {
                             {error}
                         </Alert>
                     )}
-                    {success && (
-                        <Alert severity="success" sx={{ marginBottom: 2 }}>
-                            Registrasi berhasil! Silakan cek email untuk verifikasi (jika tidak ada, cek folder spam)
-                        </Alert>
+                    {successRegistration && (
+                        <Dialog
+                            open={successRegistration}
+                            onClose={() => { }}
+                            disableEscapeKeyDown
+                            BackdropProps={{ onClick: () => { } }}
+                        >
+                            <DialogTitle>Registrasi Berhasil</DialogTitle>
+                            <DialogContent>
+                                <Typography>
+                                    Silakan cek email untuk verifikasi akun Anda. Jika tidak menemukan email, periksa folder spam.
+                                </Typography>
+                            </DialogContent>
+                            <DialogActions sx={{ p: 2 }}>
+                                <Button onClick={() => navigate("/login")} variant="contained" autoFocus>
+                                    Login
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                     )}
 
                     {/* Submit button */}
@@ -216,14 +240,15 @@ const RegisterPage = () => {
                         variant="contained"
                         fullWidth
                         type="submit"
-                        sx={{ mt: 2 }}
+                        sx={{ mt: 1 }}
                         disabled={
                             loading ||
                             email === "" ||
                             !isEmailValid ||
                             password === "" ||
-                            confirmPassword !== password ||
-                            !allValid
+                            !isValidPassword ||
+                            confirmPassword === "" ||
+                            !isConfirmPasswordValid
                         }
                     >
                         <Typography fontWeight={"bold"}>
@@ -233,7 +258,7 @@ const RegisterPage = () => {
                 </Box>
 
                 {/* Link to Login */}
-                <Grid container justifyContent="center" sx={{ marginTop: 2 }}>
+                <Grid container justifyContent="center" sx={{ mt: 1 }}>
                     <Grid item>
                         <Typography variant="body1">
                             Sudah punya akun?{" "}
@@ -250,6 +275,7 @@ const RegisterPage = () => {
                             <Button
                                 variant="contained"
                                 sx={{
+                                    mt: 1,
                                     justifyContent: "center",
                                     alignItems: "center",
                                     gap: 1,

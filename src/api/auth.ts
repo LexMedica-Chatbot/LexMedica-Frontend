@@ -29,3 +29,19 @@ export const login = async (
   });
   return response.data;
 };
+
+export const verifyEmail = async (
+  token: string
+): Promise<{ message: string }> => {
+  const response = await httpClient.get(`/auth/verify_email?token=${token}`);
+  return response.data;
+};
+
+export const resendVerificationEmail = async (
+  email: string
+): Promise<{ message: string }> => {
+  const response = await httpClient.post("/auth/resend_email_verification", {
+    email,
+  });
+  return response.data;
+};

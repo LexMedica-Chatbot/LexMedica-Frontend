@@ -322,7 +322,6 @@ const QnAPage: React.FC = () => {
                                             sx: {
                                                 backgroundColor: "lightgray",
                                                 borderRadius: 2,
-                                                px: 1,
                                                 boxShadow: 3,
                                             },
                                         }}

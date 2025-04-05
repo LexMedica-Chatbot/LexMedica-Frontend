@@ -20,12 +20,15 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const LoginPage = () => {
-    const [email, setEmail] = useState<string>("");
-    const [password, setPassword] = useState<string>("");
-    const [showPassword, setShowPassword] = useState<boolean>(false);
-
     const navigate = useNavigate();
     const { handleLogin, error, loading } = useAuth();
+
+    const [email, setEmail] = useState<string>("");
+    const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const [password, setPassword] = useState<string>("");
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -41,7 +44,7 @@ const LoginPage = () => {
                 alignItems: "center",
                 height: "100vh",
                 flexDirection: "column",
-                gap: 2,
+                gap: 1,
                 bgcolor: 'secondary.main'
             }}
         >
@@ -51,9 +54,7 @@ const LoginPage = () => {
                     justifyContent: "center",
                     alignItems: "center",
                     flexDirection: "column",
-                    gap: 2,
-                    width: "100%",
-                    maxWidth: 400,
+                    gap: 1,
                     backgroundColor: "white",
                     padding: 4,
                     borderRadius: 2,
@@ -62,12 +63,12 @@ const LoginPage = () => {
             >
 
                 {/* Custom title for LexMedica */}
-                <Typography variant="h4" gutterBottom>
+                <Typography variant="h5" gutterBottom>
                     Masuk ke LexMedica
                 </Typography>
 
                 {/* Form */}
-                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 400 }}>
+                <Box component="form" onSubmit={handleSubmit}>
                     {/* Email input */}
                     <TextField
                         label="Email"
@@ -75,9 +76,13 @@ const LoginPage = () => {
                         fullWidth
                         margin="normal"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        error={!!error && !email}
-                        helperText={error && !email ? "Email harus diisi" : ""}
+                        onChange={(e) => {
+                            const value = e.target.value;
+                            setEmail(value);
+                            setIsEmailValid(emailRegex.test(value));
+                        }}
+                        error={!isEmailValid}
+                        helperText={!isEmailValid ? "Format email tidak valid" : ""}
                     />
 
                     {/* Password input */}
@@ -89,8 +94,6 @@ const LoginPage = () => {
                         margin="normal"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        error={!!error && !password}
-                        helperText={error && !password ? "Password harus diisi" : ""}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
@@ -118,15 +121,19 @@ const LoginPage = () => {
                         variant="contained"
                         fullWidth
                         type="submit"
-                        disabled={loading || email === "" || password === ""}
-                        sx={{ mt: 2 }}
+                        disabled={
+                            loading ||
+                            email === "" ||
+                            !isEmailValid ||
+                            password === ""}
+                        sx={{ mt: 1 }}
                     >
                         <Typography fontWeight={"bold"}>{loading ? "Loading" : "Masuk"}</Typography>
                     </Button>
                 </Box>
 
                 {/* Link to Register */}
-                <Grid container justifyContent="center" sx={{ marginTop: 2 }}>
+                <Grid container justifyContent="center" sx={{ mt: 1 }}>
                     <Grid item>
                         <Typography variant="body1">
                             Belum punya akun?{" "}
