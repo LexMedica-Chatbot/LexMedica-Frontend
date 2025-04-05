@@ -11,6 +11,8 @@ import QnAPage from './pages/QnAPage'
 // ** Components
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 // ** MUI Imports
 import { ThemeProvider, createTheme } from '@mui/material/styles'
@@ -27,9 +29,10 @@ function App() {
         <Route path="/" element={<QnAPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        {/* <Route path="/not-found" element={<Layout> <NotFound /> </Layout>} />
+        <Route path="/verify-email" element={<VerifyEmailPage />} />
+        <Route path="/*" element={<NotFoundPage />} />
 
-      {/* Catch-all route for not-found */}
+        {/* Catch-all route for not-found */}
         {/* <Route path="*" element={<NotFoundPageHandler />} /> */}
       </Routes>
     </ThemeProvider>
