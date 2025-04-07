@@ -46,6 +46,7 @@ const QnAPage: React.FC = () => {
     const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [userEmail, setUserEmail] = useState<string | null>(null);
+    const [isBotResponding, setIsBotResponding] = useState(false);
 
     useEffect(() => {
         // Check if user is logged in
@@ -73,7 +74,7 @@ const QnAPage: React.FC = () => {
             // Reset after scroll to avoid side-effects
             setScrollBehavior("auto");
         }
-    }, [messages]);
+    }, [messages, scrollBehavior]);
 
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
@@ -93,6 +94,10 @@ const QnAPage: React.FC = () => {
     };
 
     const handleSendMessage = async (message: string) => {
+        if (!message.trim()) return;
+
+        setIsBotResponding(true);
+
         const userMessage: Message = { message, sender: "user" };
         const botReply: Message = {
             message: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`,
@@ -114,8 +119,6 @@ const QnAPage: React.FC = () => {
                     await createChatMessage(session.id, "bot", botReply.message);
 
                     setMessages(updatedMessages);
-
-                    // Update chat history with new messages
                     setChatHistory((prev) =>
                         prev.map((chat) =>
                             chat.id === selectedChat
@@ -160,7 +163,9 @@ const QnAPage: React.FC = () => {
             // For unauthenticated users: just update the local state
             setMessages(updatedMessages);
         }
+
         setScrollBehavior("smooth");
+        setIsBotResponding(false);
     };
 
     const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
@@ -440,7 +445,11 @@ const QnAPage: React.FC = () => {
                 {/* Fifth Box: Fixed Chat Input */}
                 <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
                     <Box sx={{ width: '80%' }}>
-                        <ChatInput onNewChat={handleNewChat} onSendMessage={handleSendMessage} />
+                        <ChatInput
+                            onNewChat={handleNewChat}
+                            onSendMessage={handleSendMessage}
+                            disabled={isBotResponding}
+                        />
                     </Box>
                 </Box>
             </Grid>

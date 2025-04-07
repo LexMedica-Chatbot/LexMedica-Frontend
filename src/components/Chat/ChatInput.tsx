@@ -13,11 +13,12 @@ import SendIcon from "@mui/icons-material/Send";
 import CreateIcon from '@mui/icons-material/Create';
 
 interface ChatInputProps {
+    disabled: boolean;
     onNewChat: () => void;
     onSendMessage: (message: string) => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessage }) => {
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
@@ -77,7 +78,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage }) => {
             <TextField
                 fullWidth
                 variant="outlined"
-                placeholder="Type a message..."
+                placeholder="Tuliskan pertanyaan seputar hukum kesehatan Indonesia..."
+                disabled={disabled}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -98,6 +100,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onNewChat, onSendMessage }) => {
                 <IconButton
                     color="secondary"
                     onClick={handleSend}
+                    disabled={disabled || !input.trim()}
                     sx={{
                         justifyContent: 'center',
                         alignItems: 'center',
