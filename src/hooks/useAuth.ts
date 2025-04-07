@@ -57,10 +57,10 @@ export const useAuth = () => {
           message = "Input tidak valid";
           break;
         case 401:
-          message = "Email atau password salah";
+          message = "Kredensial tidak valid, mohon periksa email dan password";
           break;
         case 403:
-          message = "Akun belum terverifikasi, cek email (atau folder spam)";
+          message = "Akun belum terverifikasi, mohon cek email (periksa folder spam)";
           break;
         case 404:
           message = "Akun belum terdaftar, silakan daftar terlebih dahulu";

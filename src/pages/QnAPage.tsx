@@ -64,6 +64,17 @@ const QnAPage: React.FC = () => {
         }
     }, []);
 
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const [scrollBehavior, setScrollBehavior] = useState<"auto" | "smooth">("auto");
+
+    useEffect(() => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: scrollBehavior });
+            // Reset after scroll to avoid side-effects
+            setScrollBehavior("auto");
+        }
+    }, [messages]);
+
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
     const fetchChatHistory = async (userId: number) => {
@@ -103,6 +114,8 @@ const QnAPage: React.FC = () => {
                     await createChatMessage(session.id, "bot", botReply.message);
 
                     setMessages(updatedMessages);
+
+                    // Update chat history with new messages
                     setChatHistory((prev) =>
                         prev.map((chat) =>
                             chat.id === selectedChat
@@ -133,6 +146,12 @@ const QnAPage: React.FC = () => {
                     setMessages(updatedMessages);
                     setChatHistory((prev) => [newHistory, ...prev]);
                     setSelectedChat(newSession.id);
+
+                    setTimeout(() => {
+                        if (chatHistoryRef.current) {
+                            chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                        }
+                    }, 100);
                 } catch (error) {
                     console.error("Failed to create chat session or messages:", error);
                 }
@@ -141,21 +160,8 @@ const QnAPage: React.FC = () => {
             // For unauthenticated users: just update the local state
             setMessages(updatedMessages);
         }
-
-        setTimeout(() => {
-            if (chatHistoryRef.current) {
-                chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
-            }
-        }, 100);
+        setScrollBehavior("smooth");
     };
-
-    const messagesEndRef = useRef<HTMLDivElement | null>(null);
-
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-        }
-    }, [messages]);
 
     const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
 
@@ -181,6 +187,7 @@ const QnAPage: React.FC = () => {
 
             setSelectedChat(chatId);
             setMessages(formattedMessages);
+            setScrollBehavior("auto");
         } catch (error) {
             console.error("Error fetching chat messages:", error);
         }

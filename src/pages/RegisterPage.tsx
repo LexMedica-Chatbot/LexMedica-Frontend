@@ -229,7 +229,7 @@ const RegisterPage = () => {
                             </DialogContent>
                             <DialogActions sx={{ p: 2 }}>
                                 <Button onClick={() => navigate("/login")} variant="contained" autoFocus>
-                                    Login
+                                    Masuk
                                 </Button>
                             </DialogActions>
                         </Dialog>
