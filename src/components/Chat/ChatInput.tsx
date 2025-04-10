@@ -78,7 +78,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessag
             <TextField
                 fullWidth
                 variant="outlined"
-                placeholder="Tuliskan pertanyaan seputar hukum kesehatan Indonesia..."
+                placeholder={disabled ? "Bot sedang menjawab..." : "Tulis pertanyaan hukum kesehatan Indonesia"}
                 disabled={disabled}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -87,7 +87,9 @@ const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessag
                 maxRows={7}
                 inputRef={inputRef} // Attach ref to input
                 sx={{
-                    border: "none",
+                    bgcolor: "white",
+                    borderRadius: 1,
+                    decoration: "none",
                     flexGrow: 1,
                     "& .MuiOutlinedInput-root": {
                         padding: "10px",

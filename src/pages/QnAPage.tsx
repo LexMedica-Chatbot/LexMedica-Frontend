@@ -25,6 +25,7 @@ import ChatInput from "../components/Chat/ChatInput";
 import {
     createChatSession,
     getChatSessions,
+    deleteChatSession,
     createChatMessage,
     getChatMessages,
     streamChatCompletion
@@ -89,6 +90,7 @@ const QnAPage: React.FC = () => {
                     messages: [],
                 }))
             );
+            console.log(data)
         } catch (error) {
             console.error("Error fetching chat history:", error);
         }
@@ -265,11 +267,19 @@ const QnAPage: React.FC = () => {
         handleClose();
     };
 
-    const handleDelete = () => {
-        if (activeChatIndex !== null) {
-            console.log("Delete chat:", chatHistory[activeChatIndex]);
+    const handleDelete = async (sessionId: number) => {
+        try {
+            const data = await deleteChatSession(sessionId);
+            if (data.message) {
+                setChatHistory((prev) => prev.filter((chat) => chat.id !== sessionId));
+                setSelectedChat(null);
+                setMessages([]);
+            }
+        } catch (error) {
+            console.error("Error delete chat history:", error);
+        } finally {
+            handleClose();
         }
-        handleClose();
     };
 
     return (
@@ -327,7 +337,9 @@ const QnAPage: React.FC = () => {
                                             backgroundColor: selectedChat === chat.id ? "primary.main" : "transparent",
                                             color: selectedChat === chat.id ? "white" : "black",
                                         }}
-                                        onClick={() => handleSelectChat(chat.id!)}
+                                        onClick={() => (
+                                            handleSelectChat(chat.id!)
+                                        )}
                                     >
 
                                         <Typography variant="body1" noWrap color="white">
@@ -351,32 +363,6 @@ const QnAPage: React.FC = () => {
                                             <MoreHorizIcon />
                                         </IconButton>
                                     </Button>
-
-                                    {/* Menu for More options */}
-                                    <Menu
-                                        anchorEl={anchorEl}
-                                        open={Boolean(anchorEl)}
-                                        onClose={handleClose}
-                                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                                        transformOrigin={{ vertical: "top", horizontal: "right" }}
-                                        PaperProps={{
-                                            sx: {
-                                                backgroundColor: "lightgray",
-                                                borderRadius: 2,
-                                                boxShadow: 3,
-                                            },
-                                        }}
-                                    >
-                                        <MenuItem onClick={handleUpdate}>
-                                            <DriveFileRenameOutlineIcon sx={{ mr: 1 }} />
-                                            <Typography variant="body2">Rename</Typography>
-                                        </MenuItem>
-
-                                        <MenuItem onClick={handleDelete}>
-                                            <DeleteIcon sx={{ mr: 1, color: 'red' }} />
-                                            <Typography variant="body2" color="red">Delete</Typography>
-                                        </MenuItem>
-                                    </Menu>
                                 </Box>
                             ))
                         ) : (
@@ -386,8 +372,34 @@ const QnAPage: React.FC = () => {
                         )}
                     </Box>
                 </Grid>
-            )
-            }
+            )}
+
+            {/* Menu for More options */}
+            <Menu
+                anchorEl={anchorEl}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                PaperProps={{
+                    sx: {
+                        backgroundColor: "lightgray",
+                        borderRadius: 2,
+                        boxShadow: 3,
+                    },
+                }}
+            >
+                <MenuItem onClick={handleUpdate}>
+                    <DriveFileRenameOutlineIcon sx={{ mr: 1 }} />
+                    <Typography variant="body2">Edit</Typography>
+                </MenuItem>
+
+                <MenuItem onClick={() => handleDelete(chatHistory[activeChatIndex!].id!)}>
+                    <DeleteIcon sx={{ mr: 1, color: 'red' }} />
+                    <Typography variant="body2" color="red">Hapus</Typography>
+                </MenuItem>
+            </Menu>
+
 
             {/* Right Content*/}
             <Grid

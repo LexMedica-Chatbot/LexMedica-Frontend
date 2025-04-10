@@ -43,6 +43,15 @@ export const getChatSessions = async (
   return response.data;
 };
 
+export const deleteChatSession = async (
+  sessionId: number
+): Promise<{ message: string }> => {
+  const response = await httpClient.delete<{ message: string }>(
+    `/history/session/${sessionId}`
+  );
+  return response.data;
+};
+
 /**
  * Send a new message to a chat session.
  * @param sessionId The chat session ID.
