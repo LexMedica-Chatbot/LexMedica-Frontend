@@ -90,7 +90,6 @@ const QnAPage: React.FC = () => {
                     messages: [],
                 }))
             );
-            console.log(data)
         } catch (error) {
             console.error("Error fetching chat history:", error);
         }
@@ -409,11 +408,6 @@ const QnAPage: React.FC = () => {
                     },
                 }}
             >
-                <MenuItem onClick={handleUpdate}>
-                    <DriveFileRenameOutlineIcon sx={{ mr: 1 }} />
-                    <Typography variant="body2">Edit</Typography>
-                </MenuItem>
-
                 <MenuItem onClick={() => handleDelete(chatHistory[activeChatIndex!].id!)}>
                     <DeleteIcon sx={{ mr: 1, color: 'red' }} />
                     <Typography variant="body2" color="red">Hapus</Typography>
