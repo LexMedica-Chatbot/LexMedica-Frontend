@@ -27,6 +27,7 @@ import {
     getChatSessions,
     createChatMessage,
     getChatMessages,
+    streamChatCompletion
 } from "../api/chat";
 
 interface Message {
@@ -93,79 +94,110 @@ const QnAPage: React.FC = () => {
         }
     };
 
+    const botReplyRef = useRef("");
+
     const handleSendMessage = async (message: string) => {
         if (!message.trim()) return;
 
+        const userMessage: Message = { message, sender: "user" };
+        setMessages((prev) => [...prev, userMessage]);
         setIsBotResponding(true);
 
-        const userMessage: Message = { message, sender: "user" };
-        const botReply: Message = {
-            message: `Berikut adalah jawaban dari pertanyaan dengan topik ${message} ....`,
-            sender: "bot",
-        };
+        botReplyRef.current = "";
 
-        const updatedMessages = [...messages, userMessage, botReply];
+        const newBotMessage: Message = { message: "", sender: "bot" };
+        setMessages((prev) => [...prev, newBotMessage]);
 
-        if (isAuthenticated) {
-            const userId = localStorage.getItem("userIdLexMedica");
-            if (!userId) return;
+        streamChatCompletion(
+            message,
+            (chunk) => {
+                botReplyRef.current += chunk;
 
-            if (selectedChat) {
-                const session = chatHistory.find((chat) => chat.id === selectedChat);
-                if (!session || !session.id) return;
+                setMessages((prev) => {
+                    const updated = [...prev];
+                    const lastIndex = updated.length - 1;
 
-                try {
-                    await createChatMessage(session.id, "user", message);
-                    await createChatMessage(session.id, "bot", botReply.message);
+                    if (updated[lastIndex].sender === "bot") {
+                        updated[lastIndex] = {
+                            ...updated[lastIndex],
+                            message: botReplyRef.current,
+                        };
+                    }
 
-                    setMessages(updatedMessages);
-                    setChatHistory((prev) =>
-                        prev.map((chat) =>
-                            chat.id === selectedChat
-                                ? { ...chat, messages: updatedMessages }
-                                : chat
-                        )
-                    );
-                } catch (error) {
-                    console.error("Error saving messages:", error);
-                }
-            } else {
-                try {
-                    const trimmedTitle =
-                        message.trim().length > 20
-                            ? message.trim().slice(0, 20) + " ..."
-                            : message.trim();
+                    return updated;
+                });
+            },
+            async () => {
+                setIsBotResponding(false);
 
-                    const newSession = await createChatSession(Number(userId), trimmedTitle);
-                    await createChatMessage(newSession.id, "user", message);
-                    await createChatMessage(newSession.id, "bot", botReply.message);
+                const finalMessages: Message[] = [
+                    ...messages,
+                    userMessage,
+                    { message: botReplyRef.current, sender: "bot" },
+                ];
 
-                    const newHistory: ChatHistory = {
-                        id: newSession.id,
-                        title: newSession.title,
-                        messages: updatedMessages,
-                    };
+                if (isAuthenticated) {
+                    const userId = localStorage.getItem("userIdLexMedica");
+                    if (!userId) return;
 
-                    setMessages(updatedMessages);
-                    setChatHistory((prev) => [newHistory, ...prev]);
-                    setSelectedChat(newSession.id);
+                    if (selectedChat) {
+                        const session = chatHistory.find((chat) => chat.id === selectedChat);
+                        if (!session || !session.id) return;
 
-                    setTimeout(() => {
-                        if (chatHistoryRef.current) {
-                            chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                        try {
+                            await createChatMessage(session.id, "user", message);
+                            await createChatMessage(session.id, "bot", botReplyRef.current);
+
+                            setChatHistory((prev) =>
+                                prev.map((chat) =>
+                                    chat.id === selectedChat
+                                        ? { ...chat, messages: finalMessages }
+                                        : chat
+                                )
+                            );
+                        } catch (error) {
+                            console.error("Error saving messages:", error);
                         }
-                    }, 100);
-                } catch (error) {
-                    console.error("Failed to create chat session or messages:", error);
-                }
-            }
-        } else {
-            // For unauthenticated users: just update the local state
-            setMessages(updatedMessages);
-        }
+                    } else {
+                        try {
+                            const trimmedTitle =
+                                message.trim().length > 20
+                                    ? message.trim().slice(0, 20) + " ..."
+                                    : message.trim();
 
-        setScrollBehavior("smooth");
-        setIsBotResponding(false);
+                            const newSession = await createChatSession(Number(userId), trimmedTitle);
+                            await createChatMessage(newSession.id, "user", message);
+                            await createChatMessage(newSession.id, "bot", botReplyRef.current);
+
+                            const newHistory: ChatHistory = {
+                                id: newSession.id,
+                                title: newSession.title,
+                                messages: finalMessages,
+                            };
+
+                            setChatHistory((prev) => [newHistory, ...prev]);
+                            setSelectedChat(newSession.id);
+
+                            setTimeout(() => {
+                                if (chatHistoryRef.current) {
+                                    chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                                }
+                            }, 100);
+                        } catch (error) {
+                            console.error("Failed to create chat session or messages:", error);
+                        }
+                    }
+                } else {
+                    setMessages(finalMessages);
+                }
+
+                setScrollBehavior("smooth");
+            },
+            (err) => {
+                console.error("Streaming error:", err);
+                setIsBotResponding(false);
+            }
+        );
     };
 
     const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
