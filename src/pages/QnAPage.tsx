@@ -97,9 +97,18 @@ const QnAPage: React.FC = () => {
     };
 
     const botReplyRef = useRef("");
+    const controllerRef = useRef<AbortController | null>(null);
 
     const handleSendMessage = async (message: string) => {
         if (!message.trim()) return;
+
+        // Abort previous request if still streaming
+        if (controllerRef.current) {
+            controllerRef.current.abort();
+        }
+
+        const controller = new AbortController();
+        controllerRef.current = controller;
 
         const userMessage: Message = { message, sender: "user" };
         setMessages((prev) => [...prev, userMessage]);
@@ -131,6 +140,7 @@ const QnAPage: React.FC = () => {
             },
             async () => {
                 setIsBotResponding(false);
+                controllerRef.current = null;
 
                 const finalMessages: Message[] = [
                     ...messages,
@@ -198,7 +208,9 @@ const QnAPage: React.FC = () => {
             (err) => {
                 console.error("Streaming error:", err);
                 setIsBotResponding(false);
-            }
+                controllerRef.current = null;
+            },
+            controller.signal
         );
     };
 
@@ -214,7 +226,13 @@ const QnAPage: React.FC = () => {
     };
 
     const handleSelectChat = async (chatId: number) => {
-        if (isBotResponding) return;
+        if (controllerRef.current) {
+            controllerRef.current.abort(); // stop ongoing response
+            controllerRef.current = null;
+        }
+
+        setIsBotResponding(false);
+
         const selectedChatHistory = chatHistory.find(chat => chat.id === chatId);
         if (!selectedChatHistory || !selectedChatHistory.id) return;
 
@@ -494,7 +512,9 @@ const QnAPage: React.FC = () => {
                         <ChatInput
                             onNewChat={handleNewChat}
                             onSendMessage={handleSendMessage}
-                            disabled={isBotResponding}
+                            isBotLoading={isBotResponding}
+                            setIsBotLoading={setIsBotResponding}
+                            controllerRef={controllerRef}
                         />
                     </Box>
                 </Box>

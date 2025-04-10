@@ -11,14 +11,17 @@ import Tooltip from "@mui/material/Tooltip";
 // ** MUI Icons
 import SendIcon from "@mui/icons-material/Send";
 import CreateIcon from '@mui/icons-material/Create';
+import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 interface ChatInputProps {
-    disabled: boolean;
+    isBotLoading: boolean;
+    setIsBotLoading: (state: boolean) => void;
     onNewChat: () => void;
     onSendMessage: (message: string) => void;
+    controllerRef: React.MutableRefObject<AbortController | null>;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessage }) => {
+const ChatInput: React.FC<ChatInputProps> = ({ isBotLoading, setIsBotLoading, onNewChat, onSendMessage, controllerRef }) => {
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
@@ -78,8 +81,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessag
             <TextField
                 fullWidth
                 variant="outlined"
-                placeholder={disabled ? "Bot sedang menjawab..." : "Tulis pertanyaan hukum kesehatan Indonesia"}
-                disabled={disabled}
+                placeholder={isBotLoading ? "Bot sedang menjawab..." : "Tulis pertanyaan hukum kesehatan Indonesia"}
+                disabled={isBotLoading}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -97,25 +100,53 @@ const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessag
                 }}
             />
 
-            {/* Send Button */}
-            <Tooltip title="Kirim" arrow>
-                <span>
-                    <IconButton
-                        color="secondary"
-                        onClick={handleSend}
-                        disabled={disabled || !input.trim()}
-                        sx={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            borderRadius: '8px',
-                            alignSelf: "flex-end"
-                        }}
-                    >
-                        <SendIcon />
-                    </IconButton>
-                </span>
-            </Tooltip>
-        </Box>
+            {isBotLoading ? (
+                <>
+                    {/* Send Button */}
+                    <Tooltip title="Stop" arrow>
+                        <span>
+                            <IconButton
+                                color="error"
+                                onClick={() => {
+                                    if (controllerRef.current) controllerRef.current.abort();
+                                    setIsBotLoading(false);
+                                    controllerRef.current = null;
+                                }}
+                                sx={{
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: '8px',
+                                    alignSelf: "flex-end"
+                                }}
+                            >
+                                <StopCircleIcon />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                </>
+            ) : (
+                <>
+                    {/* Send Button */}
+                    <Tooltip title="Kirim" arrow>
+                        <span>
+                            <IconButton
+                                color="secondary"
+                                onClick={handleSend}
+                                disabled={!input.trim()}
+                                sx={{
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: '8px',
+                                    alignSelf: "flex-end"
+                                }}
+                            >
+                                <SendIcon />
+                            </IconButton>
+                        </span>
+                    </Tooltip>
+                </>
+            )}
+        </Box >
     );
 };
 

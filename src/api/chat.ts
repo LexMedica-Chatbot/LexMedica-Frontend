@@ -88,7 +88,8 @@ export const streamChatCompletion = async (
   question: string,
   onChunk: (chunk: string) => void,
   onComplete: () => void,
-  onError: (err: any) => void
+  onError: (err: any) => void,
+  signal: AbortSignal
 ) => {
   try {
     const response = await fetch(
@@ -101,6 +102,7 @@ export const streamChatCompletion = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ question: question }),
+        signal,
       }
     );
 
@@ -148,7 +150,11 @@ export const streamChatCompletion = async (
 
     onComplete();
   } catch (err) {
-    console.error("Streaming error:", err);
-    onError(err);
+    if ((err as any).name === "AbortError") {
+      console.log("Fetch aborted by user");
+    } else {
+      console.error("Streaming error:", err);
+      onError(err);
+    }
   }
 };
