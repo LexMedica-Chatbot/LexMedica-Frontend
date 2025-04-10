@@ -30,10 +30,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/*" element={<NotFoundPage />} />
-
-        {/* Catch-all route for not-found */}
-        {/* <Route path="*" element={<NotFoundPageHandler />} /> */}
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ThemeProvider>
   );

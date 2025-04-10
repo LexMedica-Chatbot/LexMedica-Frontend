@@ -97,19 +97,21 @@ const ChatInput: React.FC<ChatInputProps> = ({ disabled, onNewChat, onSendMessag
 
             {/* Send Button */}
             <Tooltip title="Kirim" arrow>
-                <IconButton
-                    color="secondary"
-                    onClick={handleSend}
-                    disabled={disabled || !input.trim()}
-                    sx={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderRadius: '8px',
-                        alignSelf: "flex-end"
-                    }}
-                >
-                    <SendIcon />
-                </IconButton>
+                <span>
+                    <IconButton
+                        color="secondary"
+                        onClick={handleSend}
+                        disabled={disabled || !input.trim()}
+                        sx={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            borderRadius: '8px',
+                            alignSelf: "flex-end"
+                        }}
+                    >
+                        <SendIcon />
+                    </IconButton>
+                </span>
             </Tooltip>
         </Box>
     );

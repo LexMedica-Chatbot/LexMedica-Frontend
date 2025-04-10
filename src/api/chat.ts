@@ -38,7 +38,7 @@ export const getChatSessions = async (
   userId: number
 ): Promise<ChatSession[]> => {
   const response = await httpClient.get<ChatSession[]>(
-    "/history/session?user_id=" + userId
+    `/history/session/${userId}`
   );
   return response.data;
 };
@@ -70,7 +70,7 @@ export const getChatMessages = async (
   sessionId: number
 ): Promise<ChatMessage[]> => {
   const response = await httpClient.get<ChatMessage[]>(
-    "/history/message?session_id=" + sessionId
+    `/history/message/${sessionId}`
   );
   return response.data;
 };

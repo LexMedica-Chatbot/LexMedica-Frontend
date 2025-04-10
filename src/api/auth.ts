@@ -33,7 +33,7 @@ export const login = async (
 export const verifyEmail = async (
   token: string
 ): Promise<{ message: string }> => {
-  const response = await httpClient.get(`/auth/verify_email?token=${token}`);
+  const response = await httpClient.get(`/auth/verify_email/${token}`);
   return response.data;
 };
 
