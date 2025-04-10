@@ -214,6 +214,7 @@ const QnAPage: React.FC = () => {
     };
 
     const handleSelectChat = async (chatId: number) => {
+        if (isBotResponding) return;
         const selectedChatHistory = chatHistory.find(chat => chat.id === chatId);
         if (!selectedChatHistory || !selectedChatHistory.id) return;
 
@@ -250,6 +251,7 @@ const QnAPage: React.FC = () => {
         event: MouseEvent<HTMLElement>,
         index: number
     ) => {
+        if (isBotResponding) return;
         event.stopPropagation(); // prevent triggering the chat select
         setAnchorEl(event.currentTarget);
         setActiveChatIndex(index);
@@ -480,7 +482,7 @@ const QnAPage: React.FC = () => {
                         </Box>
                     ) : (
                         <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
-                            <ChatMessages messages={messages} />
+                            <ChatMessages messages={messages} isBotLoading={botReplyRef.current === "" && isBotResponding} />
                             <div ref={messagesEndRef} />
                         </Box>
                     )}

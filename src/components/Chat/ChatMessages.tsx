@@ -4,6 +4,7 @@ import React from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
@@ -20,9 +21,10 @@ interface Message {
 
 interface ChatMessagesProps {
     messages: Message[];
+    isBotLoading: boolean;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading }) => {
     // Function to convert newline characters into <br /> tags
     const formatMessageText = (message: string) => {
         return message.split("\n").map((line, index) => (
@@ -40,45 +42,63 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages }) => {
                     key={index}
                     sx={{ justifyContent: msg.sender === "user" ? "flex-end" : "flex-start" }}
                 >
-                    <Paper
-                        sx={{
-                            p: 1.5,
-                            borderRadius: 2,
-                            bgcolor: msg.sender === "user" ? "primary.main" : "grey.300",
-                            color: msg.sender === "user" ? "white" : "black",
-                            maxWidth: "85%",
-                            wordWrap: "break-word", // Ensure word wrapping
-                            overflow: "hidden", // Prevent overflow
-                            whiteSpace: "pre-wrap", // Ensures that whitespace and newlines are preserved
-                        }}
-                    >
-                        <ListItemText
-                            primary={formatMessageText(msg.message)} // Use the function to format message
+                    {isBotLoading && index === messages.length - 1 ? (
+                        <Paper
                             sx={{
-                                wordWrap: "break-word", // Ensure word wrapping inside ListItemText
+                                p: 1.5,
+                                borderRadius: 2,
+                                bgcolor: "grey.300",
+                                color: "black",
+                                maxWidth: "85%",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                             }}
-                        />
+                        >
+                            <CircularProgress size={24} sx={{ mr: 2 }} />
+                            <ListItemText
+                                primary={formatMessageText("Bot sedang memproses ...")}
+                                sx={{ wordWrap: "break-word" }}
+                            />
+                        </Paper>
+                    ) : (
+                        <Paper
+                            sx={{
+                                p: 1.5,
+                                borderRadius: 2,
+                                bgcolor: msg.sender === "user" ? "primary.main" : "grey.300",
+                                color: msg.sender === "user" ? "white" : "black",
+                                maxWidth: "85%",
+                                wordWrap: "break-word",
+                                overflow: "hidden",
+                                whiteSpace: "pre-wrap",
+                            }}
+                        >
+                            <ListItemText
+                                primary={formatMessageText(msg.message)}
+                                sx={{ wordWrap: "break-word" }}
+                            />
 
-                        {msg.sender === "bot" && (
-                            <Box sx={{ backgroundColor: "white", border: "1px solid", borderRadius: 2, padding: 1, marginTop: 1 }}>
-                                <Box display={"flex"} alignItems={"center"} gap={1}>
-                                    <ErrorOutlineIcon color="error" />
-                                    <Typography fontWeight={"bold"} variant={"h6"}> Terdapat potensi disharmoni regulasi </Typography>
+                            {msg.sender === "bot" && (
+                                <Box sx={{ backgroundColor: "white", border: "1px solid", borderRadius: 2, padding: 1, marginTop: 1 }}>
+                                    <Box display={"flex"} alignItems={"center"} gap={1}>
+                                        <ErrorOutlineIcon color="error" />
+                                        <Typography fontWeight={"bold"} variant={"h6"}> Terdapat potensi disharmoni regulasi </Typography>
+                                    </Box>
+                                    <Box>
+                                        <ListItemText
+                                            primary={formatMessageText("Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ....")}
+                                            sx={{ wordWrap: "break-word" }}
+                                        />
+                                    </Box>
                                 </Box>
-                                <Box>
-                                    <ListItemText
-                                        primary={formatMessageText("Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ....")} // Use the function to format message
-                                        sx={{
-                                            wordWrap: "break-word", // Ensure word wrapping inside ListItemText
-                                        }}
-                                    />
-                                </Box>
-                            </Box>
-                        )}
-                    </Paper>
+                            )}
+                        </Paper>
+                    )}
                 </ListItem>
             ))}
         </List>
+
     );
 };
 
