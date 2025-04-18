@@ -1,3 +1,4 @@
+// Desc: Default api client for LexMedica
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
 
 const httpClient = axios.create({

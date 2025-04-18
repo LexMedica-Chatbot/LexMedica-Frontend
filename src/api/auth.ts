@@ -1,3 +1,4 @@
+// Desc: Auth API functions for user registration, login, and email verification
 import httpClient from "./httpClient";
 
 interface AuthResponse {

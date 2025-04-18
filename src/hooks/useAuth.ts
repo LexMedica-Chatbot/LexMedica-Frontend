@@ -1,3 +1,4 @@
+// Desc: Authorization hook for LexMedica
 import { useState } from "react";
 import {
   register,
@@ -57,13 +58,13 @@ export const useAuth = () => {
           message = "Input tidak valid";
           break;
         case 401:
-          message = "Kredensial tidak valid, mohon periksa email dan password";
+          message = "Kredensial invalid, mohon periksa email dan password, pastikan telah terdaftar";
           break;
         case 403:
           message = "Akun belum terverifikasi, mohon cek email (periksa folder spam)";
           break;
         case 404:
-          message = "Akun belum terdaftar, silakan daftar terlebih dahulu";
+          message = "Kredensial invalid, mohon periksa email dan password, pastikan telah terdaftar";
           break;
         default:
           message = "Terjadi kesalahan server, coba lagi nanti";

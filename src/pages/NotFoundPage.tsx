@@ -1,6 +1,11 @@
-import React from "react";
-import { Button, Typography, Box } from "@mui/material";
+// Desc: Not Found Client page for LexMedica
+// ** React Imports
 import { useNavigate } from "react-router-dom";
+
+// ** MUI Imports
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
 const NotFoundPage = () => {
     const navigate = useNavigate();

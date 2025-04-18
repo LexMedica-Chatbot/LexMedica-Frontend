@@ -1,3 +1,4 @@
+// Desc: Chat API functions for managing chat sessions and messages
 import httpClient from "./httpClient";
 
 interface ChatSession {

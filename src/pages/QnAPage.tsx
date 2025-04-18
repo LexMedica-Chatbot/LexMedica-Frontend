@@ -1,3 +1,5 @@
+// Desc: QNA Page, contains chat history component
+// ** React Imports
 import { useEffect, useRef, useState, MouseEvent } from "react";
 import { Link } from 'react-router-dom';
 
@@ -13,7 +15,6 @@ import Typography from "@mui/material/Typography";
 
 // ** MUI Icons
 import DeleteIcon from '@mui/icons-material/Delete';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
@@ -279,13 +280,6 @@ const QnAPage: React.FC = () => {
         setActiveChatIndex(null);
     };
 
-    const handleUpdate = () => {
-        if (activeChatIndex !== null) {
-            console.log("Update chat:", chatHistory[activeChatIndex]);
-        }
-        handleClose();
-    };
-
     const handleDelete = async (sessionId: number) => {
         try {
             const data = await deleteChatSession(sessionId);
@@ -360,28 +354,25 @@ const QnAPage: React.FC = () => {
                                             handleSelectChat(chat.id!)
                                         )}
                                     >
-
                                         <Typography variant="body1" noWrap color="white">
                                             {chat.title}
                                         </Typography>
-
-                                        {/* More icon, shown on hover */}
-                                        <IconButton
-                                            size="small"
-                                            onClick={(e) => handleMoreClick(e, index)}
-                                            className="more-icon"
-                                            sx={{
-                                                position: "absolute",
-                                                right: 8,
-                                                top: "50%",
-                                                transform: "translateY(-50%)",
-                                                visibility: "hidden",
-                                                color: "white",
-                                            }}
-                                        >
-                                            <MoreHorizIcon />
-                                        </IconButton>
                                     </Button>
+
+                                    {/* More icon, shown on hover */}
+                                    <IconButton
+                                        size="small"
+                                        onClick={(e) => handleMoreClick(e, index)}
+                                        className="more-icon"
+                                        sx={{
+                                            position: "absolute",
+                                            right: 8,
+                                            visibility: "hidden",
+                                            color: "white",
+                                        }}
+                                    >
+                                        <MoreHorizIcon />
+                                    </IconButton>
                                 </Box>
                             ))
                         ) : (

@@ -1,3 +1,4 @@
+// Desc: Theme options for LexMedica Page
 import { ThemeOptions } from "@mui/material/styles";
 
 export const themeOptions: ThemeOptions = {

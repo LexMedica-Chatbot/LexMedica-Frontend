@@ -1,16 +1,20 @@
+// Desc: Email Verification page for LexMedica
+// ** React Imports
 import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+
+// ** Hooks
 import { useAuth } from "../hooks/useAuth";
-import {
-    Box,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-    Typography,
-    Button,
-    CircularProgress,
-} from "@mui/material";
+
+// ** MUI Imports
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import CircularProgress from "@mui/material/CircularProgress";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogTitle from "@mui/material/DialogTitle";
+import Typography from "@mui/material/Typography";
 
 const VerifyEmailPage = () => {
     const [searchParams] = useSearchParams();
@@ -33,7 +37,7 @@ const VerifyEmailPage = () => {
                 }
             });
         }
-    }, [token]);
+    }, [token, verifyEmail]);
 
     const handleResend = async () => {
         const res = await resendEmailVerification(email);
