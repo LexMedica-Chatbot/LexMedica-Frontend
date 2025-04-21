@@ -1,6 +1,7 @@
 // Desc: Chat messages component containing the bubble messages between user and bot
 // ** React Import
 import React from "react";
+import ReactMarkdown from "react-markdown";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
@@ -66,9 +67,17 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading, han
                                 whiteSpace: "pre-wrap",
                             }}
                         >
-                            <ListItemText
-                                primary={msg.message}
-                                sx={{ wordWrap: "break-word" }}
+                            <ReactMarkdown
+                                children={msg.message}
+                                components={{
+                                    p: ({ node, ...props }) => <Typography variant="body1" sx={{ mb: 1 }} {...props} />,
+                                    strong: ({ node, ...props }) => <strong style={{ fontWeight: 600 }} {...props} />,
+                                    em: ({ node, ...props }) => <em style={{ fontStyle: 'italic' }} {...props} />,
+                                    ul: ({ node, ...props }) => <ul style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }} {...props} />,
+                                    ol: ({ node, ...props }) => <ol style={{ paddingLeft: '1.5rem', marginBottom: '1rem' }} {...props} />,
+                                    li: ({ node, ...props }) => <li {...props} />,
+                                    code: ({ node, ...props }) => <code style={{ backgroundColor: '#f5f5f5', padding: '0.2rem 0.4rem', borderRadius: '4px' }} {...props} />
+                                }}
                             />
 
                             {msg.sender === "bot" && (

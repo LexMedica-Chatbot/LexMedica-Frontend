@@ -120,33 +120,7 @@ export const streamChatCompletion = async (
       if (done) break;
 
       const chunk = decoder.decode(value, { stream: true });
-
-      buffer += chunk;
-
-      // Break into SSE chunks
-      const lines = buffer.split("\n\n");
-      buffer = lines.pop() || ""; // hold last partial line
-
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          const data = line.replace("data: ", "");
-
-          if (data === "[DONE]") {
-            onComplete();
-            return;
-          }
-
-          try {
-            const parsed = JSON.parse(data);
-            const content = parsed.message?.content || "";
-            onChunk(content);
-          } catch (e) {
-            onChunk(data);
-          }
-        } else {
-          console.warn("Unexpected non-data line:", line);
-        }
-      }
+      onChunk(chunk);
     }
 
     onComplete();
