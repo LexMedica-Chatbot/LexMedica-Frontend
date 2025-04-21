@@ -4,6 +4,7 @@ import React from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -22,19 +23,10 @@ interface Message {
 interface ChatMessagesProps {
     messages: Message[];
     isBotLoading: boolean;
+    handleOpenViewer: (url: string) => void;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading }) => {
-    // Function to convert newline characters into <br /> tags
-    const formatMessageText = (message: string) => {
-        return message.split("\n").map((line, index) => (
-            <span key={index}>
-                {line}
-                <br />
-            </span>
-        ));
-    };
-
+const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading, handleOpenViewer }) => {
     return (
         <List>
             {messages.map((msg, index) => (
@@ -57,7 +49,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading }) =
                         >
                             <CircularProgress size={24} sx={{ mr: 2 }} />
                             <ListItemText
-                                primary={formatMessageText("Bot sedang memproses ...")}
+                                primary={"Bot sedang memproses ..."}
                                 sx={{ wordWrap: "break-word" }}
                             />
                         </Paper>
@@ -75,7 +67,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading }) =
                             }}
                         >
                             <ListItemText
-                                primary={formatMessageText(msg.message)}
+                                primary={msg.message}
                                 sx={{ wordWrap: "break-word" }}
                             />
 
@@ -87,9 +79,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading }) =
                                     </Box>
                                     <Box>
                                         <ListItemText
-                                            primary={formatMessageText("Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ....")}
+                                            primary={"Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ...."}
                                             sx={{ wordWrap: "break-word" }}
                                         />
+                                        <Button onClick={() => handleOpenViewer(`${process.env.REACT_APP_BACKEND_URL}/docs/UU Nomor 17 Tahun 2023.pdf`)}>
+                                            UU Nomor 73 Tahun 2023
+                                        </Button>
                                     </Box>
                                 </Box>
                             )}

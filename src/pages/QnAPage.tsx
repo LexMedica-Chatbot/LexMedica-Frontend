@@ -10,6 +10,7 @@ import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
+import Modal from "@mui/material/Modal";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
@@ -295,216 +296,258 @@ const QnAPage: React.FC = () => {
         }
     };
 
+    // Modal for view document
+    const [openViewer, setOpenViewer] = useState(false);
+    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+
+    const handleOpenViewer = (url: string) => {
+        setPdfUrl(url);
+        setOpenViewer(true);
+    };
+
+    const handleCloseViewer = () => {
+        setOpenViewer(false);
+        setPdfUrl(null);
+    };
+
     return (
-        <Grid container sx={{ height: "100vh", display: "flex" }}>
-            {/* Left Sidebar */}
-            {isAuthenticated && isHistoryChatVisible && (
+        <>
+            <Grid container sx={{ height: "100vh", display: "flex" }}>
+                {/* Left Sidebar */}
+                {isAuthenticated && isHistoryChatVisible && (
+                    <Grid
+                        item
+                        xs={2}
+                        sx={{
+                            height: "100vh",
+                            bgcolor: 'secondary.dark',
+                            display: "flex",
+                            flexDirection: "column",
+                        }}
+                    >
+                        {/* First Box: History Chat Toggle Button */}
+                        <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                            <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: "white" }}>
+                                <FormatListBulletedIcon />
+                            </IconButton>
+                            <Typography variant="h6" sx={{ color: "white" }}>
+                                Riwayat Chat
+                            </Typography>
+                        </Box>
+
+                        {/* Third Box: History Chat List */}
+                        <Box
+                            ref={chatHistoryRef}
+                            sx={{
+                                flex: 9,
+                                display: "flex",
+                                flexDirection: "column",
+                                padding: 2,
+                                overflowY: "auto"
+                            }}>
+                            {chatHistory.length > 0 ? (
+                                chatHistory.map((chat, index) => (
+                                    <Box
+                                        key={index}
+                                        sx={{
+                                            position: "relative",
+                                            "&:hover .more-icon": {
+                                                visibility: "visible",
+                                            },
+                                        }}
+                                    >
+                                        <Button
+                                            fullWidth
+                                            variant={selectedChat === chat.id ? "contained" : "text"}
+                                            sx={{
+                                                marginBottom: 1,
+                                                justifyContent: "flex-start",
+                                                textTransform: "none",
+                                                backgroundColor: selectedChat === chat.id ? "primary.main" : "transparent",
+                                                color: selectedChat === chat.id ? "white" : "black",
+                                            }}
+                                            onClick={() => (
+                                                handleSelectChat(chat.id!)
+                                            )}
+                                        >
+                                            <Typography variant="body1" noWrap color="white">
+                                                {chat.title}
+                                            </Typography>
+                                        </Button>
+
+                                        {/* More icon, shown on hover */}
+                                        <IconButton
+                                            size="small"
+                                            onClick={(e) => handleMoreClick(e, index)}
+                                            className="more-icon"
+                                            sx={{
+                                                position: "absolute",
+                                                right: 8,
+                                                visibility: "hidden",
+                                                color: "white",
+                                            }}
+                                        >
+                                            <MoreHorizIcon />
+                                        </IconButton>
+                                    </Box>
+                                ))
+                            ) : (
+                                <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
+                                    Tidak ada riwayat chat
+                                </Typography>
+                            )}
+                        </Box>
+                    </Grid>
+                )}
+
+                {/* Menu for More options */}
+                <Menu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    onClose={handleClose}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                    transformOrigin={{ vertical: "top", horizontal: "right" }}
+                    PaperProps={{
+                        sx: {
+                            backgroundColor: "lightgray",
+                            borderRadius: 2,
+                            boxShadow: 3,
+                        },
+                    }}
+                >
+                    <MenuItem onClick={() => handleDelete(chatHistory[activeChatIndex!].id!)}>
+                        <DeleteIcon sx={{ mr: 1, color: 'red' }} />
+                        <Typography variant="body2" color="red">Hapus</Typography>
+                    </MenuItem>
+                </Menu>
+
+                {/* Right Content*/}
                 <Grid
                     item
-                    xs={2}
+                    xs={isHistoryChatVisible ? 10 : 12}
                     sx={{
-                        height: "100vh",
-                        bgcolor: 'secondary.dark',
                         display: "flex",
+                        height: "100vh",
                         flexDirection: "column",
                     }}
                 >
-                    {/* First Box: History Chat Toggle Button */}
-                    <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                        <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: "white" }}>
-                            <FormatListBulletedIcon />
-                        </IconButton>
-                        <Typography variant="h6" sx={{ color: "white" }}>
-                            Riwayat Chat
-                        </Typography>
+                    {/* Second Box: Toolbar */}
+                    <Box sx={{ flex: 1, bgcolor: 'lightgray', display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                        <Toolbar sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "space-between", px: 2 }}>
+
+                            {/* Left Section: LexMedica App Name */}
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                {isAuthenticated && !isHistoryChatVisible && (
+                                    <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
+                                        <FormatListBulletedIcon />
+                                    </IconButton>
+                                )}
+                                <Typography fontWeight="bold" variant="h5" sx={{ ml: isHistoryChatVisible ? 0 : 5 }}>
+                                    LexMedica
+                                </Typography>
+                            </Box>
+
+                            {/* Right Section: Account Buttons */}
+                            <Box sx={{ display: "flex", gap: 2, marginLeft: "auto" }}>
+                                {!isAuthenticated ? (
+                                    <>
+                                        <Link to="/login" style={{ textDecoration: "none" }}>
+                                            <Button variant="contained">
+                                                <Typography fontWeight="bold">Masuk</Typography>
+                                            </Button>
+                                        </Link>
+                                        <Link to="/register" style={{ textDecoration: "none" }}>
+                                            <Button variant="outlined" sx={{ border: "2px solid" }}>
+                                                <Typography fontWeight="bold">Daftar</Typography>
+                                            </Button>
+                                        </Link>
+                                    </>
+                                ) : (
+                                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                                        <Typography fontWeight="bold" variant="body2">{userEmail}</Typography>
+                                        <Button variant="contained" color="error" onClick={handleLogout}>
+                                            Logout
+                                        </Button>
+                                    </Box>
+                                )}
+                            </Box>
+                        </Toolbar>
                     </Box>
 
-                    {/* Third Box: History Chat List */}
-                    <Box
-                        ref={chatHistoryRef}
-                        sx={{
-                            flex: 9,
-                            display: "flex",
-                            flexDirection: "column",
-                            padding: 2,
-                            overflowY: "auto"
-                        }}>
-                        {chatHistory.length > 0 ? (
-                            chatHistory.map((chat, index) => (
-                                <Box
-                                    key={index}
-                                    sx={{
-                                        position: "relative",
-                                        "&:hover .more-icon": {
-                                            visibility: "visible",
-                                        },
-                                    }}
-                                >
-                                    <Button
-                                        fullWidth
-                                        variant={selectedChat === chat.id ? "contained" : "text"}
-                                        sx={{
-                                            marginBottom: 1,
-                                            justifyContent: "flex-start",
-                                            textTransform: "none",
-                                            backgroundColor: selectedChat === chat.id ? "primary.main" : "transparent",
-                                            color: selectedChat === chat.id ? "white" : "black",
-                                        }}
-                                        onClick={() => (
-                                            handleSelectChat(chat.id!)
-                                        )}
-                                    >
-                                        <Typography variant="body1" noWrap color="white">
-                                            {chat.title}
-                                        </Typography>
-                                    </Button>
-
-                                    {/* More icon, shown on hover */}
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => handleMoreClick(e, index)}
-                                        className="more-icon"
-                                        sx={{
-                                            position: "absolute",
-                                            right: 8,
-                                            visibility: "hidden",
-                                            color: "white",
-                                        }}
-                                    >
-                                        <MoreHorizIcon />
-                                    </IconButton>
-                                </Box>
-                            ))
+                    {/* Fourth Box: Chat Messages */}
+                    <Box sx={{
+                        flex: 8.5,
+                        display: "flex",
+                        position: "relative",
+                        overflowY: "auto", // Only this box will be scrollable
+                        justifyContent: "center"
+                    }}>
+                        {messages.length === 0 ? (
+                            <Box
+                                sx={{
+                                    textAlign: "center",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <Typography variant="h5" color="white">
+                                    Selamat datang di LexMedica!
+                                </Typography>
+                                <Typography variant="body1" color="white">
+                                    Silakan masukkan pertanyaan seputar hukum kesehatan
+                                </Typography>
+                            </Box>
                         ) : (
-                            <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
-                                Tidak ada riwayat chat
-                            </Typography>
+                            <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
+                                <ChatMessages messages={messages} isBotLoading={botReplyRef.current === "" && isBotResponding} handleOpenViewer={handleOpenViewer} />
+                                <div ref={messagesEndRef} />
+                            </Box>
                         )}
                     </Box>
+
+                    {/* Fifth Box: Fixed Chat Input */}
+                    <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
+                        <Box sx={{ width: '80%' }}>
+                            <ChatInput
+                                onNewChat={handleNewChat}
+                                onSendMessage={handleSendMessage}
+                                isBotLoading={isBotResponding}
+                                setIsBotLoading={setIsBotResponding}
+                                controllerRef={controllerRef}
+                            />
+                        </Box>
+                    </Box>
                 </Grid>
-            )}
+            </Grid >
 
-            {/* Menu for More options */}
-            <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleClose}
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                transformOrigin={{ vertical: "top", horizontal: "right" }}
-                PaperProps={{
-                    sx: {
-                        backgroundColor: "lightgray",
-                        borderRadius: 2,
-                        boxShadow: 3,
-                    },
-                }}
-            >
-                <MenuItem onClick={() => handleDelete(chatHistory[activeChatIndex!].id!)}>
-                    <DeleteIcon sx={{ mr: 1, color: 'red' }} />
-                    <Typography variant="body2" color="red">Hapus</Typography>
-                </MenuItem>
-            </Menu>
-
-
-            {/* Right Content*/}
-            <Grid
-                item
-                xs={isHistoryChatVisible ? 10 : 12}
-                sx={{
-                    display: "flex",
-                    height: "100vh",
-                    flexDirection: "column",
-                }}
-            >
-                {/* Second Box: Toolbar */}
-                <Box sx={{ flex: 1, bgcolor: 'lightgray', display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                    <Toolbar sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "space-between", px: 2 }}>
-
-                        {/* Left Section: LexMedica App Name */}
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            {isAuthenticated && !isHistoryChatVisible && (
-                                <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
-                                    <FormatListBulletedIcon />
-                                </IconButton>
-                            )}
-                            <Typography fontWeight="bold" variant="h5" sx={{ ml: isHistoryChatVisible ? 0 : 5 }}>
-                                LexMedica
-                            </Typography>
-                        </Box>
-
-                        {/* Right Section: Account Buttons */}
-                        <Box sx={{ display: "flex", gap: 2, marginLeft: "auto" }}>
-                            {!isAuthenticated ? (
-                                <>
-                                    <Link to="/login" style={{ textDecoration: "none" }}>
-                                        <Button variant="contained">
-                                            <Typography fontWeight="bold">Masuk</Typography>
-                                        </Button>
-                                    </Link>
-                                    <Link to="/register" style={{ textDecoration: "none" }}>
-                                        <Button variant="outlined" sx={{ border: "2px solid" }}>
-                                            <Typography fontWeight="bold">Daftar</Typography>
-                                        </Button>
-                                    </Link>
-                                </>
-                            ) : (
-                                <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                    <Typography fontWeight="bold" variant="body2">{userEmail}</Typography>
-                                    <Button variant="contained" color="error" onClick={handleLogout}>
-                                        Logout
-                                    </Button>
-                                </Box>
-                            )}
-                        </Box>
-                    </Toolbar>
-                </Box>
-
-                {/* Fourth Box: Chat Messages */}
+            {/* Document Viewer Modal */}
+            <Modal open={openViewer} onClose={handleCloseViewer}>
                 <Box sx={{
-                    flex: 8.5,
-                    display: "flex",
-                    position: "relative",
-                    overflowY: "auto", // Only this box will be scrollable
-                    justifyContent: "center"
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '80%',
+                    height: '90%',
+                    bgcolor: 'background.paper',
+                    boxShadow: 24,
+                    p: 2,
+                    outline: 'none',
+                    borderRadius: 2
                 }}>
-                    {messages.length === 0 ? (
-                        <Box
-                            sx={{
-                                textAlign: "center",
-                                display: "flex",
-                                flexDirection: "column",
-                                justifyContent: "center",
-                            }}
-                        >
-                            <Typography variant="h5" color="white">
-                                Selamat datang di LexMedica!
-                            </Typography>
-                            <Typography variant="body1" color="white">
-                                Silakan masukkan pertanyaan seputar hukum kesehatan
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
-                            <ChatMessages messages={messages} isBotLoading={botReplyRef.current === "" && isBotResponding} />
-                            <div ref={messagesEndRef} />
-                        </Box>
+                    {pdfUrl && (
+                        <iframe
+                            src={pdfUrl}
+                            title="PDF Viewer"
+                            width="100%"
+                            height="100%"
+                            style={{ border: 'none' }}
+                        />
                     )}
                 </Box>
-
-                {/* Fifth Box: Fixed Chat Input */}
-                <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
-                    <Box sx={{ width: '80%' }}>
-                        <ChatInput
-                            onNewChat={handleNewChat}
-                            onSendMessage={handleSendMessage}
-                            isBotLoading={isBotResponding}
-                            setIsBotLoading={setIsBotResponding}
-                            controllerRef={controllerRef}
-                        />
-                    </Box>
-                </Box>
-            </Grid>
-        </Grid >
+            </Modal>
+        </>
     );
 };
 

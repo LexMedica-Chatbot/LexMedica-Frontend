@@ -129,7 +129,7 @@ export const streamChatCompletion = async (
 
       for (const line of lines) {
         if (line.startsWith("data: ")) {
-          const data = line.replace("data: ", "").trim();
+          const data = line.replace("data: ", "");
 
           if (data === "[DONE]") {
             onComplete();
