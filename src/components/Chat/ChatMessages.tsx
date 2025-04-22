@@ -1,4 +1,4 @@
-// Desc: Chat messages component containing the bubble messages between user and bot
+// Desc: Chat Messages component containing the bubble Messages between user and bot
 // ** React Import
 import React from "react";
 import ReactMarkdown from "react-markdown";
@@ -16,18 +16,16 @@ import Typography from "@mui/material/Typography";
 // ** MUI Icons
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 
-interface Message {
-    message: string;
-    sender: "user" | "bot";
-}
+// ** Types Import
+import { ChatMessage } from "../../types/Chat";
 
 interface ChatMessagesProps {
-    messages: Message[];
+    chatMessages: ChatMessage[];
     isBotLoading: boolean;
-    handleOpenViewer: (url: string) => void;
+    onOpenDocumentViewer: (url: string) => void;
 }
 
-const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading, handleOpenViewer }) => {
+const ChatMessages: React.FC<ChatMessagesProps> = ({ chatMessages, isBotLoading, onOpenDocumentViewer }) => {
     // Function to format markdown text
     const formatMarkdown = (text: string) => {
         // Remove extra newlines between list items (lines starting with a number or dash)
@@ -37,12 +35,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading, han
 
     return (
         <List>
-            {messages.map((msg, index) => (
+            {chatMessages.map((msg, index) => (
                 <ListItem
                     key={index}
                     sx={{ justifyContent: msg.sender === "user" ? "flex-end" : "flex-start" }}
                 >
-                    {isBotLoading && index === messages.length - 1 ? (
+                    {isBotLoading && index === chatMessages.length - 1 ? (
                         <Paper
                             sx={{
                                 p: 1.5,
@@ -125,7 +123,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({ messages, isBotLoading, han
                                             primary={"Regulasi pada pasal sekian memiliki potensi disharmoni dengan pasal berikut ...."}
                                             sx={{ wordWrap: "break-word" }}
                                         />
-                                        <Button onClick={() => handleOpenViewer(`${process.env.REACT_APP_BACKEND_URL}/docs/UU Nomor 17 Tahun 2023.pdf`)}>
+                                        <Button onClick={() => onOpenDocumentViewer(`${process.env.REACT_APP_BACKEND_URL}/docs/UU Nomor 17 Tahun 2023.pdf`)}>
                                             UU Nomor 73 Tahun 2023
                                         </Button>
                                     </Box>

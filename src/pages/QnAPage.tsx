@@ -8,20 +8,18 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import Modal from "@mui/material/Modal";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 
 // ** MUI Icons
-import DeleteIcon from '@mui/icons-material/Delete';
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 
 // ** Components
 import ChatMessages from "../components/Chat/ChatMessages";
 import ChatInput from "../components/Chat/ChatInput";
+import DocumentViewer from "../components/Document/DocumentViewer";
+import HistoryMenu from "../components/History/HistoryMenu";
+import HistoryMoreOptions from "../components/History/HistoryMoreOptions";
 
 // ** API Imports
 import {
@@ -33,27 +31,19 @@ import {
     streamChatCompletion
 } from "../api/chat";
 
-interface Message {
-    message: string;
-    sender: "user" | "bot";
-}
-
-interface ChatHistory {
-    id?: number;
-    title: string;
-    messages: Message[];
-}
+// ** Types
+import { ChatSession, ChatMessage } from "../types/Chat";
 
 const QnAPage: React.FC = () => {
-    const [selectedChat, setSelectedChat] = useState<number | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [chatHistory, setChatHistory] = useState<ChatHistory[]>([]);
+    const [selectedChatSessionId, setSelectedChatSessionId] = useState<number | null>(null);
+    const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
+    const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
     const [userEmail, setUserEmail] = useState<string | null>(null);
     const [isBotResponding, setIsBotResponding] = useState(false);
 
+    // User check
     useEffect(() => {
-        // Check if user is logged in
         const userId = localStorage.getItem("userIdLexMedica");
         const userEmail = localStorage.getItem("userEmailLexMedica");
         const userToken = localStorage.getItem("userTokenLexMedica");
@@ -69,6 +59,7 @@ const QnAPage: React.FC = () => {
         }
     }, []);
 
+    // End Message Ref
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const [scrollBehavior, setScrollBehavior] = useState<"auto" | "smooth">("auto");
 
@@ -78,18 +69,22 @@ const QnAPage: React.FC = () => {
             // Reset after scroll to avoid side-effects
             setScrollBehavior("auto");
         }
-    }, [messages, scrollBehavior]);
+    }, [chatMessages, scrollBehavior]);
 
+
+    // Chat History
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
     const fetchChatHistory = async (userId: number) => {
         try {
             const data = await getChatSessions(userId);
-            setChatHistory(
+            if (!data) return;
+            setChatSessions(
                 data.map(chat => ({
-                    id: chat.id, // make sure to keep this!
+                    id: chat.id,
+                    user_id: chat.user_id,
                     title: chat.title,
-                    messages: [],
+                    started_at: chat.started_at
                 }))
             );
         } catch (error) {
@@ -97,6 +92,7 @@ const QnAPage: React.FC = () => {
         }
     };
 
+    // Send Message
     const botReplyRef = useRef("");
     const controllerRef = useRef<AbortController | null>(null);
 
@@ -111,24 +107,24 @@ const QnAPage: React.FC = () => {
         const controller = new AbortController();
         controllerRef.current = controller;
 
-        const userMessage: Message = { message, sender: "user" };
-        setMessages((prev) => [...prev, userMessage]);
+        const userMessage: ChatMessage = { message, sender: "user" };
+        setChatMessages((prev) => [...prev, userMessage]);
         setIsBotResponding(true);
 
         botReplyRef.current = "";
 
-        const newBotMessage: Message = { message: "", sender: "bot" };
-        setMessages((prev) => [...prev, newBotMessage]);
+        const newBotMessage: ChatMessage = { message: "", sender: "bot" };
+        setChatMessages((prev) => [...prev, newBotMessage]);
 
         streamChatCompletion(
             message,
             (chunk) => {
                 botReplyRef.current += chunk;
 
-                setMessages((prev) => {
+                setChatMessages((prev) => {
                     const updated = [...prev];
                     const lastIndex = updated.length - 1;
-
+                    if (lastIndex < 0) return updated; // No chatMessages yet
                     if (updated[lastIndex].sender === "bot") {
                         updated[lastIndex] = {
                             ...updated[lastIndex],
@@ -143,8 +139,8 @@ const QnAPage: React.FC = () => {
                 setIsBotResponding(false);
                 controllerRef.current = null;
 
-                const finalMessages: Message[] = [
-                    ...messages,
+                const finalMessages: ChatMessage[] = [
+                    ...chatMessages,
                     userMessage,
                     { message: botReplyRef.current, sender: "bot" },
                 ];
@@ -153,23 +149,22 @@ const QnAPage: React.FC = () => {
                     const userId = localStorage.getItem("userIdLexMedica");
                     if (!userId) return;
 
-                    if (selectedChat) {
-                        const session = chatHistory.find((chat) => chat.id === selectedChat);
+                    if (selectedChatSessionId) {
+                        const session = chatSessions.find((chat) => chat.id === selectedChatSessionId);
                         if (!session || !session.id) return;
-
                         try {
                             await createChatMessage(session.id, "user", message);
                             await createChatMessage(session.id, "bot", botReplyRef.current);
 
-                            setChatHistory((prev) =>
+                            setChatSessions((prev) =>
                                 prev.map((chat) =>
-                                    chat.id === selectedChat
-                                        ? { ...chat, messages: finalMessages }
+                                    chat.id === selectedChatSessionId
+                                        ? { ...chat, chatMessages: finalMessages }
                                         : chat
                                 )
                             );
                         } catch (error) {
-                            console.error("Error saving messages:", error);
+                            console.error("Error saving chatMessages:", error);
                         }
                     } else {
                         try {
@@ -182,14 +177,8 @@ const QnAPage: React.FC = () => {
                             await createChatMessage(newSession.id, "user", message);
                             await createChatMessage(newSession.id, "bot", botReplyRef.current);
 
-                            const newHistory: ChatHistory = {
-                                id: newSession.id,
-                                title: newSession.title,
-                                messages: finalMessages,
-                            };
-
-                            setChatHistory((prev) => [newHistory, ...prev]);
-                            setSelectedChat(newSession.id);
+                            setChatSessions((prev) => [newSession, ...prev]);
+                            setSelectedChatSessionId(newSession.id);
 
                             setTimeout(() => {
                                 if (chatHistoryRef.current) {
@@ -197,11 +186,11 @@ const QnAPage: React.FC = () => {
                                 }
                             }, 100);
                         } catch (error) {
-                            console.error("Failed to create chat session or messages:", error);
+                            console.error("Failed to create chat session or chatMessages:", error);
                         }
                     }
                 } else {
-                    setMessages(finalMessages);
+                    setChatMessages(finalMessages);
                 }
 
                 setScrollBehavior("smooth");
@@ -222,8 +211,8 @@ const QnAPage: React.FC = () => {
     };
 
     const handleNewChat = () => {
-        setSelectedChat(null);
-        setMessages([]);
+        setSelectedChatSessionId(null);
+        setChatMessages([]);
     };
 
     const handleSelectChat = async (chatId: number) => {
@@ -234,21 +223,15 @@ const QnAPage: React.FC = () => {
 
         setIsBotResponding(false);
 
-        const selectedChatHistory = chatHistory.find(chat => chat.id === chatId);
+        const selectedChatHistory = chatSessions.find(chat => chat.id === chatId);
         if (!selectedChatHistory || !selectedChatHistory.id) return;
 
         try {
             const fetchedMessages = await getChatMessages(chatId);
-            const formattedMessages = fetchedMessages.map(msg => ({
-                message: msg.message,
-                sender: msg.sender as "user" | "bot",
-            }));
-
-            setSelectedChat(chatId);
-            setMessages(formattedMessages);
-            setScrollBehavior("auto");
+            setSelectedChatSessionId(chatId);
+            setChatMessages(fetchedMessages);
         } catch (error) {
-            console.error("Error fetching chat messages:", error);
+            console.error("Error fetching chat chatMessages:", error);
         }
     };
 
@@ -266,7 +249,7 @@ const QnAPage: React.FC = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [activeChatIndex, setActiveChatIndex] = useState<number | null>(null);
 
-    const handleMoreClick = (
+    const handleClickChatSessionMoreOptions = (
         event: MouseEvent<HTMLElement>,
         index: number
     ) => {
@@ -276,7 +259,7 @@ const QnAPage: React.FC = () => {
         setActiveChatIndex(index);
     };
 
-    const handleClose = () => {
+    const handleCloseChatSessionMoreOptions = () => {
         setAnchorEl(null);
         setActiveChatIndex(null);
     };
@@ -285,28 +268,28 @@ const QnAPage: React.FC = () => {
         try {
             const data = await deleteChatSession(sessionId);
             if (data.message) {
-                setChatHistory((prev) => prev.filter((chat) => chat.id !== sessionId));
-                setSelectedChat(null);
-                setMessages([]);
+                setChatSessions((prev) => prev.filter((chat) => chat.id !== sessionId));
+                setSelectedChatSessionId(null);
+                setChatMessages([]);
             }
         } catch (error) {
             console.error("Error delete chat history:", error);
         } finally {
-            handleClose();
+            handleCloseChatSessionMoreOptions();
         }
     };
 
-    // Modal for view document
-    const [openViewer, setOpenViewer] = useState(false);
+    // Document Viewer Properties
+    const [isDocumentViewerOpened, setIsDocumentViewerOpened] = useState<boolean>(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
 
-    const handleOpenViewer = (url: string) => {
+    const handleOpenDocumentViewer = (url: string) => {
         setPdfUrl(url);
-        setOpenViewer(true);
+        setIsDocumentViewerOpened(true);
     };
 
-    const handleCloseViewer = () => {
-        setOpenViewer(false);
+    const handleCloseDocumentViewer = () => {
+        setIsDocumentViewerOpened(false);
         setPdfUrl(null);
     };
 
@@ -336,90 +319,11 @@ const QnAPage: React.FC = () => {
                         </Box>
 
                         {/* Third Box: History Chat List */}
-                        <Box
-                            ref={chatHistoryRef}
-                            sx={{
-                                flex: 9,
-                                display: "flex",
-                                flexDirection: "column",
-                                padding: 2,
-                                overflowY: "auto"
-                            }}>
-                            {chatHistory.length > 0 ? (
-                                chatHistory.map((chat, index) => (
-                                    <Box
-                                        key={index}
-                                        sx={{
-                                            position: "relative",
-                                            "&:hover .more-icon": {
-                                                visibility: "visible",
-                                            },
-                                        }}
-                                    >
-                                        <Button
-                                            fullWidth
-                                            variant={selectedChat === chat.id ? "contained" : "text"}
-                                            sx={{
-                                                marginBottom: 1,
-                                                justifyContent: "flex-start",
-                                                textTransform: "none",
-                                                backgroundColor: selectedChat === chat.id ? "primary.main" : "transparent",
-                                                color: selectedChat === chat.id ? "white" : "black",
-                                            }}
-                                            onClick={() => (
-                                                handleSelectChat(chat.id!)
-                                            )}
-                                        >
-                                            <Typography variant="body1" noWrap color="white">
-                                                {chat.title}
-                                            </Typography>
-                                        </Button>
-
-                                        {/* More icon, shown on hover */}
-                                        <IconButton
-                                            size="small"
-                                            onClick={(e) => handleMoreClick(e, index)}
-                                            className="more-icon"
-                                            sx={{
-                                                position: "absolute",
-                                                right: 8,
-                                                visibility: "hidden",
-                                                color: "white",
-                                            }}
-                                        >
-                                            <MoreHorizIcon />
-                                        </IconButton>
-                                    </Box>
-                                ))
-                            ) : (
-                                <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
-                                    Tidak ada riwayat chat
-                                </Typography>
-                            )}
-                        </Box>
+                        <HistoryMenu chatSessionsRef={chatHistoryRef} chatSessions={chatSessions} selectedChatSessionId={selectedChatSessionId} onSelectChatSession={handleSelectChat} onMoreClick={handleClickChatSessionMoreOptions} />
                     </Grid>
                 )}
 
-                {/* Menu for More options */}
-                <Menu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    onClose={handleClose}
-                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                    transformOrigin={{ vertical: "top", horizontal: "right" }}
-                    PaperProps={{
-                        sx: {
-                            backgroundColor: "lightgray",
-                            borderRadius: 2,
-                            boxShadow: 3,
-                        },
-                    }}
-                >
-                    <MenuItem onClick={() => handleDelete(chatHistory[activeChatIndex!].id!)}>
-                        <DeleteIcon sx={{ mr: 1, color: 'red' }} />
-                        <Typography variant="body2" color="red">Hapus</Typography>
-                    </MenuItem>
-                </Menu>
+                <HistoryMoreOptions activeChatIndex={activeChatIndex} anchorElHistoryMoreOptions={anchorEl} chatSessions={chatSessions} onClose={handleCloseChatSessionMoreOptions} onDelete={handleDelete} />
 
                 {/* Right Content*/}
                 <Grid
@@ -482,7 +386,7 @@ const QnAPage: React.FC = () => {
                         overflowY: "auto", // Only this box will be scrollable
                         justifyContent: "center"
                     }}>
-                        {messages.length === 0 ? (
+                        {chatMessages.length === 0 ? (
                             <Box
                                 sx={{
                                     textAlign: "center",
@@ -500,7 +404,7 @@ const QnAPage: React.FC = () => {
                             </Box>
                         ) : (
                             <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
-                                <ChatMessages messages={messages} isBotLoading={botReplyRef.current === "" && isBotResponding} handleOpenViewer={handleOpenViewer} />
+                                <ChatMessages chatMessages={chatMessages} isBotLoading={botReplyRef.current === "" && isBotResponding} onOpenDocumentViewer={handleOpenDocumentViewer} />
                                 <div ref={messagesEndRef} />
                             </Box>
                         )}
@@ -522,31 +426,7 @@ const QnAPage: React.FC = () => {
             </Grid >
 
             {/* Document Viewer Modal */}
-            <Modal open={openViewer} onClose={handleCloseViewer}>
-                <Box sx={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    width: '80%',
-                    height: '90%',
-                    bgcolor: 'background.paper',
-                    boxShadow: 24,
-                    p: 2,
-                    outline: 'none',
-                    borderRadius: 2
-                }}>
-                    {pdfUrl && (
-                        <iframe
-                            src={pdfUrl}
-                            title="PDF Viewer"
-                            width="100%"
-                            height="100%"
-                            style={{ border: 'none' }}
-                        />
-                    )}
-                </Box>
-            </Modal>
+            <DocumentViewer isDocumentViewerOpened={isDocumentViewerOpened} onCloseDocumentViewer={handleCloseDocumentViewer} pdfUrl={pdfUrl} />
         </>
     );
 };

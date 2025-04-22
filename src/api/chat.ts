@@ -1,20 +1,8 @@
 // Desc: Chat API functions for managing chat sessions and messages
 import httpClient from "./httpClient";
 
-interface ChatSession {
-  id: number;
-  user_id: number;
-  title: string;
-  started_at: string;
-}
-
-interface ChatMessage {
-  id: number;
-  session_id: number;
-  sender: "user" | "bot";
-  message: string;
-  created_at: string;
-}
+// ** Types Import
+import { ChatSession, ChatMessage } from "../types/Chat";
 
 /**
  * Create a new chat session.
@@ -34,6 +22,7 @@ export const createChatSession = async (
 
 /**
  * Fetch chat history (sessions) for the logged-in user.
+ * @param userId The user ID.
  */
 export const getChatSessions = async (
   userId: number
@@ -44,6 +33,10 @@ export const getChatSessions = async (
   return response.data;
 };
 
+/**
+ * Delete a specific chat session by its ID.
+ * @param sessionId The chat session ID.
+ */
 export const deleteChatSession = async (
   sessionId: number
 ): Promise<{ message: string }> => {
@@ -85,6 +78,14 @@ export const getChatMessages = async (
   return response.data;
 };
 
+/**
+ * Stream the chat completion response from the server.
+ * @param question The user's question.
+ * @param onChunk Callback function to handle each chunk of data.
+ * @param onComplete Callback function to handle completion of the stream.
+ * @param onError Callback function to handle errors.
+ * @param signal The AbortSignal to cancel the request if needed.
+ */
 export const streamChatCompletion = async (
   question: string,
   onChunk: (chunk: string) => void,

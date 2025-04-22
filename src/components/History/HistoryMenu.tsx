@@ -1,79 +1,92 @@
+// ** React Imports
 import React from "react";
-import { Drawer, Toolbar, Divider, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
-import ChatIcon from "@mui/icons-material/Chat";
-import SettingsIcon from "@mui/icons-material/Settings";
 
-const drawerWidth = 0; // Sidebar width
+// ** MUI Imports
+import IconButton from "@mui/material/IconButton";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 
-interface DrawerMenuProps {
-    isMobile: boolean;
-    isDrawerOpen: boolean;
-    handleDrawerToggle: () => void;
+// ** Icons Imports
+import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+
+// ** Types Imports
+import { ChatSession } from "../../types/Chat";
+
+interface HistoryMenuProps {
+    chatSessionsRef: React.RefObject<HTMLDivElement | null>;
+    chatSessions: ChatSession[];
+    selectedChatSessionId: number | null;
+    onSelectChatSession: (chatId: number) => void;
+    onMoreClick: (event: React.MouseEvent<HTMLElement>, index: number) => void;
 }
 
-const DrawerMenu: React.FC<DrawerMenuProps> = ({ isMobile, isDrawerOpen, handleDrawerToggle }) => {
+const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions, selectedChatSessionId, onSelectChatSession, onMoreClick }) => {
     return (
         <>
-            {/* Permanent Drawer (Desktop) */}
-            {!isMobile && (
-                <Drawer
-                    variant="permanent"
-                    open
-                    sx={{
-                        width: drawerWidth,
-                        flexShrink: 0,
-                        "& .MuiDrawer-paper": { width: drawerWidth, boxSizing: "border-box" },
-                    }}
-                >
-                    <Toolbar />
-                    <Divider />
-                    <List>
-                        <ListItem>
-                            <ListItemIcon>
-                                <ChatIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Chat History" />
-                        </ListItem>
-                        <ListItem>
-                            <ListItemIcon>
-                                <SettingsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Settings" />
-                        </ListItem>
-                    </List>
-                </Drawer>
-            )}
+            <Box
+                ref={chatSessionsRef}
+                sx={{
+                    flex: 9,
+                    display: "flex",
+                    flexDirection: "column",
+                    padding: 2,
+                    overflowY: "auto"
+                }}>
+                {chatSessions.length > 0 ? (
+                    chatSessions.map((chat, index) => (
+                        <Box
+                            key={index}
+                            sx={{
+                                position: "relative",
+                                "&:hover .more-icon": {
+                                    visibility: "visible",
+                                },
+                            }}
+                        >
+                            <Button
+                                fullWidth
+                                variant={selectedChatSessionId === chat.id ? "contained" : "text"}
+                                sx={{
+                                    marginBottom: 1,
+                                    justifyContent: "flex-start",
+                                    textTransform: "none",
+                                    backgroundColor: selectedChatSessionId === chat.id ? "primary.main" : "transparent",
+                                    color: selectedChatSessionId === chat.id ? "white" : "black",
+                                }}
+                                onClick={() => (
+                                    onSelectChatSession(chat.id!)
+                                )}
+                            >
+                                <Typography variant="body1" noWrap color="white">
+                                    {chat.title}
+                                </Typography>
+                            </Button>
 
-            {/* Temporary Drawer (Mobile) */}
-            {isMobile && (
-                <Drawer
-                    variant="temporary"
-                    open={isDrawerOpen}
-                    onClose={handleDrawerToggle}
-                    sx={{
-                        "& .MuiDrawer-paper": { width: drawerWidth, boxSizing: "border-box" },
-                    }}
-                >
-                    <Toolbar />
-                    <Divider />
-                    <List>
-                        <ListItem onClick={handleDrawerToggle}>
-                            <ListItemIcon>
-                                <ChatIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Chat History" />
-                        </ListItem>
-                        <ListItem onClick={handleDrawerToggle}>
-                            <ListItemIcon>
-                                <SettingsIcon />
-                            </ListItemIcon>
-                            <ListItemText primary="Settings" />
-                        </ListItem>
-                    </List>
-                </Drawer>
-            )}
+                            {/* More icon, shown on hover */}
+                            <IconButton
+                                size="small"
+                                onClick={(e) => onMoreClick(e, index)}
+                                className="more-icon"
+                                sx={{
+                                    position: "absolute",
+                                    right: 8,
+                                    visibility: "hidden",
+                                    color: "white",
+                                }}
+                            >
+                                <MoreHorizIcon />
+                            </IconButton>
+                        </Box>
+                    ))
+                ) : (
+                    <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
+                        Tidak ada riwayat chat
+                    </Typography>
+                )}
+            </Box>
         </>
     );
 };
 
-export default DrawerMenu;
+export default HistoryMenu;

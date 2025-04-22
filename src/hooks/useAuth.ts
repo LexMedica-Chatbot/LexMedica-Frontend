@@ -45,7 +45,7 @@ export const useAuth = () => {
     setError(null);
     try {
       const response = await login(email, password);
-      localStorage.setItem("userIdLexMedica", response.id);
+      localStorage.setItem("userIdLexMedica", response.id.toString());
       localStorage.setItem("userEmailLexMedica", response.email);
       localStorage.setItem("userTokenLexMedica", response.token);
       localStorage.setItem("userRefreshTokenLexMedica", response.refreshToken);

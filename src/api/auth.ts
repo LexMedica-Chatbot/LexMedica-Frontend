@@ -1,36 +1,45 @@
 // Desc: Auth API functions for user registration, login, and email verification
 import httpClient from "./httpClient";
 
-interface AuthResponse {
-  id: string;
-  email: string;
-  token: string;
-  refreshToken: string;
-  message?: string;
-}
+// ** Types Import
+import { User } from "../types/User";
 
+/**
+ * Register a new user.
+ * @param email The user's email address.
+ * @param password The user's password.
+ */
 export const register = async (
   email: string,
   password: string
-): Promise<AuthResponse> => {
-  const response = await httpClient.post<AuthResponse>("/auth/register", {
+): Promise<User> => {
+  const response = await httpClient.post<User>("/auth/register", {
     email,
     password,
   });
   return response.data;
 };
 
+/**
+ * Login a user.
+ * @param email The user's email address.
+ * @param password The user's password.
+ */
 export const login = async (
   email: string,
   password: string
-): Promise<AuthResponse> => {
-  const response = await httpClient.post<AuthResponse>("/auth/login", {
+): Promise<User> => {
+  const response = await httpClient.post<User>("/auth/login", {
     email,
     password,
   });
   return response.data;
 };
 
+/**
+ * Verify user email address after registration.
+ * @param token The verification token sent to the user's email.
+ */
 export const verifyEmail = async (
   token: string
 ): Promise<{ message: string }> => {
@@ -38,6 +47,10 @@ export const verifyEmail = async (
   return response.data;
 };
 
+/**
+ * Resend verification email to the user.
+ * @param email The user's email address.
+ */
 export const resendVerificationEmail = async (
   email: string
 ): Promise<{ message: string }> => {
