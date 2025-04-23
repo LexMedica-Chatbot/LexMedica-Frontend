@@ -31,33 +31,19 @@ import {
     streamChatCompletion
 } from "../api/chat";
 
+// ** Context Imports
+import { useAuthContext } from "../context/authContext";
+
 // ** Types
 import { ChatSession, ChatMessage } from "../types/Chat";
 
 const QnAPage: React.FC = () => {
+    const { handleLogout, user } = useAuthContext();
+
     const [selectedChatSessionId, setSelectedChatSessionId] = useState<number | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [userEmail, setUserEmail] = useState<string | null>(null);
     const [isBotResponding, setIsBotResponding] = useState(false);
-
-    // User check
-    useEffect(() => {
-        const userId = localStorage.getItem("userIdLexMedica");
-        const userEmail = localStorage.getItem("userEmailLexMedica");
-        const userToken = localStorage.getItem("userTokenLexMedica");
-
-        if (userId) {
-            fetchChatHistory(userId as unknown as number);
-        }
-        if (userEmail) {
-            setUserEmail(userEmail);
-        }
-        if (userToken) {
-            setIsAuthenticated(true);
-        }
-    }, []);
 
     // Chat History
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
@@ -150,7 +136,7 @@ const QnAPage: React.FC = () => {
                     { message: botReplyRef.current, sender: "bot" },
                 ];
 
-                if (isAuthenticated) {
+                if (user) {
                     const userId = localStorage.getItem("userIdLexMedica");
                     if (!userId) return;
 
@@ -244,17 +230,6 @@ const QnAPage: React.FC = () => {
         }
     };
 
-    const handleLogout = () => {
-        // Remove user data from local storage
-        localStorage.removeItem("userIdLexMedica");
-        localStorage.removeItem("userEmailLexMedica");
-        localStorage.removeItem("userTokenLexMedica");
-        localStorage.removeItem("userRefreshTokenLexMedica");
-
-        // Refresh the page to reflect changes
-        window.location.reload();
-    };
-
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const [activeChatIndex, setActiveChatIndex] = useState<number | null>(null);
 
@@ -306,7 +281,7 @@ const QnAPage: React.FC = () => {
         <>
             <Grid container sx={{ height: "100vh", display: "flex" }}>
                 {/* Left Sidebar */}
-                {isAuthenticated && isHistoryChatVisible && (
+                {user && isHistoryChatVisible && (
                     <Grid
                         item
                         xs={2}
@@ -350,7 +325,7 @@ const QnAPage: React.FC = () => {
 
                             {/* Left Section: LexMedica App Name */}
                             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                                {isAuthenticated && !isHistoryChatVisible && (
+                                {user && !isHistoryChatVisible && (
                                     <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
                                         <FormatListBulletedIcon />
                                     </IconButton>
@@ -362,7 +337,7 @@ const QnAPage: React.FC = () => {
 
                             {/* Right Section: Account Buttons */}
                             <Box sx={{ display: "flex", gap: 2, marginLeft: "auto" }}>
-                                {!isAuthenticated ? (
+                                {!user ? (
                                     <>
                                         <Link to="/login" style={{ textDecoration: "none" }}>
                                             <Button variant="contained">
@@ -377,7 +352,7 @@ const QnAPage: React.FC = () => {
                                     </>
                                 ) : (
                                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                        <Typography fontWeight="bold" variant="body2">{userEmail}</Typography>
+                                        <Typography fontWeight="bold" variant="body2">{user.email}</Typography>
                                         <Button variant="contained" color="error" onClick={handleLogout}>
                                             Logout
                                         </Button>

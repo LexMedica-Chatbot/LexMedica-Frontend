@@ -2,7 +2,9 @@
 // ** React Imports
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+
+// ** Context Imports
+import { useAuthContext } from "../context/authContext";
 
 // ** MUI Imports
 import Alert from "@mui/material/Alert";
@@ -21,7 +23,7 @@ import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 const LoginPage = () => {
     const navigate = useNavigate();
-    const { handleLogin, error, loading } = useAuth();
+    const { handleLogin, error, loading } = useAuthContext();
 
     const [email, setEmail] = useState<string>("");
     const [isEmailValid, setIsEmailValid] = useState<boolean>(true);
