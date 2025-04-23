@@ -47,7 +47,7 @@ const LoginPage = () => {
                 height: "100vh",
                 flexDirection: "column",
                 gap: 1,
-                bgcolor: 'secondary.main'
+                bgcolor: 'secondary.main',
             }}
         >
             <Box
@@ -61,6 +61,7 @@ const LoginPage = () => {
                     padding: 4,
                     borderRadius: 2,
                     boxShadow: 2,
+                    maxWidth: 500,
                 }}
             >
 
@@ -70,7 +71,7 @@ const LoginPage = () => {
                 </Typography>
 
                 {/* Form */}
-                <Box component="form" onSubmit={handleSubmit}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
                     {/* Email input */}
                     <TextField
                         label="Email"

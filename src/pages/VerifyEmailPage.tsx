@@ -34,17 +34,24 @@ const VerifyEmailPage = () => {
     useEffect(() => {
         document.title = "Verifikasi Email | LexMedica";
 
-        const checkSession = async () => {
-            const { data } = await supabase.auth.getSession();
-            if (data.session) {
+        const checkEmailStatus = async () => {
+            const { data: userData } = await supabase.auth.getUser();
+
+            if (userData?.user) {
+                // If the user is fetched, their session is active (valid token) - email is verified
                 setStatus(true);
             } else {
-                setStatus(false);
+                // If no session (maybe token expired), try to get email from query
+                if (email) {
+                    setStatus(true); // Show "Email already verified"
+                } else {
+                    setStatus(false); // Fallback to resend
+                }
             }
         };
 
-        checkSession();
-    }, []);
+        checkEmailStatus();
+    }, [email]);
 
     const handleResend = async () => {
         if (!email) return;
@@ -74,11 +81,11 @@ const VerifyEmailPage = () => {
                     <DialogTitle>Verifikasi Berhasil</DialogTitle>
                     <DialogContent>
                         <Typography>
-                            Email Anda berhasil diverifikasi.
+                            Email Anda telah berhasil diverifikasi.
                         </Typography>
                     </DialogContent>
                     <DialogActions sx={{ p: 2 }}>
-                        <Button onClick={() => navigate("/")} variant="contained" autoFocus>
+                        <Button onClick={() => navigate("/login")} variant="contained" autoFocus>
                             Masuk
                         </Button>
                     </DialogActions>

@@ -1,7 +1,7 @@
 // src/App.tsx
 import './App.css'
 import { ThemeProvider, createTheme } from '@mui/material/styles'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { themeOptions } from './configs/themeOptions'
 
 // Pages
@@ -11,16 +11,32 @@ import RegisterPage from './pages/RegisterPage'
 import VerifyEmailPage from './pages/VerifyEmailPage'
 import NotFoundPage from './pages/NotFoundPage'
 
+// Auth Context
+import { useAuthContext } from './context/authContext'
+
 function App() {
   const theme = createTheme(themeOptions)
+
+  const { session } = useAuthContext();
 
   return (
     <ThemeProvider theme={theme}>
       <Routes>
         <Route path="/" element={<QnAPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+        <Route
+          path="/login"
+          element={session ? <Navigate to="/" replace /> : <LoginPage />}
+        />
+        <Route
+          path="/register"
+          element={session ? <Navigate to="/" replace /> : <RegisterPage />}
+        />
+        <Route
+          path="/verify-email"
+          element={session ? <Navigate to="/" replace /> : <VerifyEmailPage />}
+        />
+
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </ThemeProvider>

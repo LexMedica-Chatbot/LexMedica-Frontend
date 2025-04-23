@@ -100,6 +100,7 @@ const RegisterPage = () => {
                     py: 3,
                     borderRadius: 2,
                     boxShadow: 2,
+                    maxWidth: 500,
                 }}
             >
                 <Typography variant="h5" gutterBottom>
@@ -107,7 +108,7 @@ const RegisterPage = () => {
                 </Typography>
 
                 {/* Registration Form */}
-                <Box component="form" onSubmit={handleSubmit}>
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
                     {/* Email input */}
                     <TextField
                         label="Email"
