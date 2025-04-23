@@ -59,19 +59,6 @@ const QnAPage: React.FC = () => {
         }
     }, []);
 
-    // End Message Ref
-    const messagesEndRef = useRef<HTMLDivElement | null>(null);
-    const [scrollBehavior, setScrollBehavior] = useState<"auto" | "smooth">("auto");
-
-    useEffect(() => {
-        if (messagesEndRef.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: scrollBehavior });
-            // Reset after scroll to avoid side-effects
-            setScrollBehavior("auto");
-        }
-    }, [chatMessages, scrollBehavior]);
-
-
     // Chat History
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
@@ -91,6 +78,18 @@ const QnAPage: React.FC = () => {
             console.error("Error fetching chat history:", error);
         }
     };
+
+    // End Message Ref
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const [scrollBehavior, setScrollBehavior] = useState<"auto" | "smooth">("auto");
+    const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+
+    useEffect(() => {
+        if (shouldAutoScroll && messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: scrollBehavior });
+            setScrollBehavior("auto");
+        }
+    }, [chatMessages, scrollBehavior, shouldAutoScroll]);
 
     // Send Message
     const botReplyRef = useRef("");
@@ -115,6 +114,12 @@ const QnAPage: React.FC = () => {
 
         const newBotMessage: ChatMessage = { message: "", sender: "bot" };
         setChatMessages((prev) => [...prev, newBotMessage]);
+
+        setTimeout(() => {
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+            }
+        }, 100);
 
         streamChatCompletion(
             message,
@@ -215,7 +220,7 @@ const QnAPage: React.FC = () => {
         setChatMessages([]);
     };
 
-    const handleSelectChat = async (chatId: number) => {
+    const handleSelectChatSession = async (chatId: number) => {
         if (controllerRef.current) {
             controllerRef.current.abort(); // stop ongoing response
             controllerRef.current = null;
@@ -232,6 +237,10 @@ const QnAPage: React.FC = () => {
             setChatMessages(fetchedMessages);
         } catch (error) {
             console.error("Error fetching chat chatMessages:", error);
+        }
+
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "auto" });
         }
     };
 
@@ -319,7 +328,7 @@ const QnAPage: React.FC = () => {
                         </Box>
 
                         {/* Third Box: History Chat List */}
-                        <HistoryMenu chatSessionsRef={chatHistoryRef} chatSessions={chatSessions} selectedChatSessionId={selectedChatSessionId} onSelectChatSession={handleSelectChat} onMoreClick={handleClickChatSessionMoreOptions} />
+                        <HistoryMenu chatSessionsRef={chatHistoryRef} chatSessions={chatSessions} selectedChatSessionId={selectedChatSessionId} onSelectChatSession={handleSelectChatSession} onMoreClick={handleClickChatSessionMoreOptions} />
                     </Grid>
                 )}
 
@@ -385,7 +394,12 @@ const QnAPage: React.FC = () => {
                         position: "relative",
                         overflowY: "auto", // Only this box will be scrollable
                         justifyContent: "center"
-                    }}>
+                    }}
+                        onScroll={(e) => {
+                            const target = e.currentTarget;
+                            const isNearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 10;
+                            setShouldAutoScroll(isNearBottom);
+                        }}>
                         {chatMessages.length === 0 ? (
                             <Box
                                 sx={{
@@ -399,12 +413,17 @@ const QnAPage: React.FC = () => {
                                     Selamat datang di LexMedica!
                                 </Typography>
                                 <Typography variant="body1" color="white">
-                                    Silakan masukkan pertanyaan seputar hukum kesehatan
+                                    Silakan masukkan pertanyaan seputar hukum kesehatan Indonesia
                                 </Typography>
                             </Box>
                         ) : (
                             <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
-                                <ChatMessages chatMessages={chatMessages} isBotLoading={botReplyRef.current === "" && isBotResponding} onOpenDocumentViewer={handleOpenDocumentViewer} />
+                                <ChatMessages
+                                    chatMessages={chatMessages}
+                                    documents={[]}
+                                    isBotLoading={botReplyRef.current === "" && isBotResponding}
+                                    isFoundDisharmony={false}
+                                    onOpenDocumentViewer={handleOpenDocumentViewer} />
                                 <div ref={messagesEndRef} />
                             </Box>
                         )}
