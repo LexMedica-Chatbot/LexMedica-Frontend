@@ -28,6 +28,7 @@ const HistoryMoreOptions: React.FC<HistoryMoreOptionsProps> = ({ activeChatIndex
                 anchorEl={anchorElHistoryMoreOptions}
                 open={Boolean(anchorElHistoryMoreOptions)}
                 onClose={onClose}
+                MenuListProps={{ autoFocusItem: false }}
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }
                 }
                 transformOrigin={{ vertical: "top", horizontal: "right" }}
@@ -39,7 +40,7 @@ const HistoryMoreOptions: React.FC<HistoryMoreOptionsProps> = ({ activeChatIndex
                     },
                 }}
             >
-                <MenuItem onClick={() => onDelete(chatSessions[activeChatIndex!].id!)}>
+                <MenuItem autoFocus={false} onClick={() => onDelete(chatSessions[activeChatIndex!].id!)}>
                     <DeleteIcon sx={{ mr: 1, color: 'red' }} />
                     <Typography variant="body2" color="red">Hapus</Typography>
                 </MenuItem>
