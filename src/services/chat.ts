@@ -1,81 +1,89 @@
-// Desc: Chat API functions for managing chat sessions and messages
-import httpClient from "./httpClient";
-
-// ** Types Import
+import { supabase } from "../utils/supabase";
 import { ChatSession, ChatMessage } from "../types/Chat";
 
-/**
- * Create a new chat session.
- * @param userId The user ID.
- * @param title The title of the chat session.
- */
 export const createChatSession = async (
-  userId: number,
+  userId: string,
   title: string
-): Promise<ChatSession> => {
-  const response = await httpClient.post<ChatSession>("/history/session", {
-    user_id: userId,
-    title,
-  });
-  return response.data;
+): Promise<number | null> => {
+  const { data, error } = await supabase
+    .from("chat_sessions")
+    .insert([{ user_id: userId, title }])
+    .select("id") // Just return the ID
+    .single();
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return data?.id ?? null;
 };
 
-/**
- * Fetch chat history (sessions) for the logged-in user.
- * @param userId The user ID.
- */
 export const getChatSessions = async (
-  userId: number
+  userId: string
 ): Promise<ChatSession[]> => {
-  const response = await httpClient.get<ChatSession[]>(
-    `/history/session/${userId}`
-  );
-  return response.data;
+  const { data, error } = await supabase
+    .from("chat_sessions")
+    .select("*")
+    .eq("user_id", userId)
+    .order("started_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
 };
 
-/**
- * Delete a specific chat session by its ID.
- * @param sessionId The chat session ID.
- */
 export const deleteChatSession = async (
   sessionId: number
 ): Promise<{ message: string }> => {
-  const response = await httpClient.delete<{ message: string }>(
-    `/history/session/${sessionId}`
-  );
-  return response.data;
+  const { error } = await supabase
+    .from("chat_sessions")
+    .delete()
+    .eq("id", sessionId); // Specify the chat session to delete
+
+  if (error) {
+    console.error(error);
+    return { message: "Failed to delete chat session" };
+  }
+
+  return { message: "Chat session deleted successfully" };
 };
 
-/**
- * Send a new message to a chat session.
- * @param sessionId The chat session ID.
- * @param sender The sender type ("user" or "bot").
- * @param message The message text.
- */
 export const createChatMessage = async (
   sessionId: number,
   sender: "user" | "bot",
   message: string
-): Promise<ChatMessage> => {
-  const response = await httpClient.post<ChatMessage>(`/history/message`, {
-    session_id: sessionId,
-    sender,
-    message,
-  });
-  return response.data;
+): Promise<ChatMessage | null> => {
+  const { data, error } = await supabase
+    .from("chat_messages")
+    .insert([{ session_id: sessionId, sender, message }])
+    .single(); // Insert a single message
+
+  if (error) {
+    console.error(error);
+    return null;
+  }
+
+  return data;
 };
 
-/**
- * Fetch messages of a specific chat session.
- * @param sessionId The ID of the chat session.
- */
 export const getChatMessages = async (
   sessionId: number
 ): Promise<ChatMessage[]> => {
-  const response = await httpClient.get<ChatMessage[]>(
-    `/history/message/${sessionId}`
-  );
-  return response.data;
+  const { data, error } = await supabase
+    .from("chat_messages")
+    .select("*")
+    .eq("session_id", sessionId); // Fetch messages for the specific session
+
+  if (error) {
+    console.error(error);
+    return [];
+  }
+
+  return data;
 };
 
 /**

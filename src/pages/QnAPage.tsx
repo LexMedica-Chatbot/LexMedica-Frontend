@@ -21,7 +21,7 @@ import DocumentViewer from "../components/Document/DocumentViewer";
 import HistoryMenu from "../components/History/HistoryMenu";
 import HistoryMoreOptions from "../components/History/HistoryMoreOptions";
 
-// ** API Imports
+// ** API Imports (updated with Supabase functions)
 import {
     createChatSession,
     getChatSessions,
@@ -29,7 +29,7 @@ import {
     createChatMessage,
     getChatMessages,
     streamChatCompletion
-} from "../api/chat";
+} from "../services/chat";
 
 // ** Context Imports
 import { useAuthContext } from "../context/authContext";
@@ -48,22 +48,21 @@ const QnAPage: React.FC = () => {
     // Chat History
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
 
-    const fetchChatHistory = async (userId: number) => {
+    // Fetch Chat History from Supabase
+    const fetchChatHistory = async (userId: string) => {
         try {
-            const data = await getChatSessions(userId);
-            if (!data) return;
-            setChatSessions(
-                data.map(chat => ({
-                    id: chat.id,
-                    user_id: chat.user_id,
-                    title: chat.title,
-                    started_at: chat.started_at
-                }))
-            );
+            const data = await getChatSessions(userId); // Use Supabase function
+            setChatSessions(data);
         } catch (error) {
             console.error("Error fetching chat history:", error);
         }
     };
+
+    useEffect(() => {
+        if (user) {
+            fetchChatHistory(user.id); // Fetch chat history on mount
+        }
+    }, [user]);
 
     // End Message Ref
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
@@ -137,16 +136,12 @@ const QnAPage: React.FC = () => {
                 ];
 
                 if (user) {
-                    const userId = localStorage.getItem("userIdLexMedica");
-                    if (!userId) return;
-
                     if (selectedChatSessionId) {
                         const session = chatSessions.find((chat) => chat.id === selectedChatSessionId);
                         if (!session || !session.id) return;
                         try {
                             await createChatMessage(session.id, "user", message);
                             await createChatMessage(session.id, "bot", botReplyRef.current);
-
                             setChatSessions((prev) =>
                                 prev.map((chat) =>
                                     chat.id === selectedChatSessionId
@@ -164,12 +159,18 @@ const QnAPage: React.FC = () => {
                                     ? message.trim().slice(0, 20) + " ..."
                                     : message.trim();
 
-                            const newSession = await createChatSession(Number(userId), trimmedTitle);
-                            await createChatMessage(newSession.id, "user", message);
-                            await createChatMessage(newSession.id, "bot", botReplyRef.current);
+                            const newSessionId = await createChatSession(user.id, trimmedTitle);
 
-                            setChatSessions((prev) => [newSession, ...prev]);
-                            setSelectedChatSessionId(newSession.id);
+                            if (newSessionId) {
+                                await createChatMessage(newSessionId, "user", message);
+                                await createChatMessage(newSessionId, "bot", botReplyRef.current);
+
+                                await fetchChatHistory(user.id);
+                                setSelectedChatSessionId(newSessionId);
+
+                                const newMessages = await getChatMessages(newSessionId);
+                                setChatMessages(newMessages);
+                            }
 
                             setTimeout(() => {
                                 if (chatHistoryRef.current) {
@@ -218,11 +219,11 @@ const QnAPage: React.FC = () => {
         if (!selectedChatHistory || !selectedChatHistory.id) return;
 
         try {
-            const fetchedMessages = await getChatMessages(chatId);
+            const fetchedMessages = await getChatMessages(chatId); // Fetch messages from Supabase
             setSelectedChatSessionId(chatId);
             setChatMessages(fetchedMessages);
         } catch (error) {
-            console.error("Error fetching chat chatMessages:", error);
+            console.error("Error fetching chat messages:", error);
         }
 
         if (messagesEndRef.current) {
@@ -250,7 +251,7 @@ const QnAPage: React.FC = () => {
 
     const handleDelete = async (sessionId: number) => {
         try {
-            const data = await deleteChatSession(sessionId);
+            const data = await deleteChatSession(sessionId); // Delete from Supabase
             if (data.message) {
                 setChatSessions((prev) => prev.filter((chat) => chat.id !== sessionId));
                 setSelectedChatSessionId(null);
