@@ -14,14 +14,26 @@ import CreateIcon from '@mui/icons-material/Create';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 
 interface ChatInputProps {
-    isBotLoading: boolean;
-    setIsBotLoading: (state: boolean) => void;
+    isBotQnALoading: boolean;
+    isBotDisharmonyLoading: boolean;
+    setIsBotQnALoading: (state: boolean) => void;
+    setIsBotDisharmonyLoading: (state: boolean) => void;
     onNewChat: () => void;
     onSendMessage: (message: string) => void;
-    controllerRef: React.MutableRefObject<AbortController | null>;
+    controllerQnARef: React.MutableRefObject<AbortController | null>;
+    controllerDisharmonyRef: React.MutableRefObject<AbortController | null>;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ isBotLoading, setIsBotLoading, onNewChat, onSendMessage, controllerRef }) => {
+const ChatInput: React.FC<ChatInputProps> = ({
+    isBotQnALoading,
+    isBotDisharmonyLoading,
+    setIsBotQnALoading,
+    setIsBotDisharmonyLoading,
+    onNewChat,
+    onSendMessage,
+    controllerQnARef,
+    controllerDisharmonyRef }
+) => {
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
@@ -81,8 +93,8 @@ const ChatInput: React.FC<ChatInputProps> = ({ isBotLoading, setIsBotLoading, on
             <TextField
                 fullWidth
                 variant="outlined"
-                placeholder={isBotLoading ? "Bot sedang menjawab..." : "Tulis pertanyaan hukum kesehatan Indonesia"}
-                disabled={isBotLoading}
+                placeholder={isBotQnALoading || isBotDisharmonyLoading ? "Bot sedang menjawab..." : "Tulis pertanyaan hukum kesehatan Indonesia"}
+                disabled={isBotQnALoading || isBotDisharmonyLoading}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
@@ -100,7 +112,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ isBotLoading, setIsBotLoading, on
                 }}
             />
 
-            {isBotLoading ? (
+            {isBotQnALoading || isBotDisharmonyLoading ? (
                 <>
                     {/* Send Button */}
                     <Tooltip title="Stop" arrow>
@@ -108,9 +120,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ isBotLoading, setIsBotLoading, on
                             <IconButton
                                 color="error"
                                 onClick={() => {
-                                    if (controllerRef.current) controllerRef.current.abort();
-                                    setIsBotLoading(false);
-                                    controllerRef.current = null;
+                                    setIsBotQnALoading(false);
+                                    setIsBotDisharmonyLoading(false);
+                                    if (controllerQnARef.current) controllerQnARef.current.abort();
+                                    controllerQnARef.current = null;
+                                    if (controllerDisharmonyRef.current) controllerDisharmonyRef.current.abort();
+                                    controllerDisharmonyRef.current = null;
                                 }}
                                 sx={{
                                     justifyContent: 'center',

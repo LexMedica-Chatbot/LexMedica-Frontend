@@ -28,7 +28,9 @@ import {
     deleteChatSession,
     createChatMessage,
     getChatMessages,
-    streamChatCompletion
+    streamChatCompletionQnaAnswer,
+    streamChatCompletionDisharmonyAnalysis,
+    createDisharmonyResult
 } from "../services/chat";
 
 // ** Context Imports
@@ -36,6 +38,7 @@ import { useAuthContext } from "../context/authContext";
 
 // ** Types
 import { ChatSession, ChatMessage } from "../types/Chat";
+import { Document } from "../types/Document";
 
 const QnAPage: React.FC = () => {
     const { handleLogout, user } = useAuthContext();
@@ -43,7 +46,12 @@ const QnAPage: React.FC = () => {
     const [selectedChatSessionId, setSelectedChatSessionId] = useState<number | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
     const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
-    const [isBotResponding, setIsBotResponding] = useState(false);
+    const [isBotQnAResponding, setIsBotQnAResponding] = useState(false);
+    const [isBotDisharmonyResponding, setIsBotDisharmonyResponding] = useState(false);
+
+    const documents: Document[] = [
+        { title: "UU Nomor 36 Tahun 2009", source: "https://edxnjclbtbkyohvjkmcv.supabase.co/storage/v1/object/public/lexmedica/UU/Dicabut/UU%20Nomor%2036%20Tahun%202009.pdf" },
+        { title: "Document 2", source: "https://example.com/doc2.pdf" }];
 
     // Chat History
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
@@ -77,25 +85,27 @@ const QnAPage: React.FC = () => {
     }, [chatMessages, scrollBehavior, shouldAutoScroll]);
 
     // Send Message
-    const botReplyRef = useRef("");
-    const controllerRef = useRef<AbortController | null>(null);
+    const botReplyQnARef = useRef("");
+    const botReplyDisharmonyRef = useRef("");
+    const controllerQnARef = useRef<AbortController | null>(null);
+    const controllerDisharmonyRef = useRef<AbortController | null>(null);
 
     const handleSendMessage = async (message: string) => {
         if (!message.trim()) return;
 
         // Abort previous request if still streaming
-        if (controllerRef.current) {
-            controllerRef.current.abort();
+        if (controllerQnARef.current) {
+            controllerQnARef.current.abort();
         }
 
-        const controller = new AbortController();
-        controllerRef.current = controller;
+        const controllerQnA = new AbortController();
+        controllerQnARef.current = controllerQnA;
 
         const userMessage: ChatMessage = { message, sender: "user" };
         setChatMessages((prev) => [...prev, userMessage]);
-        setIsBotResponding(true);
+        setIsBotQnAResponding(true);
 
-        botReplyRef.current = "";
+        botReplyQnARef.current = "";
 
         const newBotMessage: ChatMessage = { message: "", sender: "bot" };
         setChatMessages((prev) => [...prev, newBotMessage]);
@@ -106,10 +116,10 @@ const QnAPage: React.FC = () => {
             }
         }, 100);
 
-        streamChatCompletion(
+        streamChatCompletionQnaAnswer(
             message,
             (chunk) => {
-                botReplyRef.current += chunk;
+                botReplyQnARef.current += chunk;
 
                 setChatMessages((prev) => {
                     const updated = [...prev];
@@ -118,7 +128,7 @@ const QnAPage: React.FC = () => {
                     if (updated[lastIndex].sender === "bot") {
                         updated[lastIndex] = {
                             ...updated[lastIndex],
-                            message: botReplyRef.current,
+                            message: botReplyQnARef.current,
                         };
                     }
 
@@ -126,14 +136,16 @@ const QnAPage: React.FC = () => {
                 });
             },
             async () => {
-                setIsBotResponding(false);
-                controllerRef.current = null;
+                setIsBotQnAResponding(false);
+                controllerQnARef.current = null;
 
                 const finalMessages: ChatMessage[] = [
                     ...chatMessages,
                     userMessage,
-                    { message: botReplyRef.current, sender: "bot" },
+                    { message: botReplyQnARef.current, sender: "bot" },
                 ];
+
+                let botMessageId = 0;
 
                 if (user) {
                     if (selectedChatSessionId) {
@@ -141,7 +153,7 @@ const QnAPage: React.FC = () => {
                         if (!session || !session.id) return;
                         try {
                             await createChatMessage(session.id, "user", message);
-                            await createChatMessage(session.id, "bot", botReplyRef.current);
+                            botMessageId = await createChatMessage(session.id, "bot", botReplyQnARef.current);
                             setChatSessions((prev) =>
                                 prev.map((chat) =>
                                     chat.id === selectedChatSessionId
@@ -163,7 +175,7 @@ const QnAPage: React.FC = () => {
 
                             if (newSessionId) {
                                 await createChatMessage(newSessionId, "user", message);
-                                await createChatMessage(newSessionId, "bot", botReplyRef.current);
+                                botMessageId = await createChatMessage(newSessionId, "bot", botReplyQnARef.current);
 
                                 await fetchChatHistory(user.id);
                                 setSelectedChatSessionId(newSessionId);
@@ -182,17 +194,73 @@ const QnAPage: React.FC = () => {
                         }
                     }
                 } else {
-                    setChatMessages(finalMessages);
+                    // setChatMessages(finalMessages);
+                    console.log("Anonymous user — QnA shown but not saved.");
                 }
+
+                botReplyDisharmonyRef.current = "";
+                setIsBotDisharmonyResponding(true);
+
+                // Abort previous request if still streaming
+                if (controllerDisharmonyRef.current) {
+                    controllerDisharmonyRef.current.abort();
+                }
+
+                const controllerDisharmony = new AbortController();
+                controllerDisharmonyRef.current = controllerDisharmony;
+
+                streamChatCompletionDisharmonyAnalysis(
+                    botReplyQnARef.current,
+                    (chunk) => {
+                        botReplyDisharmonyRef.current += chunk;
+
+                        setChatMessages((prev) => {
+                            const updated = [...prev];
+                            const lastIndex = updated.length - 1;
+                            if (updated[lastIndex]?.sender === "bot") {
+                                updated[lastIndex] = {
+                                    ...updated[lastIndex],
+                                    disharmony_result: {
+                                        ...updated[lastIndex].disharmony_result,
+                                        analysis: botReplyDisharmonyRef.current,
+                                    }
+                                };
+                            }
+                            return updated;
+                        });
+                    },
+                    async () => {
+                        setIsBotDisharmonyResponding(false);
+                        if (user) {
+                            try {
+                                const session = chatSessions.find(chat => chat.id === selectedChatSessionId);
+                                if (!session) return;
+
+                                await createDisharmonyResult(botMessageId, botReplyDisharmonyRef.current);
+
+                            } catch (err) {
+                                console.error("Failed to save message or disharmony:", err);
+                            }
+                        } else {
+                            console.log("Anonymous user — disharmony shown but not saved.");
+                        }
+                    },
+                    (err) => {
+                        console.error("Disharmony streaming error:", err);
+                        setIsBotDisharmonyResponding(false);
+                        controllerDisharmonyRef.current = null;
+                    },
+                    controllerDisharmony.signal
+                );
 
                 setScrollBehavior("smooth");
             },
             (err) => {
                 console.error("Streaming error:", err);
-                setIsBotResponding(false);
-                controllerRef.current = null;
+                setIsBotQnAResponding(false);
+                controllerQnARef.current = null;
             },
-            controller.signal
+            controllerQnA.signal
         );
     };
 
@@ -208,12 +276,18 @@ const QnAPage: React.FC = () => {
     };
 
     const handleSelectChatSession = async (chatId: number) => {
-        if (controllerRef.current) {
-            controllerRef.current.abort(); // stop ongoing response
-            controllerRef.current = null;
+        if (controllerQnARef.current) {
+            controllerQnARef.current.abort(); // stop ongoing response
+            controllerQnARef.current = null;
         }
 
-        setIsBotResponding(false);
+        if (controllerDisharmonyRef.current) {
+            controllerDisharmonyRef.current.abort(); // stop ongoing response
+            controllerDisharmonyRef.current = null;
+        }
+
+        setIsBotQnAResponding(false);
+        setIsBotDisharmonyResponding(false);
 
         const selectedChatHistory = chatSessions.find(chat => chat.id === chatId);
         if (!selectedChatHistory || !selectedChatHistory.id) return;
@@ -238,7 +312,7 @@ const QnAPage: React.FC = () => {
         event: MouseEvent<HTMLElement>,
         index: number
     ) => {
-        if (isBotResponding) return;
+        if (isBotQnAResponding) return;
         event.stopPropagation(); // prevent triggering the chat select
         setAnchorEl(event.currentTarget);
         setActiveChatIndex(index);
@@ -396,9 +470,9 @@ const QnAPage: React.FC = () => {
                             <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
                                 <ChatMessages
                                     chatMessages={chatMessages}
-                                    documents={[]}
-                                    isBotLoading={botReplyRef.current === "" && isBotResponding}
-                                    isFoundDisharmony={false}
+                                    documents={documents}
+                                    isBotQnALoading={botReplyQnARef.current === "" && isBotQnAResponding}
+                                    isBotDisharmonyLoading={botReplyDisharmonyRef.current === "" && isBotDisharmonyResponding}
                                     onOpenDocumentViewer={handleOpenDocumentViewer} />
                                 <div ref={messagesEndRef} />
                             </Box>
@@ -411,9 +485,12 @@ const QnAPage: React.FC = () => {
                             <ChatInput
                                 onNewChat={handleNewChat}
                                 onSendMessage={handleSendMessage}
-                                isBotLoading={isBotResponding}
-                                setIsBotLoading={setIsBotResponding}
-                                controllerRef={controllerRef}
+                                isBotQnALoading={isBotQnAResponding}
+                                isBotDisharmonyLoading={isBotDisharmonyResponding}
+                                setIsBotQnALoading={setIsBotQnAResponding}
+                                setIsBotDisharmonyLoading={setIsBotDisharmonyResponding}
+                                controllerQnARef={controllerQnARef}
+                                controllerDisharmonyRef={controllerDisharmonyRef}
                             />
                         </Box>
                     </Box>
