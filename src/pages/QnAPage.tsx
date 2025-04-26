@@ -233,11 +233,7 @@ const QnAPage: React.FC = () => {
                         setIsBotDisharmonyResponding(false);
                         if (user) {
                             try {
-                                const session = chatSessions.find(chat => chat.id === selectedChatSessionId);
-                                if (!session) return;
-
                                 await createDisharmonyResult(botMessageId, botReplyDisharmonyRef.current);
-
                             } catch (err) {
                                 console.error("Failed to save message or disharmony:", err);
                             }
