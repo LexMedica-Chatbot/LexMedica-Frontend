@@ -17,21 +17,15 @@ import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 // ** Components
 import ChatMessages from "../components/Chat/ChatMessages";
 import ChatInput from "../components/Chat/ChatInput";
-import DocumentViewer from "../components/Document/DocumentViewer";
 import HistoryMenu from "../components/History/HistoryMenu";
 import HistoryMoreOptions from "../components/History/HistoryMoreOptions";
 
 // ** API Imports (updated with Supabase functions)
-import {
-    createChatSession,
-    getChatSessions,
-    deleteChatSession,
-    createChatMessage,
-    getChatMessages,
-    streamChatCompletionQnaAnswer,
-    streamChatCompletionDisharmonyAnalysis,
-    createDisharmonyResult
-} from "../services/chat";
+import { createChatSession, getChatSessions, deleteChatSession } from "../services/chatSession";
+import { createChatMessage, getChatMessages } from "../services/chatMessage";
+import { createChatMessageDocuments, getDocumentIDUrl } from "../services/document";
+import { fetchQnaAnswer } from "../services/qna";
+import { streamChatCompletionDisharmonyAnalysis, createDisharmonyResult } from "../services/disharmony";
 
 // ** Context Imports
 import { useAuthContext } from "../context/authContext";
@@ -39,6 +33,9 @@ import { useAuthContext } from "../context/authContext";
 // ** Types
 import { ChatSession, ChatMessage } from "../types/Chat";
 import { Document } from "../types/Document";
+
+// ** Utility Imports
+import { normalizeLegalText } from "../utils/formatter";
 
 const QnAPage: React.FC = () => {
     const { handleLogout, user } = useAuthContext();
@@ -48,10 +45,6 @@ const QnAPage: React.FC = () => {
     const [chatSessions, setChatSessions] = useState<ChatSession[]>([]);
     const [isBotQnAResponding, setIsBotQnAResponding] = useState(false);
     const [isBotDisharmonyResponding, setIsBotDisharmonyResponding] = useState(false);
-
-    const documents: Document[] = [
-        { title: "UU Nomor 36 Tahun 2009", source: "https://edxnjclbtbkyohvjkmcv.supabase.co/storage/v1/object/public/lexmedica/UU/Dicabut/UU%20Nomor%2036%20Tahun%202009.pdf" },
-        { title: "Document 2", source: "https://example.com/doc2.pdf" }];
 
     // Chat History
     const chatHistoryRef = useRef<HTMLDivElement | null>(null);
@@ -86,6 +79,7 @@ const QnAPage: React.FC = () => {
 
     // Send Message
     const botReplyQnARef = useRef("");
+    const resolvedDocumentsRef = useRef<Document[]>([]);
     const botReplyDisharmonyRef = useRef("");
     const controllerQnARef = useRef<AbortController | null>(null);
     const controllerDisharmonyRef = useRef<AbortController | null>(null);
@@ -116,19 +110,58 @@ const QnAPage: React.FC = () => {
             }
         }, 100);
 
-        streamChatCompletionQnaAnswer(
-            message,
-            (chunk) => {
-                botReplyQnARef.current += chunk;
+        const historyPairs: string[] = [];
+        let pairsFound = 0;
 
+        for (let i = chatMessages.length - 1; i >= 1 && pairsFound < 3; i--) {
+            const botMessage = chatMessages[i];
+            const userMessage = chatMessages[i - 1];
+
+            if (botMessage.sender === "bot" && userMessage.sender === "user") {
+                historyPairs.unshift(`Question: ${userMessage.message}\nAnswer: ${botMessage.message}`);
+                pairsFound++;
+                i--; // Skip the user message we just processed
+            }
+        }
+
+        fetchQnaAnswer(
+            message,
+            historyPairs,
+            async (data) => {
+                botReplyQnARef.current += data.answer;
+
+                const resolvedDocuments = await Promise.all(
+                    (data.referenced_documents || []).map(async (doc: any) => {
+                        const number = doc.metadata?.nomor_peraturan;
+                        const year = doc.metadata?.tahun_peraturan;
+                        const data = number && year ? await getDocumentIDUrl(number, year) : null;
+                        const url = data?.url || null;
+
+                        return {
+                            document_id: data?.id || 0,
+                            snippet: normalizeLegalText(doc.content),
+                            source: {
+                                title: doc.description,
+                                url: url || "",
+                            },
+                        };
+                    })
+                );
+
+                // Update the documents for display
+                resolvedDocumentsRef.current = resolvedDocuments;
+
+                // Also update in chatMessages
                 setChatMessages((prev) => {
                     const updated = [...prev];
                     const lastIndex = updated.length - 1;
-                    if (lastIndex < 0) return updated; // No chatMessages yet
+                    if (lastIndex < 0) return updated;
+
                     if (updated[lastIndex].sender === "bot") {
                         updated[lastIndex] = {
                             ...updated[lastIndex],
                             message: botReplyQnARef.current,
+                            documents: resolvedDocuments,
                         };
                     }
 
@@ -142,7 +175,7 @@ const QnAPage: React.FC = () => {
                 const finalMessages: ChatMessage[] = [
                     ...chatMessages,
                     userMessage,
-                    { message: botReplyQnARef.current, sender: "bot" },
+                    { message: botReplyQnARef.current, sender: "bot", documents: resolvedDocumentsRef.current },
                 ];
 
                 let botMessageId = 0;
@@ -154,6 +187,8 @@ const QnAPage: React.FC = () => {
                         try {
                             await createChatMessage(session.id, "user", message);
                             botMessageId = await createChatMessage(session.id, "bot", botReplyQnARef.current);
+                            await createChatMessageDocuments(botMessageId, resolvedDocumentsRef.current);
+
                             setChatSessions((prev) =>
                                 prev.map((chat) =>
                                     chat.id === selectedChatSessionId
@@ -176,12 +211,10 @@ const QnAPage: React.FC = () => {
                             if (newSessionId) {
                                 await createChatMessage(newSessionId, "user", message);
                                 botMessageId = await createChatMessage(newSessionId, "bot", botReplyQnARef.current);
+                                await createChatMessageDocuments(botMessageId, resolvedDocumentsRef.current);
 
                                 await fetchChatHistory(user.id);
                                 setSelectedChatSessionId(newSessionId);
-
-                                const newMessages = await getChatMessages(newSessionId);
-                                setChatMessages(newMessages);
                             }
 
                             setTimeout(() => {
@@ -220,9 +253,9 @@ const QnAPage: React.FC = () => {
                             if (updated[lastIndex]?.sender === "bot") {
                                 updated[lastIndex] = {
                                     ...updated[lastIndex],
-                                    disharmony_result: {
-                                        ...updated[lastIndex].disharmony_result,
-                                        analysis: botReplyDisharmonyRef.current,
+                                    disharmony: {
+                                        ...updated[lastIndex].disharmony,
+                                        result: botReplyDisharmonyRef.current,
                                     }
                                 };
                             }
@@ -332,20 +365,6 @@ const QnAPage: React.FC = () => {
         } finally {
             handleCloseChatSessionMoreOptions();
         }
-    };
-
-    // Document Viewer Properties
-    const [isDocumentViewerOpened, setIsDocumentViewerOpened] = useState<boolean>(false);
-    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-
-    const handleOpenDocumentViewer = (url: string) => {
-        setPdfUrl(url);
-        setIsDocumentViewerOpened(true);
-    };
-
-    const handleCloseDocumentViewer = () => {
-        setIsDocumentViewerOpened(false);
-        setPdfUrl(null);
     };
 
     return (
@@ -466,10 +485,8 @@ const QnAPage: React.FC = () => {
                             <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
                                 <ChatMessages
                                     chatMessages={chatMessages}
-                                    documents={documents}
                                     isBotQnALoading={botReplyQnARef.current === "" && isBotQnAResponding}
-                                    isBotDisharmonyLoading={botReplyDisharmonyRef.current === "" && isBotDisharmonyResponding}
-                                    onOpenDocumentViewer={handleOpenDocumentViewer} />
+                                    isBotDisharmonyLoading={botReplyDisharmonyRef.current === "" && isBotDisharmonyResponding} />
                                 <div ref={messagesEndRef} />
                             </Box>
                         )}
@@ -492,9 +509,6 @@ const QnAPage: React.FC = () => {
                     </Box>
                 </Grid>
             </Grid >
-
-            {/* Document Viewer Modal */}
-            <DocumentViewer isDocumentViewerOpened={isDocumentViewerOpened} onCloseDocumentViewer={handleCloseDocumentViewer} pdfUrl={pdfUrl} />
         </>
     );
 };

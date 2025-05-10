@@ -1,3 +1,5 @@
+import { Document } from "./Document";
+
 export type ChatSession = {
   id: number;
   user_id: number;
@@ -10,13 +12,14 @@ export type ChatMessage = {
   session_id?: number;
   sender: "user" | "bot";
   message: string;
-  disharmony_result?: ChatDisharmony;
+  disharmony?: ChatDisharmony;
+  documents?: Document[];
   created_at?: string;
 };
 
 export type ChatDisharmony = {
   id?: number;
   message_id?: number;
-  analysis: string;
+  result: string;
   created_at?: string;
 };

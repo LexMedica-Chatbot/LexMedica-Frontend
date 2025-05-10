@@ -9,10 +9,11 @@ import Modal from "@mui/material/Modal";
 interface DocumentViewerProps {
     isDocumentViewerOpened: boolean;
     pdfUrl: string | null;
+    snippet: string | null;
     onCloseDocumentViewer: () => void;
 }
 
-const DocumentViewer: React.FC<DocumentViewerProps> = ({ isDocumentViewerOpened, onCloseDocumentViewer, pdfUrl }) => {
+const DocumentViewer: React.FC<DocumentViewerProps> = ({ isDocumentViewerOpened, onCloseDocumentViewer, pdfUrl, snippet }) => {
     return (
         <>
             {/* Document Viewer Modal */}
@@ -32,7 +33,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ isDocumentViewerOpened,
                 }}>
                     {pdfUrl && (
                         <iframe
-                            src={pdfUrl}
+                            src={`${pdfUrl}#search=${encodeURIComponent(snippet ? snippet : '')}`}
                             title="PDF Viewer"
                             width="100%"
                             height="100%"

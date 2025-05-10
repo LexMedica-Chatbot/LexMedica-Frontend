@@ -1,44 +1,104 @@
-// ** React Imports
-import ReactMarkdown from "react-markdown";
+import React from "react";
+import { Typography, Box } from "@mui/material";
 
-// ** MUI Imports
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
+// Helper: Apply bold and italic styles
+function applyInlineStyles(text: string): React.ReactNode[] {
+    return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g).map((part, i) => {
+        if (part.startsWith("**") && part.endsWith("**")) {
+            return <strong key={i}>{part.slice(2, -2)}</strong>;
+        } else if (part.startsWith("*") && part.endsWith("*")) {
+            return <em key={i}>{part.slice(1, -1)}</em>;
+        }
+        return part;
+    });
+}
+
+// Helper: Detect and format paragraphs and lists
+function parseMarkdownParagraph(text: string): React.ReactNode {
+    const lines = text.split("\n");
+
+    return (
+        <Typography component="div" mt={1}>
+            {lines.map((line, idx) => {
+                const trimmed = line.trim();
+                const indentLevel = Math.floor((line.match(/^\s*/)?.[0].length || 0) / 2);
+
+                const isBullet = /^[-•] |^\d+\.\s|^[a-z]\.\s/i.test(trimmed);
+                const match = trimmed.match(/^(\(\d+\))\s?(.*)/);
+                const bulletMatch = trimmed.match(/^([-•]|\d+\.)\s(.*)/);
+
+                const content = match
+                    ? applyInlineStyles(match[2])
+                    : bulletMatch
+                        ? applyInlineStyles(bulletMatch[2])
+                        : applyInlineStyles(trimmed);
+
+                const bullet = match
+                    ? null
+                    : bulletMatch
+                        ? bulletMatch[1]
+                        : null;
+
+                return (
+                    <Box
+                        key={idx}
+                        sx={{
+                            display: "flex",
+                            alignItems: "flex-start",
+                            ml: `${1.5 * indentLevel}em`,
+                            mb: 1,
+                        }}
+                    >
+                        {bullet && (
+                            <Box
+                                component="span"
+                                sx={{
+                                    minWidth: "1.5em",
+                                    fontWeight: "bold",
+                                    lineHeight: "1.5rem",
+                                }}
+                            >
+                                {bullet}
+                            </Box>
+                        )}
+                        <Typography
+                            component="div"
+                            sx={{
+                                fontSize: "0.95rem",
+                                flex: 1,
+                                whiteSpace: "pre-wrap",
+                            }}
+                        >
+                            {match ? (
+                                <>
+                                    <strong>{match[1]}</strong> {applyInlineStyles(match[2])}
+                                </>
+                            ) : (
+                                content
+                            )}
+                        </Typography>
+                    </Box>
+                );
+            })}
+        </Typography>
+    );
+}
 
 interface ChatMarkdownProps {
     message: string;
 }
 
 const ChatMarkdown: React.FC<ChatMarkdownProps> = ({ message }) => {
-    const formatMarkdown = (text: string) => {
-        return text
-            // Remove double line breaks after colons if followed by list or quote
-            .replace(/:\n\n(?=(?:-|\d+\.|>|“|"))/g, ':')
-            // Merge bullet points with less spacing
-            .replace(/(-\s[^\n]+)\n\n(?=-\s)/g, '$1')
-            .replace(/(\d+\.\s[^\n]+)\n\n(?=\d+\.\s)/g, '$1');
-    };
-
-    const formattedMessage = formatMarkdown(message);
-
     return (
-        <ReactMarkdown
-            children={formattedMessage}
-            components={{
-                p: ({ node, ...props }) => <Typography {...props} />,
-                strong: ({ node, ...props }) => <strong {...props} />,
-                em: ({ node, ...props }) => <em {...props} />,
-                code: ({ node, ...props }) => (
-                    <code style={{ background: "#f5f5f5", borderRadius: 4, padding: "0.2rem 0.4rem" }} {...props} />
-                ),
-                pre: ({ node, ...props }) => (
-                    <Box component="pre" sx={{ background: "#f5f5f5", p: 2, borderRadius: 2, overflowX: "auto" }} {...props} />
-                ),
-                ol: ({ node, ...props }) => <ol style={{ paddingLeft: "2rem" }} {...props} />,
-                ul: ({ node, ...props }) => <ul style={{ paddingLeft: "2rem" }} {...props} />,
-                li: ({ node, ...props }) => <li {...props} />,
-            }}
-        />
+        <Box>
+            {message
+                .split("\n\n")
+                .map((block, idx) => (
+                    <React.Fragment key={idx}>
+                        {parseMarkdownParagraph(block)}
+                    </React.Fragment>
+                ))}
+        </Box>
     );
 };
 
