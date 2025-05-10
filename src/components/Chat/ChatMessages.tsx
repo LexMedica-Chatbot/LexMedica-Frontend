@@ -91,7 +91,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                         ) : (
                             <Paper
                                 sx={{
-                                    py: msg.sender === "user" ? 1 : 2,
+                                    pt: 1,
+                                    pb: msg.sender === "user" ? 1 : 3,
                                     px: msg.sender === "user" ? 3 : 4,
                                     borderRadius: 2,
                                     bgcolor:
@@ -142,14 +143,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                             borderRadius: 2,
                                                             borderColor: "primary.main",
                                                             padding: 1,
-                                                            marginTop: 1
+                                                            mt: 2
                                                         }}
                                                     >
                                                         <Box width={"100%"}>
                                                             <Typography
                                                                 fontWeight={"bold"}
                                                                 variant={"h6"}
-                                                                pl={2}
+                                                                px={2}
                                                             >
                                                                 Sumber Rujukan
                                                             </Typography>
@@ -262,11 +263,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                     <Typography
                                                                         fontWeight={"bold"}
                                                                         variant={"h6"}
+                                                                        pl={2}
                                                                     >
                                                                         Hasil Analisis Potensi Disharmoni Regulasi
                                                                     </Typography>
                                                                 </Box>
-                                                                <Box>
+                                                                <Box px={2}>
                                                                     <ChatMarkdown
                                                                         message={msg.disharmony.result}
                                                                     />
