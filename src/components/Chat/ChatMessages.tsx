@@ -1,6 +1,6 @@
 // Desc: Chat Messages component containing the bubble Messages between user and bot
 // ** React Import
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // ** MUI Imports
 import Box from "@mui/material/Box";
@@ -61,6 +61,30 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         setPdfUrl(null);
     };
 
+    const loadingStages = [
+        "Menelusuri dokumen hukum ...",
+        "Menganalisis hasil temuan ...",
+        "Menggabungkan informasi ...",
+        "Memverifikasi jawaban ..."
+    ];
+
+    const [loadingStageIndex, setLoadingStageIndex] = useState(0);
+
+    useEffect(() => {
+        if (!isBotQnALoading) {
+            setLoadingStageIndex(0);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setLoadingStageIndex((prev) =>
+                prev < loadingStages.length - 1 ? prev + 1 : prev
+            );
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [isBotQnALoading]);
+
     return (
         <>
             <List>
@@ -75,6 +99,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                             <Paper
                                 sx={{
                                     p: 1.5,
+                                    px: 4,
                                     borderRadius: 2,
                                     bgcolor: "grey.300",
                                     color: "black",
@@ -86,7 +111,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                             >
                                 <CircularProgress size={24} sx={{ mr: 2 }} />
                                 <ListItemText
-                                    primary={"Bot sedang memproses ..."}
+                                    primary={loadingStages[loadingStageIndex]}
                                     sx={{ wordWrap: "break-word" }}
                                 />
                             </Paper>
@@ -95,7 +120,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                 sx={{
                                     pt: msg.sender === "user" ? 1 : 3,
                                     pb: msg.sender === "user" ? 1 : 4,
-                                    px: msg.sender === "user" ? 3 : 4,
+                                    px: msg.sender === "user" ? 2 : 4,
                                     borderRadius: 2,
                                     bgcolor:
                                         msg.sender === "user" ? "primary.main" : "grey.100",
@@ -131,9 +156,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                     variant="contained"
                                                     size="small"
                                                 >
-                                                    {openAnnotations.includes(index)
-                                                        ? "Sembunyikan Anotasi"
-                                                        : "Tampilkan Anotasi"}
+                                                    <Typography color="secondary.main" variant="body2" fontWeight={"bold"}>
+                                                        {openAnnotations.includes(index)
+                                                            ? "Sembunyikan Anotasi"
+                                                            : "Tampilkan Anotasi"}
+                                                    </Typography>
                                                 </Button>
 
                                                 <Collapse
