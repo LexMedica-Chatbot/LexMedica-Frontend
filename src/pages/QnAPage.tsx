@@ -23,7 +23,7 @@ import HistoryMoreOptions from "../components/History/HistoryMoreOptions";
 // ** API Imports (updated with Supabase functions)
 import { createChatSession, getChatSessions, deleteChatSession } from "../services/chatSession";
 import { createChatMessage, getChatMessages } from "../services/chatMessage";
-import { createChatMessageDocuments, getDocumentIDUrl } from "../services/document";
+import { createChatMessageDocuments, getDocument } from "../services/document";
 import { fetchQnaAnswer } from "../services/qna";
 import { streamChatCompletionDisharmonyAnalysis, createDisharmonyResult } from "../services/disharmony";
 
@@ -84,8 +84,9 @@ const QnAPage: React.FC = () => {
     const controllerQnARef = useRef<AbortController | null>(null);
     const controllerDisharmonyRef = useRef<AbortController | null>(null);
 
-    const handleSendMessage = async (message: string) => {
+    const handleSendMessage = async (message: string, modelUrl: string) => {
         if (!message.trim()) return;
+        if (modelUrl === "") return;
 
         // Abort previous request if still streaming
         if (controllerQnARef.current) {
@@ -126,23 +127,29 @@ const QnAPage: React.FC = () => {
 
         fetchQnaAnswer(
             message,
+            modelUrl,
             historyPairs,
             async (data) => {
                 botReplyQnARef.current += data.answer;
 
                 const resolvedDocuments = await Promise.all(
                     (data.referenced_documents || []).map(async (doc: any) => {
+                        const type = doc.metadata?.jenis_peraturan;
                         const number = doc.metadata?.nomor_peraturan;
                         const year = doc.metadata?.tahun_peraturan;
-                        const data = number && year ? await getDocumentIDUrl(number, year) : null;
-                        const url = data?.url || null;
+                        const data = type && number && year ? await getDocument(type, number, year) : null;
 
                         return {
                             document_id: data?.id || 0,
+                            clause: doc.metadata?.tipe_bagian,
                             snippet: normalizeLegalText(doc.content),
                             source: {
-                                title: doc.description,
-                                url: url || "",
+                                about: data?.about,
+                                type: data?.type,
+                                number: data?.number,
+                                year: data?.year,
+                                status: data?.status,
+                                url: data?.url,
                             },
                         };
                     })
@@ -255,7 +262,9 @@ const QnAPage: React.FC = () => {
                                     ...updated[lastIndex],
                                     disharmony: {
                                         ...updated[lastIndex].disharmony,
-                                        result: botReplyDisharmonyRef.current,
+                                        analysis: botReplyDisharmonyRef.current,
+                                        // TODO: CHANGE THIS RESULT TO BOOLEAN
+                                        result: false,
                                     }
                                 };
                             }
@@ -325,6 +334,7 @@ const QnAPage: React.FC = () => {
             const fetchedMessages = await getChatMessages(chatId); // Fetch messages from Supabase
             setSelectedChatSessionId(chatId);
             setChatMessages(fetchedMessages);
+            console.log("Fetched messages:", fetchedMessages);
         } catch (error) {
             console.error("Error fetching chat messages:", error);
         }
@@ -416,10 +426,15 @@ const QnAPage: React.FC = () => {
                             {/* Left Section: LexMedica App Name */}
                             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                                 {user && !isHistoryChatVisible && (
-                                    <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: 'secondary.main' }}>
+                                    <IconButton
+                                        onClick={toggleHistoryChat}
+                                        sx={{ position: "absolute", left: 10, color: 'secondary.main' }}
+                                    >
                                         <FormatListBulletedIcon />
                                     </IconButton>
                                 )}
+
+                                {/* App Name */}
                                 <Typography fontWeight="bold" variant="h5" sx={{ ml: isHistoryChatVisible ? 0 : 5 }}>
                                     LexMedica
                                 </Typography>
@@ -507,7 +522,7 @@ const QnAPage: React.FC = () => {
                             />
                         </Box>
                     </Box>
-                </Grid>
+                </Grid >
             </Grid >
         </>
     );

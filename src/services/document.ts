@@ -1,5 +1,6 @@
 import { supabase } from "../utils/supabase";
 import type { Document } from "../types/Document";
+import type { LinkDocument } from "../types/Document";
 
 export const createChatMessageDocuments = async (
   messageId: number,
@@ -16,6 +17,7 @@ export const createChatMessageDocuments = async (
   const inserts = validDocuments.map((doc) => ({
     message_id: messageId,
     document_id: doc.document_id!,
+    clause: doc.clause,
     snippet: doc.snippet,
   }));
 
@@ -34,21 +36,23 @@ export const createChatMessageDocuments = async (
   }
 };
 
-export const getDocumentIDUrl = async (
+export const getDocument = async (
+  type: string,
   number: string,
   year: string
-): Promise<{ id: number; url: string } | null> => {
+): Promise<LinkDocument> => {
   const { data, error } = await supabase
     .from("link_documents")
-    .select("id, url")
+    .select("*")
+    .eq("type", type)
     .eq("number", number)
     .eq("year", year)
     .maybeSingle();
 
   if (error) {
     console.error("Error fetching document:", error);
-    return null;
+    return undefined as unknown as LinkDocument;
   }
 
-  return data ? { id: data.id, url: data.url } : null;
+  return data;
 };

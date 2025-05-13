@@ -20,6 +20,7 @@ export type ChatMessage = {
 export type ChatDisharmony = {
   id?: number;
   message_id?: number;
-  result: string;
+  result: boolean;
+  analysis: string;
   created_at?: string;
 };

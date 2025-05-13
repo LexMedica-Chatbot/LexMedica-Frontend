@@ -35,14 +35,20 @@ export const getChatMessages = async (
       disharmony_analysis (
         id,
         result,
+        analysis,
         created_at
       ),
       chat_message_documents (
         message_id,
+        clause,
         document_id,
         snippet,
         link_documents (
-          title,
+          type,
+          about,
+          number,
+          year,
+          status,
           url
         )
       )
@@ -61,10 +67,15 @@ export const getChatMessages = async (
     documents: (msg.chat_message_documents || []).map((rel: any) => ({
       message_id: rel.message_id,
       document_id: rel.document_id,
+      clause: rel.clause,
       snippet: rel.snippet,
       source: {
         id: rel.link_documents.id,
-        title: rel.link_documents.title,
+        type: rel.link_documents.type,
+        about: rel.link_documents.about,
+        number: rel.link_documents.number,
+        year: rel.link_documents.year,
+        status: rel.link_documents.status,
         url: rel.link_documents.url,
       },
     })),

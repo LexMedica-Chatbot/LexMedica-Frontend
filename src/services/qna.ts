@@ -56,6 +56,7 @@
 
 export const fetchQnaAnswer = async (
   question: string,
+  modelUrl: string,
   history: string[],
   onResult: (data: any) => void,
   onComplete: () => void,
@@ -64,7 +65,7 @@ export const fetchQnaAnswer = async (
 ) => {
   try {
     const response = await fetch(
-      `${process.env.REACT_APP_QNA_URL || "http://localhost:8080"}/api/chat`,
+      `${modelUrl || "http://localhost:8080"}/api/chat`,
       {
         method: "POST",
         headers: {

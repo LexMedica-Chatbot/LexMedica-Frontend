@@ -5,6 +5,8 @@ import React, { useState, useRef } from "react";
 // ** MUI Imports
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
+import MenuItem from "@mui/material/MenuItem";
+import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Tooltip from "@mui/material/Tooltip";
 
@@ -19,7 +21,7 @@ interface ChatInputProps {
     setIsBotQnALoading: (state: boolean) => void;
     setIsBotDisharmonyLoading: (state: boolean) => void;
     onNewChat: () => void;
-    onSendMessage: (message: string) => void;
+    onSendMessage: (message: string, modelUrl: string) => void;
     controllerQnARef: React.MutableRefObject<AbortController | null>;
     controllerDisharmonyRef: React.MutableRefObject<AbortController | null>;
 }
@@ -37,12 +39,18 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
+    const singleAgentUrl = process.env.REACT_APP_SINGLE_AGENT_URL || "";
+    const multiAgentUrl = process.env.REACT_APP_MULTI_AGENT_URL || "";
+
+    // Model options
+    const [selectedModelUrl, setSelectedModelUrl] = useState(singleAgentUrl);
+
     // Handle sending message
     const handleSend = () => {
-        if (!input) return;  // Prevent sending empty messages
-        onSendMessage(input);
-        setInput(""); // Clear input after sending
-        setTimeout(() => inputRef.current?.focus(), 100); // Auto-focus after state update
+        if (!input) return;
+        onSendMessage(input, selectedModelUrl);
+        setInput("");
+        setTimeout(() => inputRef.current?.focus(), 100);
     };
 
     // Enter key press
@@ -56,9 +64,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
     // Handle new chat
     const handleNewChat = () => {
         onNewChat();
-        setInput(""); // Clear input
-        setTimeout(() => inputRef.current?.focus(), 100); // Auto-focus after state update
+        setInput("");
+        setTimeout(() => inputRef.current?.focus(), 100);
     };
+
+    const models = [
+        { label: 'Single-Agent', value: singleAgentUrl },
+        { label: 'Multi-Agent', value: multiAgentUrl },
+    ];
 
     return (
         <Box
@@ -100,14 +113,24 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onKeyDown={handleKeyDown}
                 multiline
                 maxRows={7}
-                inputRef={inputRef} // Attach ref to input
+                inputRef={inputRef}
                 sx={{
-                    bgcolor: "white",
+                    bgcolor: "background.paper",
                     borderRadius: 1,
                     decoration: "none",
                     flexGrow: 1,
                     "& .MuiOutlinedInput-root": {
                         padding: "10px",
+                        borderRadius: 1,
+                        '& fieldset': {
+                            borderColor: 'transparent',
+                        },
+                        '&:hover fieldset': {
+                            borderColor: 'primary.main',
+                        },
+                        '&.Mui-focused fieldset': {
+                            borderColor: 'primary.dark',
+                        },
                     },
                 }}
             />
@@ -140,7 +163,37 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     </Tooltip>
                 </>
             ) : (
-                <>
+                <Box display={"flex"} alignItems={"center"} sx={{ height: "100%" }}>
+                    {/* Model Selector */}
+                    <Select
+                        size="small"
+                        value={selectedModelUrl}
+                        onChange={(e) => setSelectedModelUrl(e.target.value)}
+                        variant="standard"
+                        disableUnderline
+                        sx={{
+                            fontWeight: 'bold',
+                            fontSize: '0.8rem',
+                            color: 'secondary.main',
+                            bgcolor: 'primary.light',
+                            borderRadius: 1,
+                            py: 0.7,
+                            '& .MuiSelect-select': {
+                                py: 0.5,
+                                px: 1.5,
+                            },
+                            '&:hover': {
+                                bgcolor: 'primary.main',
+                            },
+                        }}
+                    >
+                        {models.map((model) => (
+                            <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold", color: "secondary.main" }}>
+                                {model.label}
+                            </MenuItem>
+                        ))}
+                    </Select>
+
                     {/* Send Button */}
                     <Tooltip title="Kirim" arrow>
                         <span>
@@ -159,7 +212,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             </IconButton>
                         </span>
                     </Tooltip>
-                </>
+                </Box>
             )}
         </Box >
     );
