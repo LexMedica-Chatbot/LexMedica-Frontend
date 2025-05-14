@@ -15,6 +15,8 @@ import NotFoundPage from './pages/NotFoundPage'
 import { useAuthContext } from './context/authContext'
 
 function App() {
+  document.title = "LexMedica Chatbot";
+
   const theme = createTheme(themeOptions)
 
   const { session } = useAuthContext();

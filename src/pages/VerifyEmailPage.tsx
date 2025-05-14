@@ -32,8 +32,6 @@ const VerifyEmailPage = () => {
     const email = searchParams.get("email");
 
     useEffect(() => {
-        document.title = "Verifikasi Email | LexMedica";
-
         const checkEmailStatus = async () => {
             const { data: userData } = await supabase.auth.getUser();
 
