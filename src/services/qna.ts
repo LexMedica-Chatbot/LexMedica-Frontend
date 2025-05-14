@@ -59,7 +59,6 @@ export const fetchQnaAnswer = async (
   modelUrl: string,
   history: string[],
   onResult: (data: any) => void,
-  onComplete: () => void,
   onError: (err: any) => void,
   signal: AbortSignal
 ) => {
@@ -91,7 +90,6 @@ export const fetchQnaAnswer = async (
     }
 
     onResult(data);
-    onComplete();
   } catch (err) {
     if ((err as any).name === "AbortError") {
       console.log("Fetch aborted by user");

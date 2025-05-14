@@ -1,3 +1,9 @@
+export type Regulation = {
+  dokumen: string;
+  pasal: string;
+  ayat: string;
+};
+
 export type Document = {
   message_id?: number;
   document_id?: number;
@@ -10,9 +16,9 @@ export type LinkDocument = {
   id?: number;
   title?: string;
   about?: string;
-  type: string;
+  type?: string;
   number?: string;
   year?: string;
   status?: string;
-  url: string;
+  url?: string;
 };

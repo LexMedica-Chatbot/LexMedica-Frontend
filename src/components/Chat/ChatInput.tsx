@@ -135,85 +135,86 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }}
             />
 
-            {isBotQnALoading || isBotDisharmonyLoading ? (
-                <>
-                    {/* Send Button */}
-                    <Tooltip title="Stop" arrow>
-                        <span>
-                            <IconButton
-                                color="error"
-                                onClick={() => {
-                                    setIsBotQnALoading(false);
-                                    setIsBotDisharmonyLoading(false);
-                                    if (controllerQnARef.current) controllerQnARef.current.abort();
-                                    controllerQnARef.current = null;
-                                    if (controllerDisharmonyRef.current) controllerDisharmonyRef.current.abort();
-                                    controllerDisharmonyRef.current = null;
-                                }}
-                                sx={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: '8px',
-                                    alignSelf: "flex-end"
-                                }}
-                            >
-                                <StopCircleIcon />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-                </>
-            ) : (
-                <Box display={"flex"} alignItems={"center"} sx={{ height: "100%" }}>
-                    {/* Model Selector */}
-                    <Select
-                        size="small"
-                        value={selectedModelUrl}
-                        onChange={(e) => setSelectedModelUrl(e.target.value)}
-                        variant="standard"
-                        disableUnderline
-                        sx={{
-                            fontWeight: 'bold',
-                            fontSize: '0.8rem',
-                            color: 'secondary.main',
-                            bgcolor: 'primary.light',
-                            borderRadius: 1,
-                            py: 0.7,
-                            '& .MuiSelect-select': {
-                                py: 0.5,
-                                px: 1.5,
-                            },
-                            '&:hover': {
-                                bgcolor: 'primary.main',
-                            },
-                        }}
-                    >
-                        {models.map((model) => (
-                            <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold", color: "secondary.main" }}>
-                                {model.label}
-                            </MenuItem>
-                        ))}
-                    </Select>
-
-                    {/* Send Button */}
-                    <Tooltip title="Kirim" arrow>
-                        <span>
-                            <IconButton
-                                color="secondary"
-                                onClick={handleSend}
-                                disabled={!input.trim()}
-                                sx={{
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    borderRadius: '8px',
-                                    alignSelf: "flex-end"
-                                }}
-                            >
-                                <SendIcon />
-                            </IconButton>
-                        </span>
-                    </Tooltip>
-                </Box>
-            )}
+            <Box display={"flex"} alignItems={"center"} sx={{ height: "100%" }}>
+                {/* Model Selector */}
+                <Select
+                    size="small"
+                    value={selectedModelUrl}
+                    onChange={(e) => setSelectedModelUrl(e.target.value)}
+                    variant="standard"
+                    disableUnderline
+                    sx={{
+                        fontWeight: 'bold',
+                        fontSize: '0.8rem',
+                        color: 'secondary.main',
+                        bgcolor: 'primary.light',
+                        borderRadius: 1,
+                        py: 0.7,
+                        '& .MuiSelect-select': {
+                            py: 0.5,
+                            px: 1.5,
+                        },
+                        '&:hover': {
+                            bgcolor: 'primary.main',
+                        },
+                    }}
+                >
+                    {models.map((model) => (
+                        <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold", color: "secondary.main" }}>
+                            {model.label}
+                        </MenuItem>
+                    ))}
+                </Select>
+                {isBotQnALoading || isBotDisharmonyLoading ? (
+                    <>
+                        {/* Send Button */}
+                        <Tooltip title="Stop" arrow>
+                            <span>
+                                <IconButton
+                                    color="error"
+                                    onClick={() => {
+                                        setIsBotQnALoading(false);
+                                        setIsBotDisharmonyLoading(false);
+                                        if (controllerQnARef.current) controllerQnARef.current.abort();
+                                        controllerQnARef.current = null;
+                                        if (controllerDisharmonyRef.current) controllerDisharmonyRef.current.abort();
+                                        controllerDisharmonyRef.current = null;
+                                    }}
+                                    sx={{
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        borderRadius: '8px',
+                                        alignSelf: "flex-end"
+                                    }}
+                                >
+                                    <StopCircleIcon />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </>
+                ) : (
+                    <>
+                        {/* Send Button */}
+                        < Tooltip title="Kirim" arrow>
+                            <span>
+                                <IconButton
+                                    color="secondary"
+                                    onClick={handleSend}
+                                    disabled={!input.trim()}
+                                    sx={{
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        borderRadius: '8px',
+                                        alignSelf: "flex-end"
+                                    }}
+                                >
+                                    <SendIcon />
+                                </IconButton>
+                            </span>
+                        </Tooltip>
+                    </>
+                )}
+            </Box>
         </Box >
     );
 };

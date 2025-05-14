@@ -25,13 +25,13 @@ import { createChatSession, getChatSessions, deleteChatSession } from "../servic
 import { createChatMessage, getChatMessages } from "../services/chatMessage";
 import { createChatMessageDocuments, getDocument } from "../services/document";
 import { fetchQnaAnswer } from "../services/qna";
-import { streamChatCompletionDisharmonyAnalysis, createDisharmonyResult } from "../services/disharmony";
+import { createDisharmonyResult, fetchDisharmonyAnalysis } from "../services/disharmony";
 
 // ** Context Imports
 import { useAuthContext } from "../context/authContext";
 
 // ** Types
-import { ChatSession, ChatMessage } from "../types/Chat";
+import { ChatSession, ChatMessage, ChatDisharmony } from "../types/Chat";
 import { Document } from "../types/Document";
 
 // ** Utility Imports
@@ -79,8 +79,9 @@ const QnAPage: React.FC = () => {
 
     // Send Message
     const botReplyQnARef = useRef("");
+    const regulationsRef = useRef("");
     const resolvedDocumentsRef = useRef<Document[]>([]);
-    const botReplyDisharmonyRef = useRef("");
+    const botReplyDisharmonyRef = useRef<ChatDisharmony>({ result: false, analysis: "" });
     const controllerQnARef = useRef<AbortController | null>(null);
     const controllerDisharmonyRef = useRef<AbortController | null>(null);
 
@@ -99,8 +100,12 @@ const QnAPage: React.FC = () => {
         const userMessage: ChatMessage = { message, sender: "user" };
         setChatMessages((prev) => [...prev, userMessage]);
         setIsBotQnAResponding(true);
+        setIsBotDisharmonyResponding(true);
 
         botReplyQnARef.current = "";
+        botReplyDisharmonyRef.current.analysis = "";
+        botReplyDisharmonyRef.current.result = false;
+        regulationsRef.current = "";
 
         const newBotMessage: ChatMessage = { message: "", sender: "bot" };
         setChatMessages((prev) => [...prev, newBotMessage]);
@@ -139,6 +144,12 @@ const QnAPage: React.FC = () => {
                         const year = doc.metadata?.tahun_peraturan;
                         const data = type && number && year ? await getDocument(type, number, year) : null;
 
+                        regulationsRef.current += JSON.stringify({
+                            dokumen: doc.description,
+                            pasal: doc.metadata?.tipe_bagian,
+                            ayat: doc.content,
+                        });
+
                         return {
                             document_id: data?.id || 0,
                             clause: doc.metadata?.tipe_bagian,
@@ -174,8 +185,8 @@ const QnAPage: React.FC = () => {
 
                     return updated;
                 });
-            },
-            async () => {
+
+                // Bot QNA response completed
                 setIsBotQnAResponding(false);
                 controllerQnARef.current = null;
 
@@ -233,65 +244,60 @@ const QnAPage: React.FC = () => {
                             console.error("Failed to create chat session or chatMessages:", error);
                         }
                     }
-                } else {
-                    // setChatMessages(finalMessages);
-                    console.log("Anonymous user — QnA shown but not saved.");
                 }
 
-                botReplyDisharmonyRef.current = "";
-                setIsBotDisharmonyResponding(true);
+                // Check the disharmony after getting the regulations
+                if (regulationsRef.current !== "") {
 
-                // Abort previous request if still streaming
-                if (controllerDisharmonyRef.current) {
-                    controllerDisharmonyRef.current.abort();
+                    // Abort previous request if still streaming
+                    if (controllerDisharmonyRef.current) {
+                        controllerDisharmonyRef.current.abort();
+                    }
+
+                    const controllerDisharmony = new AbortController();
+                    controllerDisharmonyRef.current = controllerDisharmony;
+
+                    // Fetch disharmony analysis
+                    fetchDisharmonyAnalysis(
+                        regulationsRef.current,
+                        async (data) => {
+                            botReplyDisharmonyRef.current.analysis += data.analysis;
+                            botReplyDisharmonyRef.current.result = data.result;
+
+                            setChatMessages((prev) => {
+                                const updated = [...prev];
+                                const lastIndex = updated.length - 1;
+                                if (updated[lastIndex]?.sender === "bot") {
+                                    updated[lastIndex] = {
+                                        ...updated[lastIndex],
+                                        disharmony: {
+                                            ...updated[lastIndex].disharmony,
+                                            analysis: data.analysis,
+                                            result: data.result,
+                                        }
+                                    };
+                                }
+                                return updated;
+                            });
+
+                            if (user) {
+                                if (botReplyDisharmonyRef.current.analysis !== "") {
+                                    await createDisharmonyResult(botMessageId, botReplyDisharmonyRef.current);
+                                }
+                            }
+                            setIsBotDisharmonyResponding(false);
+
+                        },
+                        (err) => {
+                            console.error("Disharmony streaming error:", err);
+                            setIsBotDisharmonyResponding(false);
+                            controllerDisharmonyRef.current = null;
+                        },
+                        controllerDisharmony.signal
+                    );
+
+                    setScrollBehavior("smooth");
                 }
-
-                const controllerDisharmony = new AbortController();
-                controllerDisharmonyRef.current = controllerDisharmony;
-
-                streamChatCompletionDisharmonyAnalysis(
-                    botReplyQnARef.current,
-                    (chunk) => {
-                        botReplyDisharmonyRef.current += chunk;
-
-                        setChatMessages((prev) => {
-                            const updated = [...prev];
-                            const lastIndex = updated.length - 1;
-                            if (updated[lastIndex]?.sender === "bot") {
-                                updated[lastIndex] = {
-                                    ...updated[lastIndex],
-                                    disharmony: {
-                                        ...updated[lastIndex].disharmony,
-                                        analysis: botReplyDisharmonyRef.current,
-                                        // TODO: CHANGE THIS RESULT TO BOOLEAN
-                                        result: false,
-                                    }
-                                };
-                            }
-                            return updated;
-                        });
-                    },
-                    async () => {
-                        setIsBotDisharmonyResponding(false);
-                        if (user) {
-                            try {
-                                await createDisharmonyResult(botMessageId, botReplyDisharmonyRef.current);
-                            } catch (err) {
-                                console.error("Failed to save message or disharmony:", err);
-                            }
-                        } else {
-                            console.log("Anonymous user — disharmony shown but not saved.");
-                        }
-                    },
-                    (err) => {
-                        console.error("Disharmony streaming error:", err);
-                        setIsBotDisharmonyResponding(false);
-                        controllerDisharmonyRef.current = null;
-                    },
-                    controllerDisharmony.signal
-                );
-
-                setScrollBehavior("smooth");
             },
             (err) => {
                 console.error("Streaming error:", err);
@@ -501,7 +507,7 @@ const QnAPage: React.FC = () => {
                                 <ChatMessages
                                     chatMessages={chatMessages}
                                     isBotQnALoading={botReplyQnARef.current === "" && isBotQnAResponding}
-                                    isBotDisharmonyLoading={botReplyDisharmonyRef.current === "" && isBotDisharmonyResponding} />
+                                    isBotDisharmonyLoading={botReplyDisharmonyRef.current.analysis === "" && isBotDisharmonyResponding} />
                                 <div ref={messagesEndRef} />
                             </Box>
                         )}

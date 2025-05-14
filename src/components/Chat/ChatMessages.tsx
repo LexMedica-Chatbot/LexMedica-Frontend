@@ -62,13 +62,22 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     };
 
     const loadingStages = [
-        "Menelusuri dokumen hukum ...",
-        "Menganalisis hasil temuan ...",
-        "Menggabungkan informasi ...",
-        "Memverifikasi jawaban ..."
+        "Menelusuri dokumen hukum ",
+        "Menganalisis hasil temuan ",
+        "Menggabungkan informasi ",
+        "Memverifikasi jawaban "
     ];
 
     const [loadingStageIndex, setLoadingStageIndex] = useState(0);
+
+    const [dots, setDots] = useState(".");
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setDots(prev => (prev.length < 3 ? prev + "." : "."));
+        }, 1000);
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         if (!isBotQnALoading) {
@@ -110,8 +119,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                 }}
                             >
                                 <CircularProgress size={24} sx={{ mr: 2 }} />
-                                <ListItemText
-                                    primary={loadingStages[loadingStageIndex]}
+                                <ListItemText primary={`${loadingStages[loadingStageIndex]}${dots}`}
                                     sx={{ wordWrap: "break-word" }}
                                 />
                             </Paper>
@@ -213,7 +221,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                 variant="contained"
                                                                                 disabled={document.source.url === undefined}
                                                                                 onClick={() => {
-                                                                                    handleOpenDocumentViewer(document.source.url);
+                                                                                    handleOpenDocumentViewer(document.source.url ?? "");
                                                                                     setSnippet(document.snippet.length > 20
                                                                                         ? document.snippet.slice(0, 20)
                                                                                         : document.snippet);
@@ -337,7 +345,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                             >
                                                                 <CircularProgress size={16} sx={{ mr: 2 }} />
                                                                 <ListItemText
-                                                                    primary={"Bot sedang menganalisis regulasi ..."}
+                                                                    primary={"Menganalisis potensi disharmoni regulasi ..."}
                                                                     sx={{ wordWrap: "break-word" }}
                                                                 />
                                                             </Paper>
@@ -369,7 +377,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                     />
                                                                 </Box>
 
-                                                                <Box px={2} mt={3}>
+                                                                <Box px={2} mt={2}>
                                                                     <ChatMarkdown
                                                                         message={msg.disharmony.analysis}
                                                                     />

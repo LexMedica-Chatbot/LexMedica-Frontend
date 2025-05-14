@@ -23,7 +23,6 @@ function parseMarkdownParagraph(text: string): React.ReactNode {
                 const trimmed = line.trim();
                 const indentLevel = Math.floor((line.match(/^\s*/)?.[0].length || 0) / 2);
 
-                const isBullet = /^[-•] |^\d+\.\s|^[a-z]\.\s/i.test(trimmed);
                 const match = trimmed.match(/^(\(\d+\))\s?(.*)/);
                 const bulletMatch = trimmed.match(/^([-•]|\d+\.)\s(.*)/);
 
