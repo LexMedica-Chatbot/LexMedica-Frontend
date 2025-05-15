@@ -110,14 +110,19 @@ export const fetchDisharmonyAnalysis = async (
   signal: AbortSignal
 ): Promise<ChatDisharmony | void> => {
   try {
-    const response = await fetch("http://localhost:8080/api/chat/analyze", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ regulations, method: "zero-shot" }),
-      signal, // Attach abort signal here
-    });
+    const response = await fetch(
+      `${
+        process.env.REACT_APP_DISHARMONY_URL || "http://localhost:8080"
+      }/api/chat/analyze`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ regulations, method: "zero-shot" }),
+        signal, // Attach abort signal here
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
