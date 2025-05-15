@@ -36,9 +36,14 @@ import { Document } from "../types/Document";
 
 // ** Utility Imports
 import { normalizeLegalText } from "../utils/formatter";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
 
 const QnAPage: React.FC = () => {
     const { handleLogout, user } = useAuthContext();
+    const [dialogLogoutOpen, setDialogLogoutOpen] = useState(false);
 
     const [selectedChatSessionId, setSelectedChatSessionId] = useState<number | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -393,7 +398,7 @@ const QnAPage: React.FC = () => {
                         xs={2}
                         sx={{
                             height: "100vh",
-                            bgcolor: 'secondary.dark',
+                            bgcolor: '#160100',
                             display: "flex",
                             flexDirection: "column",
                         }}
@@ -403,13 +408,18 @@ const QnAPage: React.FC = () => {
                             <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: "white" }}>
                                 <FormatListBulletedIcon />
                             </IconButton>
-                            <Typography variant="h6" sx={{ color: "white" }}>
+                            <Typography variant="h6" color="white" fontWeight="bold">
                                 Riwayat Chat
                             </Typography>
                         </Box>
 
                         {/* Third Box: History Chat List */}
-                        <HistoryMenu chatSessionsRef={chatHistoryRef} chatSessions={chatSessions} selectedChatSessionId={selectedChatSessionId} onSelectChatSession={handleSelectChatSession} onMoreClick={handleClickChatSessionMoreOptions} />
+                        <HistoryMenu
+                            chatSessionsRef={chatHistoryRef}
+                            chatSessions={chatSessions}
+                            selectedChatSessionId={selectedChatSessionId}
+                            onSelectChatSession={handleSelectChatSession}
+                            onMoreClick={handleClickChatSessionMoreOptions} />
                     </Grid>
                 )}
 
@@ -434,7 +444,7 @@ const QnAPage: React.FC = () => {
                                 {user && !isHistoryChatVisible && (
                                     <IconButton
                                         onClick={toggleHistoryChat}
-                                        sx={{ position: "absolute", left: 10, color: 'secondary.main' }}
+                                        sx={{ position: "absolute", left: 10 }}
                                     >
                                         <FormatListBulletedIcon />
                                     </IconButton>
@@ -452,21 +462,47 @@ const QnAPage: React.FC = () => {
                                     <>
                                         <Link to="/login" style={{ textDecoration: "none" }}>
                                             <Button variant="contained">
-                                                <Typography fontWeight="bold">Masuk</Typography>
+                                                Masuk
                                             </Button>
                                         </Link>
                                         <Link to="/register" style={{ textDecoration: "none" }}>
                                             <Button variant="outlined" sx={{ border: "2px solid" }}>
-                                                <Typography fontWeight="bold">Daftar</Typography>
+                                                Daftar
                                             </Button>
                                         </Link>
                                     </>
                                 ) : (
                                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
                                         <Typography fontWeight="bold" variant="body2">{user.email}</Typography>
-                                        <Button variant="contained" color="error" onClick={handleLogout}>
+                                        <Button
+                                            variant="contained"
+                                            onClick={() => setDialogLogoutOpen(true)}
+                                            sx={{ bgcolor: "error.main", "&:hover": { bgcolor: "error.dark" }, color: "white" }}
+                                        >
                                             Logout
                                         </Button>
+
+                                        {/* Confirmation Dialog */}
+                                        <Dialog open={dialogLogoutOpen} onClose={() => setDialogLogoutOpen(false)}>
+                                            <DialogTitle>Konfirmasi Logout</DialogTitle>
+                                            <DialogContent>
+                                                <Typography>Akses riwayat chat akan dihentikan, ingin tetap logout?</Typography>
+                                            </DialogContent>
+                                            <DialogActions>
+                                                <Button onClick={() => setDialogLogoutOpen(false)} color="primary">Batal</Button>
+                                                <Button
+                                                    onClick={() => {
+                                                        setDialogLogoutOpen(false);
+                                                        window.location.reload();
+                                                        handleLogout();
+                                                    }}
+                                                    sx={{ bgcolor: "error.main", "&:hover": { bgcolor: "error.dark" }, color: "white" }}
+                                                    variant="contained"
+                                                >
+                                                    Logout
+                                                </Button>
+                                            </DialogActions>
+                                        </Dialog>
                                     </Box>
                                 )}
                             </Box>
@@ -503,7 +539,7 @@ const QnAPage: React.FC = () => {
                                 </Typography>
                             </Box>
                         ) : (
-                            <Box sx={{ width: '70%', bgcolor: 'secondary.main' }}>
+                            <Box sx={{ width: '70%' }}>
                                 <ChatMessages
                                     chatMessages={chatMessages}
                                     isBotQnALoading={botReplyQnARef.current === "" && isBotQnAResponding}

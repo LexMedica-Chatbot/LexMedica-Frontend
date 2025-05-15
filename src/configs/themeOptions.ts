@@ -1,14 +1,22 @@
 // Desc: Theme options for LexMedica Page
 import { ThemeOptions } from "@mui/material/styles";
+import { darken } from "@mui/system";
 
 export const themeOptions: ThemeOptions = {
   palette: {
     mode: "light",
     primary: {
-      main: "#28cb8b",
+      main: "#580100",
     },
     secondary: {
-      main: "#263238",
+      main: "#D7B15C",
+    },
+    background: {
+      default: "#FFFFFF",
+      paper: "#FFFFFF",
+    },
+    text: {
+      primary: "#333333",
     },
   },
   typography: {
@@ -16,74 +24,55 @@ export const themeOptions: ThemeOptions = {
     fontSize: 13,
     button: {
       textTransform: "none",
-      tooltip: "#ffffff",
     },
   },
   components: {
     MuiAppBar: {
       styleOverrides: {
         root: {
-          backgroundColor: "lightgray",
+          backgroundColor: "#580100",
+          color: "#FFFFFF",
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          backgroundColor: "#ffffff",
+          backgroundColor: "#D7B15C",
           boxShadow: "none",
           border: "1px solid #ccc",
-        },
-      },
-    },
-    MuiTypography: {
-      styleOverrides: {
-        root: {
-          color: "#263238",
+          color: "#333333",
         },
       },
     },
     MuiButton: {
       styleOverrides: {
+        root: ({ theme }) => ({
+          color: "#333333",
+          backgroundColor: "#FFFFFF",
+          "&:hover": {
+            backgroundColor: darken("#D7B15C", 0.1),
+          },
+        }),
+        contained: ({ theme }) => ({
+          backgroundColor: "#D7B15C",
+        }),
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
         root: {
-          "&:hover": {
-            "& .MuiTypography-root": {
-              color: "#28cb8b",
-            },
-          },
-        },
-        contained: {
-          "&:hover": {
-            "& .MuiTypography-root": {
-              color: "#ffffff",
-            },
-          },
+          color: "#333333",
         },
       },
     },
     MuiLink: {
       styleOverrides: {
         root: {
+          color: "#580100",
           "&:hover": {
-            "& .MuiTypography-root": {
-              color: "#28cb8b",
-            },
+            color: "#D7B15C",
           },
-        },
-      },
-    },
-    MuiChip: {
-      styleOverrides: {
-        root: {
-          "&:hover": {
-            backgroundColor: "#28cb8b", // Prevent color change on hover
-            "& .MuiTypography-root": {
-              backgroundColor: "inherit", // Prevent color change on hover for Typography
-            },
-          },
-          fontSize: 13,
-          border: "1px solid #ccc",
-          backgroundColor: "#ffffff",
         },
       },
     },
@@ -92,6 +81,28 @@ export const themeOptions: ThemeOptions = {
         root: {
           whiteSpace: "normal",
           overflowWrap: "break-word",
+          color: "#333333",
+        },
+      },
+    },
+    MuiSelect: {
+      styleOverrides: {
+        root: {
+          color: "#333333",
+          backgroundColor: "#D7B15C",
+          "&:hover": {
+            backgroundColor: darken("#D7B15C", 0.3),
+          },
+        },
+        icon: {
+          color: "#333333",
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          color: "#333333",
         },
       },
     },

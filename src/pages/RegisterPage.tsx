@@ -86,7 +86,6 @@ const RegisterPage = () => {
                 alignItems: "center",
                 height: "100vh",
                 flexDirection: "column",
-                bgcolor: "secondary.main",
             }}
         >
             <Box
@@ -252,9 +251,7 @@ const RegisterPage = () => {
                             !isConfirmPasswordValid
                         }
                     >
-                        <Typography fontWeight={"bold"}>
-                            {loading ? "Loading" : "Daftar"}
-                        </Typography>
+                        {loading ? "Loading" : "Daftar"}
                     </Button>
                 </Box>
 
@@ -282,7 +279,7 @@ const RegisterPage = () => {
                                     gap: 1,
                                 }}
                             >
-                                <Typography fontWeight={"bold"}>Akses Tanpa Akun</Typography>
+                                Akses Tanpa Akun
                                 <ArrowForwardIcon />
                             </Button>
                         </Link>

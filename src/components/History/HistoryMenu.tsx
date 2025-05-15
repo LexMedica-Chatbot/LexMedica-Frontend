@@ -51,16 +51,14 @@ const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions
                                     marginBottom: 1,
                                     justifyContent: "flex-start",
                                     textTransform: "none",
-                                    backgroundColor: selectedChatSessionId === chat.id ? "primary.main" : "transparent",
-                                    color: selectedChatSessionId === chat.id ? "white" : "black",
+                                    backgroundColor: selectedChatSessionId === chat.id ? "secondary.main" : "transparent",
+                                    color: selectedChatSessionId === chat.id ? "#333333" : "white",
                                 }}
                                 onClick={() => (
                                     onSelectChatSession(chat.id!)
                                 )}
                             >
-                                <Typography variant="body1" noWrap color="white">
-                                    {chat.title}
-                                </Typography>
+                                {chat.title}
                             </Button>
 
                             {/* More icon, shown on hover */}
@@ -80,7 +78,7 @@ const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions
                         </Box>
                     ))
                 ) : (
-                    <Typography variant="body2" color="gray" sx={{ textAlign: "center" }}>
+                    <Typography variant="body2" color="white" sx={{ textAlign: "center" }}>
                         Tidak ada riwayat chat
                     </Typography>
                 )}

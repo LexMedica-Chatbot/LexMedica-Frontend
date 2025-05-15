@@ -104,7 +104,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                             justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
                         }}
                     >
-                        {(isBotQnALoading && index === chatMessages.length - 1) && msg.message === "" ? (
+                        {(isBotQnALoading && index === chatMessages.length - 1) ? (
                             <Paper
                                 sx={{
                                     p: 1.5,
@@ -125,14 +125,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                             </Paper>
                         ) : (
                             <>
-                                {(msg.message !== "") ? (
+                                {(msg.message !== "") && (
                                     <Paper
                                         sx={{
                                             pt: msg.sender === "user" ? 1 : 3,
                                             pb: msg.sender === "user" ? 1 : 4,
                                             px: msg.sender === "user" ? 2 : 4,
                                             borderRadius: 2,
-                                            bgcolor: msg.sender === "user" ? "primary.main" : "grey.100",
+                                            bgcolor: msg.sender === "user" ? "secondary.light" : "grey.100",
                                             color: msg.sender === "user" ? "white" : "black",
                                             maxWidth: "80%",
                                             wordBreak: "break-word",
@@ -164,11 +164,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                             variant="contained"
                                                             size="small"
                                                         >
-                                                            <Typography color="secondary.main" variant="body2" fontWeight={"bold"}>
-                                                                {openAnnotations.includes(index)
-                                                                    ? "Sembunyikan Anotasi"
-                                                                    : "Tampilkan Anotasi"}
-                                                            </Typography>
+                                                            {openAnnotations.includes(index)
+                                                                ? "Sembunyikan Anotasi"
+                                                                : "Tampilkan Anotasi"}
                                                         </Button>
 
                                                         <Collapse
@@ -228,22 +226,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         }}
                                                                                         sx={{ bgcolor: "secondary.main" }}
                                                                                     >
-                                                                                        <Box display="flex" alignItems="center">
-                                                                                            <DescriptionIcon sx={{ color: "white", mr: 1 }} />
-                                                                                            <Typography
-                                                                                                fontWeight="bold"
-                                                                                                color="white"
-                                                                                                fontSize={"0.8rem"}
-                                                                                            >
-                                                                                                {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year}`}
-                                                                                            </Typography>
-                                                                                        </Box>
+                                                                                        <DescriptionIcon sx={{ mr: 1 }} />
+                                                                                        {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year}`}
                                                                                     </Button>
 
                                                                                     {/* Metadata Box */}
                                                                                     <Box mt={1}>
                                                                                         {/* Tentang */}
-                                                                                        <Box display="flex" alignItems="flex-start" mb={0.75}>
+                                                                                        <Box display="flex" alignItems="flex-start" mb={0.8}>
                                                                                             <Typography
                                                                                                 fontSize={"0.9rem"}
                                                                                                 fontWeight="bold"
@@ -252,13 +242,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                 Tentang
                                                                                             </Typography>
                                                                                             <Typography
-                                                                                                fontSize={"0.9rem"} sx={{ whiteSpace: 'pre-wrap' }}>
+                                                                                                fontSize={"0.85rem"} sx={{ whiteSpace: 'pre-wrap' }}>
                                                                                                 {document.source.about}
                                                                                             </Typography>
                                                                                         </Box>
 
                                                                                         {/* Status */}
-                                                                                        <Box display="flex" alignItems="flex-start">
+                                                                                        <Box display="flex" alignItems="center">
                                                                                             <Typography
                                                                                                 fontSize={"0.9rem"}
                                                                                                 fontWeight="bold"
@@ -266,19 +256,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                             >
                                                                                                 Status
                                                                                             </Typography>
-                                                                                            <Paper sx={{
-                                                                                                px: 1,
-                                                                                                py: 0.3,
-                                                                                                bgcolor: document.source.status === 'Berlaku' ? 'primary.light' : 'error.light'
-                                                                                            }} >
-                                                                                                <Typography
-                                                                                                    fontSize={"0.7rem"}
-                                                                                                    fontWeight={"bold"}
-                                                                                                    color={document.source.status === 'Berlaku' ? 'secondary.main' : 'white'}
-                                                                                                >
-                                                                                                    {document.source.status}
-                                                                                                </Typography>
-                                                                                            </Paper>
+                                                                                            <Chip
+                                                                                                label={document.source.status}
+                                                                                                sx={{
+                                                                                                    fontWeight: 'bold',
+                                                                                                    fontSize: '0.75rem',
+                                                                                                    bgcolor: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
+                                                                                                    color: 'white',
+                                                                                                    borderRadius: '4px'
+                                                                                                }}
+                                                                                            />
                                                                                         </Box>
                                                                                     </Box>
 
@@ -286,7 +273,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         display="flex"
                                                                                         justifyContent={"center"}
                                                                                         fontWeight="bold"
-                                                                                        fontSize={"0.9rem"}
+                                                                                        fontSize={"0.85rem"}
                                                                                         gutterBottom
                                                                                     >
                                                                                         {document.clause}
@@ -365,14 +352,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         ? "Berpotensi Disharmoni"
                                                                                         : "Tidak Berpotensi Disharmoni"
                                                                                 }
-                                                                                color={msg.disharmony.result ? "error" : "primary"}
                                                                                 sx={{
                                                                                     fontWeight: 'bold',
-                                                                                    fontSize: '0.65rem',
+                                                                                    fontSize: '0.7rem',
                                                                                     ml: 2,
-                                                                                    bgcolor: msg.disharmony.result ? 'error.light' : 'primary.light',
-                                                                                    color: msg.disharmony.result ? 'white' : 'secondary.main',
-                                                                                    borderRadius: '8px'
+                                                                                    bgcolor: msg.disharmony.result ? 'error.main' : 'green',
+                                                                                    color: 'white',
+                                                                                    borderRadius: '4px'
                                                                                 }}
                                                                             />
                                                                         </Box>
@@ -391,25 +377,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                 )}
                                             </>
                                         )}
-                                    </Paper>
-                                ) : (
-                                    <Paper
-                                        sx={{
-                                            py: 2,
-                                            px: 4,
-                                            borderRadius: 2,
-                                            bgcolor: "grey.100",
-                                            maxWidth: "80%",
-                                            wordBreak: "break-word",
-                                            overflowWrap: "anywhere",
-                                            whiteSpace: "pre-wrap",
-                                            boxShadow: 2,
-                                        }}
-                                    >
-                                        <ListItemText
-                                            primary="Terjadi kesalahan!"
-                                            primaryTypographyProps={{ color: "error.light", fontWeight: "bold" }}
-                                        />
                                     </Paper>
                                 )}
                             </>

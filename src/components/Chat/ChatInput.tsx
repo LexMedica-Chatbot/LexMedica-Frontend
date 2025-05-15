@@ -89,7 +89,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
             {/* New Chat Button */}
             <Tooltip title="Chat Baru" arrow>
                 <IconButton
-                    color="secondary"
                     onClick={handleNewChat}
                     sx={{
                         justifyContent: 'center',
@@ -146,21 +145,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     sx={{
                         fontWeight: 'bold',
                         fontSize: '0.8rem',
-                        color: 'secondary.main',
-                        bgcolor: 'primary.light',
                         borderRadius: 1,
                         py: 0.7,
                         '& .MuiSelect-select': {
                             py: 0.5,
                             px: 1.5,
-                        },
-                        '&:hover': {
-                            bgcolor: 'primary.main',
-                        },
+                        }
                     }}
                 >
                     {models.map((model) => (
-                        <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold", color: "secondary.main" }}>
+                        <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold" }}>
                             {model.label}
                         </MenuItem>
                     ))}
@@ -198,7 +192,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         < Tooltip title="Kirim" arrow>
                             <span>
                                 <IconButton
-                                    color="secondary"
                                     onClick={handleSend}
                                     disabled={!input.trim()}
                                     sx={{

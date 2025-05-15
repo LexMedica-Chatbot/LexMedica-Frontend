@@ -44,7 +44,9 @@ export const useAuth = () => {
     setLoading(false);
 
     if (error) {
-      setError("Kredensial invalid. Pastikan akun telah terdaftar dan verifikasi email Anda.");
+      setError(
+        "Kredensial invalid. Pastikan akun telah terdaftar dan verifikasi email Anda."
+      );
       return false;
     }
 
@@ -117,7 +119,6 @@ export const useAuth = () => {
     } else {
       setSession(null);
       setUser(null);
-      window.location.reload();
     }
   };
 

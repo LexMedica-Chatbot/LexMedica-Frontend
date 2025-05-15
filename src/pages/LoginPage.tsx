@@ -47,7 +47,6 @@ const LoginPage = () => {
                 height: "100vh",
                 flexDirection: "column",
                 gap: 1,
-                bgcolor: 'secondary.main',
             }}
         >
             <Box
@@ -131,7 +130,7 @@ const LoginPage = () => {
                             password === ""}
                         sx={{ mt: 1 }}
                     >
-                        <Typography fontWeight={"bold"}>{loading ? "Loading" : "Masuk"}</Typography>
+                        {loading ? "Loading" : "Masuk"}
                     </Button>
                 </Box>
 
@@ -158,7 +157,7 @@ const LoginPage = () => {
                                     gap: 1,
                                 }}
                             >
-                                <Typography fontWeight={"bold"}>Akses Tanpa Akun</Typography>
+                                Akses Tanpa Akun
                                 <ArrowForwardIcon />
                             </Button>
                         </Link>
