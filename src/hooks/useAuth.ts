@@ -119,6 +119,7 @@ export const useAuth = () => {
     } else {
       setSession(null);
       setUser(null);
+      window.location.reload();
     }
   };
 

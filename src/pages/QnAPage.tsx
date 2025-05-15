@@ -493,7 +493,6 @@ const QnAPage: React.FC = () => {
                                                 <Button
                                                     onClick={() => {
                                                         setDialogLogoutOpen(false);
-                                                        window.location.reload();
                                                         handleLogout();
                                                     }}
                                                     sx={{ bgcolor: "error.main", "&:hover": { bgcolor: "error.dark" }, color: "white" }}
