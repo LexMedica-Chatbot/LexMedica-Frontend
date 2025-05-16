@@ -21,7 +21,7 @@ interface ChatInputProps {
     setIsBotQnALoading: (state: boolean) => void;
     setIsBotDisharmonyLoading: (state: boolean) => void;
     onNewChat: () => void;
-    onSendMessage: (message: string, modelUrl: string) => void;
+    onSendMessage: (message: string, modelUrl: string, embedding: string) => void;
     controllerQnARef: React.MutableRefObject<AbortController | null>;
     controllerDisharmonyRef: React.MutableRefObject<AbortController | null>;
 }
@@ -44,11 +44,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
     // Model options
     const [selectedModelUrl, setSelectedModelUrl] = useState(singleAgentUrl);
+    // Embedding options
+    const [selectedEmbedding, setSelectedEmbedding] = useState("small");
 
     // Handle sending message
     const handleSend = () => {
         if (!input) return;
-        onSendMessage(input, selectedModelUrl);
+        onSendMessage(input, selectedModelUrl, selectedEmbedding);
         setInput("");
         setTimeout(() => inputRef.current?.focus(), 100);
     };
@@ -73,11 +75,16 @@ const ChatInput: React.FC<ChatInputProps> = ({
         { label: 'Multi-Agent', value: multiAgentUrl },
     ];
 
+    const embeddings = [
+        { label: 'Small', value: "small" },
+        { label: 'Large', value: "large" },
+    ]
+
     return (
         <Box
             sx={{
                 width: "100%",
-                bgcolor: "lightgray",
+                bgcolor: "primary.main",
                 p: 1,
                 boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
                 borderRadius: 2,
@@ -114,7 +121,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 maxRows={7}
                 inputRef={inputRef}
                 sx={{
-                    bgcolor: "background.paper",
+                    bgcolor: "grey.100",
                     borderRadius: 1,
                     decoration: "none",
                     flexGrow: 1,
@@ -134,7 +141,32 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 }}
             />
 
-            <Box display={"flex"} alignItems={"center"} sx={{ height: "100%" }}>
+            <Box display={"flex"} alignItems={"center"} sx={{ height: "100%" }} gap={1}>
+                {/* Embedding Selector */}
+                <Select
+                    size="small"
+                    value={selectedEmbedding}
+                    onChange={(e) => setSelectedEmbedding(e.target.value)}
+                    variant="standard"
+                    disableUnderline
+                    sx={{
+                        fontWeight: 'bold',
+                        fontSize: '0.8rem',
+                        borderRadius: 1,
+                        py: 0.7,
+                        '& .MuiSelect-select': {
+                            py: 0.5,
+                            px: 1.5,
+                        }
+                    }}
+                >
+                    {embeddings.map((model) => (
+                        <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold" }}>
+                            {model.label}
+                        </MenuItem>
+                    ))}
+                </Select>
+
                 {/* Model Selector */}
                 <Select
                     size="small"

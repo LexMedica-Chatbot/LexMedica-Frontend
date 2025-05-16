@@ -90,7 +90,7 @@ const QnAPage: React.FC = () => {
     const controllerQnARef = useRef<AbortController | null>(null);
     const controllerDisharmonyRef = useRef<AbortController | null>(null);
 
-    const handleSendMessage = async (message: string, modelUrl: string) => {
+    const handleSendMessage = async (message: string, modelUrl: string, embedding: string) => {
         if (!message.trim()) return;
         if (modelUrl === "") return;
 
@@ -138,6 +138,7 @@ const QnAPage: React.FC = () => {
         fetchQnaAnswer(
             message,
             modelUrl,
+            embedding,
             historyPairs,
             async (data) => {
                 botReplyQnARef.current += data.answer;
@@ -342,10 +343,9 @@ const QnAPage: React.FC = () => {
         if (!selectedChatHistory || !selectedChatHistory.id) return;
 
         try {
-            const fetchedMessages = await getChatMessages(chatId); // Fetch messages from Supabase
+            const fetchedMessages = await getChatMessages(chatId);
             setSelectedChatSessionId(chatId);
             setChatMessages(fetchedMessages);
-            console.log("Fetched messages:", fetchedMessages);
         } catch (error) {
             console.error("Error fetching chat messages:", error);
         }
@@ -436,7 +436,7 @@ const QnAPage: React.FC = () => {
                     }}
                 >
                     {/* Second Box: Toolbar */}
-                    <Box sx={{ flex: 1, bgcolor: 'lightgray', display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                    <Box sx={{ flex: 1, bgcolor: 'primary.main', display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                         <Toolbar sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "space-between", px: 2 }}>
 
                             {/* Left Section: LexMedica App Name */}
@@ -444,14 +444,22 @@ const QnAPage: React.FC = () => {
                                 {user && !isHistoryChatVisible && (
                                     <IconButton
                                         onClick={toggleHistoryChat}
-                                        sx={{ position: "absolute", left: 10 }}
+                                        sx={{
+                                            position: "absolute",
+                                            left: 10,
+                                            color: "white",
+                                        }}
                                     >
                                         <FormatListBulletedIcon />
                                     </IconButton>
                                 )}
 
                                 {/* App Name */}
-                                <Typography fontWeight="bold" variant="h5" sx={{ ml: isHistoryChatVisible ? 0 : 5 }}>
+                                <Typography
+                                    fontWeight="bold"
+                                    variant="h5"
+                                    sx={{ ml: isHistoryChatVisible ? 0 : 5 }}
+                                    color="white">
                                     LexMedica
                                 </Typography>
                             </Box>
@@ -473,7 +481,13 @@ const QnAPage: React.FC = () => {
                                     </>
                                 ) : (
                                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                        <Typography fontWeight="bold" variant="body2">{user.email}</Typography>
+                                        <Typography
+                                            fontWeight="bold"
+                                            variant="body2"
+                                            color="white"
+                                        >
+                                            {user.email}
+                                        </Typography>
                                         <Button
                                             variant="contained"
                                             onClick={() => setDialogLogoutOpen(true)}
@@ -530,11 +544,11 @@ const QnAPage: React.FC = () => {
                                     justifyContent: "center",
                                 }}
                             >
-                                <Typography variant="h5" color="white">
+                                <Typography variant="h5" fontWeight="bold" color={"primary.main"}>
                                     Selamat datang di LexMedica!
                                 </Typography>
-                                <Typography variant="body1" color="white">
-                                    Silakan masukkan pertanyaan seputar hukum kesehatan Indonesia
+                                <Typography variant="body1" fontWeight="bold">
+                                    Silakan ajukan pertanyaan seputar hukum kesehatan Indonesia
                                 </Typography>
                             </Box>
                         ) : (

@@ -57,6 +57,7 @@
 export const fetchQnaAnswer = async (
   question: string,
   modelUrl: string,
+  embedding: string,
   history: string[],
   onResult: (data: any) => void,
   onError: (err: any) => void,
@@ -73,7 +74,7 @@ export const fetchQnaAnswer = async (
         },
         body: JSON.stringify({
           query: question,
-          embedding_model: "large",
+          embedding_model: embedding,
           previous_responses: history,
         }),
         signal,

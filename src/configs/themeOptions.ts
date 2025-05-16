@@ -102,7 +102,7 @@ export const themeOptions: ThemeOptions = {
     MuiIconButton: {
       styleOverrides: {
         root: {
-          color: "#333333",
+          color: "#ffffff",
         },
       },
     },

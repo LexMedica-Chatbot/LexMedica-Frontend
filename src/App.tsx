@@ -15,34 +15,37 @@ import NotFoundPage from './pages/NotFoundPage'
 import { useAuthContext } from './context/authContext'
 
 function App() {
-  document.title = "LexMedica Chatbot";
-
-  const theme = createTheme(themeOptions)
-
+  const theme = createTheme(themeOptions);
   const { session } = useAuthContext();
 
   return (
     <ThemeProvider theme={theme}>
-      <Routes>
-        <Route path="/" element={<QnAPage />} />
+      <div>
+        {/* Background Image Layer */}
+        <div className="background-image" />
 
-        <Route
-          path="/login"
-          element={session ? <Navigate to="/" replace /> : <LoginPage />}
-        />
-        <Route
-          path="/register"
-          element={session ? <Navigate to="/" replace /> : <RegisterPage />}
-        />
-        <Route
-          path="/verify-email"
-          element={session ? <Navigate to="/" replace /> : <VerifyEmailPage />}
-        />
-
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+        {/* Foreground Content */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <Routes>
+            <Route path="/" element={<QnAPage />} />
+            <Route
+              path="/login"
+              element={session ? <Navigate to="/" replace /> : <LoginPage />}
+            />
+            <Route
+              path="/register"
+              element={session ? <Navigate to="/" replace /> : <RegisterPage />}
+            />
+            <Route
+              path="/verify-email"
+              element={session ? <Navigate to="/" replace /> : <VerifyEmailPage />}
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </div>
+      </div>
     </ThemeProvider>
-  )
+  );
 }
 
-export default App
+export default App;
