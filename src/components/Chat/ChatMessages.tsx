@@ -111,7 +111,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                     px: 4,
                                     borderRadius: 2,
                                     bgcolor: "grey.100",
-                                    color: "black",
                                     maxWidth: "85%",
                                     display: "flex",
                                     alignItems: "center",

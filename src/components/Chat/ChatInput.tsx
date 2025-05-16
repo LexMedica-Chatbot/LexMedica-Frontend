@@ -14,6 +14,7 @@ import Tooltip from "@mui/material/Tooltip";
 import SendIcon from "@mui/icons-material/Send";
 import CreateIcon from '@mui/icons-material/Create';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
+import Typography from "@mui/material/Typography";
 
 interface ChatInputProps {
     isBotQnALoading: boolean;
@@ -84,8 +85,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
         <Box
             sx={{
                 width: "100%",
-                bgcolor: "primary.main",
                 p: 1,
+                bgcolor: "primary.main",
                 boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
                 borderRadius: 2,
                 display: "flex",
@@ -97,14 +98,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
             <Tooltip title="Chat Baru" arrow>
                 <IconButton
                     onClick={handleNewChat}
+                    size="small"
                     sx={{
+                        flexDirection: 'column',
                         justifyContent: 'center',
                         alignItems: 'center',
                         borderRadius: '8px',
-                        alignSelf: "flex-start"
+                        alignSelf: 'flex-start',
                     }}
                 >
-                    <CreateIcon />
+                    <CreateIcon sx={{ color: 'white' }} />
+                    <Typography fontSize={"0.7rem"} color="white">
+                        New Chat
+                    </Typography>
                 </IconButton>
             </Tooltip>
 
@@ -121,7 +127,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 maxRows={7}
                 inputRef={inputRef}
                 sx={{
-                    bgcolor: "grey.100",
+                    bgcolor: "grey.200",
                     borderRadius: 1,
                     decoration: "none",
                     flexGrow: 1,
@@ -198,6 +204,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             <span>
                                 <IconButton
                                     color="error"
+                                    size="small"
                                     onClick={() => {
                                         setIsBotQnALoading(false);
                                         setIsBotDisharmonyLoading(false);
@@ -207,13 +214,17 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                         controllerDisharmonyRef.current = null;
                                     }}
                                     sx={{
+                                        flexDirection: 'column',
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         borderRadius: '8px',
-                                        alignSelf: "flex-end"
+                                        alignSelf: 'flex-start',
                                     }}
                                 >
                                     <StopCircleIcon />
+                                    <Typography fontSize={"0.7rem"} color="white">
+                                        Stop
+                                    </Typography>
                                 </IconButton>
                             </span>
                         </Tooltip>
@@ -225,15 +236,20 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             <span>
                                 <IconButton
                                     onClick={handleSend}
+                                    size="small"
                                     disabled={!input.trim()}
                                     sx={{
+                                        flexDirection: 'column',
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         borderRadius: '8px',
-                                        alignSelf: "flex-end"
+                                        alignSelf: 'flex-start',
                                     }}
                                 >
                                     <SendIcon />
+                                    <Typography fontSize={"0.7rem"} color={!input.trim() ? "primary.dark" : "white"}>
+                                        Send
+                                    </Typography>
                                 </IconButton>
                             </span>
                         </Tooltip>

@@ -103,6 +103,9 @@ export const themeOptions: ThemeOptions = {
       styleOverrides: {
         root: {
           color: "#ffffff",
+          "&:hover": {
+            backgroundColor: darken("#580100", 0.3),
+          },
         },
       },
     },

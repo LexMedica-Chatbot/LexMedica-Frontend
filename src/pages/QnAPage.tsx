@@ -564,7 +564,7 @@ const QnAPage: React.FC = () => {
 
                     {/* Fifth Box: Fixed Chat Input */}
                     <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
-                        <Box sx={{ width: '80%' }}>
+                        <Box sx={{ width: '80%', ml: -2 }}>
                             <ChatInput
                                 onNewChat={handleNewChat}
                                 onSendMessage={handleSendMessage}
