@@ -48,7 +48,7 @@ export const streamChatCompletionDisharmonyAnalysis = async (
         },
         body: JSON.stringify({
           regulations,
-          method: "zero-shot",
+          method: "few-shot",
         }),
         signal,
       }

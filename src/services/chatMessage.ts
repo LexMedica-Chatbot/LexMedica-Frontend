@@ -35,8 +35,7 @@ export const getChatMessages = async (
       disharmony_analysis (
         id,
         result,
-        analysis,
-        created_at
+        analysis
       ),
       chat_message_documents (
         message_id,
