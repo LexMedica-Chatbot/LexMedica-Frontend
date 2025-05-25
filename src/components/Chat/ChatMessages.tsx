@@ -148,7 +148,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                         {/* Anotation */}
                                         {msg.sender === "bot" && (
                                             <>
-                                                {msg.documents && msg.documents.length > 0 && (
+                                                {(msg.documents || msg.disharmony) && (
                                                     <>
                                                         <Button
                                                             onClick={() => toggleAnnotation(index)}
@@ -183,92 +183,93 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                     mt: 2
                                                                 }}
                                                             >
-                                                                <Box width={"100%"}>
-                                                                    <Typography
-                                                                        fontWeight={"bold"}
-                                                                        variant={"h6"}
-                                                                        px={2}
-                                                                        py={1}
-                                                                    >
-                                                                        Sumber Rujukan
-                                                                    </Typography>
+                                                                {msg.documents && msg.documents.length > 0 && (
+                                                                    <Box width={"100%"}>
+                                                                        <Typography
+                                                                            fontWeight={"bold"}
+                                                                            variant={"h6"}
+                                                                            px={2}
+                                                                            py={1}
+                                                                        >
+                                                                            Sumber Rujukan
+                                                                        </Typography>
 
-                                                                    <List sx={{ color: "black", px: 4 }}>
-                                                                        {msg.documents.map((document, index) => (
-                                                                            <>
-                                                                                <ListItem
-                                                                                    key={index}
-                                                                                    disableGutters
-                                                                                    alignItems="center"
-                                                                                    sx={{
-                                                                                        display: "list-item",
-                                                                                        listStyleType: "decimal",
-                                                                                        py: 0,
-                                                                                        pl: 1.5,
-                                                                                        ml: 0.5,
-                                                                                        width: "100%",
-                                                                                        '&::marker': {
-                                                                                            fontSize: '1rem',
-                                                                                            fontWeight: 'bold'
-                                                                                        },
-                                                                                    }}
-                                                                                >
-                                                                                    {/* Document Button */}
-                                                                                    <Button
-                                                                                        variant="contained"
-                                                                                        disabled={document.source.url === undefined}
-                                                                                        onClick={() => {
-                                                                                            handleOpenDocumentViewer(document.source.url ?? "");
-                                                                                            setSnippet(document.snippet.length > 20
-                                                                                                ? document.snippet.slice(0, 20)
-                                                                                                : document.snippet);
+                                                                        <List sx={{ color: "black", px: 4 }}>
+                                                                            {msg.documents.map((document, index) => (
+                                                                                <>
+                                                                                    <ListItem
+                                                                                        key={index}
+                                                                                        disableGutters
+                                                                                        alignItems="center"
+                                                                                        sx={{
+                                                                                            display: "list-item",
+                                                                                            listStyleType: "decimal",
+                                                                                            py: 0,
+                                                                                            pl: 1.5,
+                                                                                            ml: 0.5,
+                                                                                            width: "100%",
+                                                                                            '&::marker': {
+                                                                                                fontSize: '1rem',
+                                                                                                fontWeight: 'bold'
+                                                                                            },
                                                                                         }}
-                                                                                        sx={{ bgcolor: "secondary.main" }}
                                                                                     >
-                                                                                        <DescriptionIcon sx={{ mr: 1 }} />
-                                                                                        {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year}`}
-                                                                                    </Button>
+                                                                                        {/* Document Button */}
+                                                                                        <Button
+                                                                                            variant="contained"
+                                                                                            disabled={document.source.url === undefined}
+                                                                                            onClick={() => {
+                                                                                                handleOpenDocumentViewer(document.source.url ?? "");
+                                                                                                setSnippet(document.snippet.length > 20
+                                                                                                    ? document.snippet.slice(0, 20)
+                                                                                                    : document.snippet);
+                                                                                            }}
+                                                                                            sx={{ bgcolor: "secondary.main" }}
+                                                                                        >
+                                                                                            <DescriptionIcon sx={{ mr: 1 }} />
+                                                                                            {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year}`}
+                                                                                        </Button>
 
-                                                                                    {/* Metadata Box */}
-                                                                                    <Box mt={1}>
-                                                                                        {/* Tentang */}
-                                                                                        <Box display="flex" alignItems="flex-start" mb={0.8}>
-                                                                                            <Typography
-                                                                                                fontSize={"0.9rem"}
-                                                                                                fontWeight="bold"
-                                                                                                sx={{ minWidth: '80px', flexShrink: 0 }}
-                                                                                            >
-                                                                                                Tentang
-                                                                                            </Typography>
-                                                                                            <Typography
-                                                                                                fontSize={"0.85rem"} sx={{ whiteSpace: 'pre-wrap' }}>
-                                                                                                {document.source.about}
-                                                                                            </Typography>
+                                                                                        {/* Metadata Box */}
+                                                                                        <Box mt={1}>
+                                                                                            {/* Tentang */}
+                                                                                            <Box display="flex" alignItems="flex-start" mb={0.8}>
+                                                                                                <Typography
+                                                                                                    fontSize={"0.9rem"}
+                                                                                                    fontWeight="bold"
+                                                                                                    sx={{ minWidth: '80px', flexShrink: 0 }}
+                                                                                                >
+                                                                                                    Tentang
+                                                                                                </Typography>
+                                                                                                <Typography
+                                                                                                    fontSize={"0.85rem"} sx={{ whiteSpace: 'pre-wrap' }}>
+                                                                                                    {document.source.about}
+                                                                                                </Typography>
+                                                                                            </Box>
+
+                                                                                            {/* Status */}
+                                                                                            <Box display="flex" alignItems="center">
+                                                                                                <Typography
+                                                                                                    fontSize={"0.9rem"}
+                                                                                                    fontWeight="bold"
+                                                                                                    sx={{ minWidth: '80px', flexShrink: 0 }}
+                                                                                                >
+                                                                                                    Status
+                                                                                                </Typography>
+                                                                                                <Chip
+                                                                                                    label={document.source.status}
+                                                                                                    sx={{
+                                                                                                        fontWeight: 'bold',
+                                                                                                        fontSize: '0.75rem',
+                                                                                                        bgcolor: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
+                                                                                                        color: 'white',
+                                                                                                        borderRadius: '4px'
+                                                                                                    }}
+                                                                                                />
+                                                                                            </Box>
                                                                                         </Box>
 
-                                                                                        {/* Status */}
-                                                                                        <Box display="flex" alignItems="center">
-                                                                                            <Typography
-                                                                                                fontSize={"0.9rem"}
-                                                                                                fontWeight="bold"
-                                                                                                sx={{ minWidth: '80px', flexShrink: 0 }}
-                                                                                            >
-                                                                                                Status
-                                                                                            </Typography>
-                                                                                            <Chip
-                                                                                                label={document.source.status}
-                                                                                                sx={{
-                                                                                                    fontWeight: 'bold',
-                                                                                                    fontSize: '0.75rem',
-                                                                                                    bgcolor: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
-                                                                                                    color: 'white',
-                                                                                                    borderRadius: '4px'
-                                                                                                }}
-                                                                                            />
-                                                                                        </Box>
-                                                                                    </Box>
-
-                                                                                    {/* <Typography
+                                                                                        {/* <Typography
                                                                                         display="flex"
                                                                                         justifyContent={"center"}
                                                                                         fontWeight="bold"
@@ -302,15 +303,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         );
                                                                                     })} */}
 
-                                                                                </ListItem>
+                                                                                    </ListItem>
 
-                                                                                <Box my={2} ml={-1}>
-                                                                                    <Divider sx={{ borderBottomWidth: 3 }} />
-                                                                                </Box>
-                                                                            </>
-                                                                        ))}
-                                                                    </List>
-                                                                </Box>
+                                                                                    <Box my={2} ml={-1}>
+                                                                                        <Divider sx={{ borderBottomWidth: 3 }} />
+                                                                                    </Box>
+                                                                                </>
+                                                                            ))}
+                                                                        </List>
+                                                                    </Box>
+                                                                )}
 
                                                                 {isBotDisharmonyLoading &&
                                                                     index === chatMessages.length - 1 ? (
