@@ -1,4 +1,4 @@
-import { supabase } from "../utils/supabase";
+import { api } from "../utils/api";
 import { ChatMessage } from "../types/Chat";
 
 export const createChatMessage = async (
@@ -6,61 +6,21 @@ export const createChatMessage = async (
   sender: string,
   message: string
 ): Promise<number> => {
-  const { data, error } = await supabase
-    .from("chat_messages")
-    .insert([{ session_id: sessionId, sender, message }])
-    .select("id")
-    .single();
+  const res = await api.post("/api/chat/message", {
+    session_id: sessionId,
+    sender,
+    message,
+  });
 
-  if (error || !data?.id) {
-    console.error("Error inserting message:", error);
-    throw error;
-  }
-
-  return data.id;
+  return res.id;
 };
 
 export const getChatMessages = async (
   sessionId: number
 ): Promise<ChatMessage[]> => {
-  const { data, error } = await supabase
-    .from("chat_messages")
-    .select(
-      `
-      id,
-      session_id,
-      sender,
-      message,
-      created_at,
-      disharmony_analysis (
-        id,
-        result,
-        analysis
-      ),
-      chat_message_documents (
-        message_id,
-        clause,
-        document_id,
-        snippet,
-        link_documents (
-          type,
-          about,
-          number,
-          year,
-          status,
-          url
-        )
-      )
-      `
-    )
-    .eq("session_id", sessionId)
-    .order("created_at", { ascending: true });
+  const res = await api.get(`/api/chat/message/${sessionId}`);
 
-  if (error) {
-    throw error;
-  }
-
-  return data.map((msg) => ({
+  return res.map((msg: any) => ({
     ...msg,
     disharmony: msg.disharmony_analysis?.[0] ?? undefined,
     documents: (msg.chat_message_documents || []).map((rel: any) => ({

@@ -1,4 +1,4 @@
-import { supabase } from "../utils/supabase";
+import { api } from "../utils/api";
 import type { Document } from "../types/Document";
 import type { LinkDocument } from "../types/Document";
 
@@ -6,13 +6,7 @@ export const createChatMessageDocuments = async (
   messageId: number,
   documents: Document[]
 ): Promise<void> => {
-  const validDocuments = documents.filter((doc) => {
-    if (!doc.document_id || doc.document_id === 0) {
-      console.error("Skipping document with invalid ID:", doc);
-      return false;
-    }
-    return true;
-  });
+  const validDocuments = documents.filter((doc) => doc.document_id);
 
   const inserts = validDocuments.map((doc) => ({
     message_id: messageId,
@@ -22,18 +16,11 @@ export const createChatMessageDocuments = async (
   }));
 
   if (inserts.length === 0) {
-    console.warn("No valid documents to insert.");
+    console.log("No valid documents to be inserted");
     return;
   }
 
-  const { error } = await supabase
-    .from("chat_message_documents")
-    .insert(inserts);
-
-  if (error) {
-    console.error("Error inserting chat_message_documents:", error);
-    throw error;
-  }
+  await api.post("/api/chat/document", inserts);
 };
 
 export const getDocument = async (
@@ -41,18 +28,10 @@ export const getDocument = async (
   number: string,
   year: string
 ): Promise<LinkDocument> => {
-  const { data, error } = await supabase
-    .from("link_documents")
-    .select("*")
-    .eq("type", type)
-    .eq("number", number)
-    .eq("year", year)
-    .maybeSingle();
-
-  if (error) {
-    console.error("Error fetching document:", error);
-    return undefined as unknown as LinkDocument;
+  try {
+    return await api.get(`/api/document/${type}/${number}/${year}`);
+  } catch (err) {
+    console.error(err);
+    return {} as LinkDocument;
   }
-
-  return data;
 };

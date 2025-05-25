@@ -1,23 +1,17 @@
-import { supabase } from "../utils/supabase";
+import { api } from "../utils/api";
 import { ChatDisharmony } from "../types/Chat";
 
 export const createDisharmonyResult = async (
   messageId: number,
   disharmony: ChatDisharmony
 ): Promise<void> => {
-  const { error } = await supabase.from("disharmony_analysis").insert([
-    {
-      message_id: messageId,
-      analysis: disharmony.analysis,
-      result: disharmony.result,
-    },
-  ]);
-
-  if (error) {
-    console.error("Error creating disharmony result:", error);
-    throw error;
-  }
+  await api.post("/api/chat/disharmony", {
+    message_id: messageId,
+    analysis: disharmony.analysis,
+    result: disharmony.result,
+  });
 };
+
 
 /**
  * Stream the chat completion response from the server.

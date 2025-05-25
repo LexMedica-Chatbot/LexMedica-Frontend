@@ -268,7 +268,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         </Box>
                                                                                     </Box>
 
-                                                                                    <Typography
+                                                                                    {/* <Typography
                                                                                         display="flex"
                                                                                         justifyContent={"center"}
                                                                                         fontWeight="bold"
@@ -277,11 +277,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                     >
                                                                                         {document.clause}
                                                                                     </Typography>
-
+                                                                                    
                                                                                     {document.snippet.split("\n").map((line, idx) => {
                                                                                         const isBullet = /^[a-z]\.|^\d+\.|^[•]/.test(line.trim());
                                                                                         const match = line.match(/^(\(\d+\))\s?(.*)/);
-
                                                                                         return (
                                                                                             <Typography
                                                                                                 key={idx}
@@ -301,7 +300,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                 )}
                                                                                             </Typography>
                                                                                         );
-                                                                                    })}
+                                                                                    })} */}
+
                                                                                 </ListItem>
 
                                                                                 <Box my={2} ml={-1}>
@@ -355,7 +355,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                     fontWeight: 'bold',
                                                                                     fontSize: '0.7rem',
                                                                                     ml: 2,
-                                                                                    bgcolor: msg.disharmony.result ? 'error.main' : 'green',
+                                                                                    bgcolor: msg.disharmony.result ? 'error.main' : 'success.light',
                                                                                     color: 'white',
                                                                                     borderRadius: '4px'
                                                                                 }}
