@@ -49,7 +49,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     // Document Viewer Properties
     const [isDocumentViewerOpened, setIsDocumentViewerOpened] = useState<boolean>(false);
     const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-    const [snippet, setSnippet] = useState<string | null>(null);
+    const [pageNumber, setPageNumber] = useState<number>(1);
 
     const handleOpenDocumentViewer = (url: string) => {
         setPdfUrl(url);
@@ -220,9 +220,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                             disabled={document.source.url === undefined}
                                                                                             onClick={() => {
                                                                                                 handleOpenDocumentViewer(document.source.url ?? "");
-                                                                                                setSnippet(document.snippet.length > 20
-                                                                                                    ? document.snippet.slice(0, 20)
-                                                                                                    : document.snippet);
+                                                                                                // setPageNumber(document.source.pageNumber);
                                                                                             }}
                                                                                             sx={{ bgcolor: "secondary.main" }}
                                                                                         >
@@ -391,7 +389,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                 isDocumentViewerOpened={isDocumentViewerOpened}
                 onCloseDocumentViewer={handleCloseDocumentViewer}
                 pdfUrl={pdfUrl}
-                snippet={snippet}
+                pageNumber={pageNumber}
             />
         </>
     );
