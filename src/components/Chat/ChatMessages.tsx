@@ -101,6 +101,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                     <ListItem
                         key={index}
                         sx={{
+                            px: 0,
                             justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
                         }}
                     >
@@ -133,7 +134,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                             borderRadius: 2,
                                             bgcolor: msg.sender === "user" ? "secondary.light" : "grey.100",
                                             color: msg.sender === "user" ? "white" : "black",
-                                            maxWidth: "80%",
+                                            maxWidth: "100%",
                                             wordBreak: "break-word",
                                             overflowWrap: "anywhere",
                                             whiteSpace: "pre-wrap",
@@ -196,9 +197,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 
                                                                         <List sx={{ color: "black", px: 4 }}>
                                                                             {msg.documents.map((document, index) => (
-                                                                                <>
+                                                                                <Box key={index}>
                                                                                     <ListItem
-                                                                                        key={index}
                                                                                         disableGutters
                                                                                         alignItems="center"
                                                                                         sx={{
@@ -308,7 +308,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                     <Box my={2} ml={-1}>
                                                                                         <Divider sx={{ borderBottomWidth: 3 }} />
                                                                                     </Box>
-                                                                                </>
+                                                                                </Box>
                                                                             ))}
                                                                         </List>
                                                                     </Box>

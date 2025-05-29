@@ -19,6 +19,7 @@ import ChatMessages from "../components/Chat/ChatMessages";
 import ChatInput from "../components/Chat/ChatInput";
 import HistoryMenu from "../components/History/HistoryMenu";
 import HistoryMoreOptions from "../components/History/HistoryMoreOptions";
+import UserMenu from "../components/User/UserMenu";
 
 // ** API Imports (updated with Supabase functions)
 import { createChatSession, getChatSessions, deleteChatSession } from "../services/chatSession";
@@ -36,14 +37,9 @@ import { Document } from "../types/Document";
 
 // ** Utility Imports
 import { normalizeLegalText } from "../utils/formatter";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
 
 const QnAPage: React.FC = () => {
-    const { handleLogout, user } = useAuthContext();
-    const [dialogLogoutOpen, setDialogLogoutOpen] = useState(false);
+    const { user } = useAuthContext();
 
     const [selectedChatSessionId, setSelectedChatSessionId] = useState<number | null>(null);
     const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
@@ -226,8 +222,8 @@ const QnAPage: React.FC = () => {
                     } else {
                         try {
                             const trimmedTitle =
-                                message.trim().length > 20
-                                    ? message.trim().slice(0, 20) + " ..."
+                                message.trim().length > 25
+                                    ? message.trim().slice(0, 25) + "..."
                                     : message.trim();
 
                             const newSessionId = await createChatSession(user.id, trimmedTitle);
@@ -401,11 +397,12 @@ const QnAPage: React.FC = () => {
                             bgcolor: '#160100',
                             display: "flex",
                             flexDirection: "column",
+                            zIndex: 11,
                         }}
                     >
                         {/* First Box: History Chat Toggle Button */}
                         <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                            <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, color: "white" }}>
+                            <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, ml: 1, color: "white" }}>
                                 <FormatListBulletedIcon />
                             </IconButton>
                             <Typography variant="h6" color="white" fontWeight="bold">
@@ -436,9 +433,30 @@ const QnAPage: React.FC = () => {
                     }}
                 >
                     {/* Second Box: Toolbar */}
-                    <Box sx={{ flex: 1, bgcolor: 'primary.main', display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                        <Toolbar sx={{ width: "100%", height: "100%", display: "flex", justifyContent: "space-between", px: 2 }}>
-
+                    <Box
+                        sx={{
+                            flex: 1,
+                            bgcolor: 'transparent',
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            position: "fixed",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            px: 2,
+                            zIndex: 10,
+                        }}
+                    >
+                        <Toolbar
+                            disableGutters
+                            sx={{
+                                width: "100%",
+                                height: "100%",
+                                display: "flex",
+                                justifyContent: "space-between",
+                            }}
+                        >
                             {/* Left Section: LexMedica App Name */}
                             <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                                 {user && !isHistoryChatVisible && (
@@ -446,8 +464,9 @@ const QnAPage: React.FC = () => {
                                         onClick={toggleHistoryChat}
                                         sx={{
                                             position: "absolute",
-                                            left: 10,
-                                            color: "white",
+                                            left: 2,
+                                            color: "primary.main",
+                                            "&:hover": { color: "white" }
                                         }}
                                     >
                                         <FormatListBulletedIcon />
@@ -458,8 +477,8 @@ const QnAPage: React.FC = () => {
                                 <Typography
                                     fontWeight="bold"
                                     variant="h5"
-                                    sx={{ ml: isHistoryChatVisible ? 0 : 5 }}
-                                    color="white">
+                                    sx={{ ml: user ? (isHistoryChatVisible ? 33 : 7) : 3 }}
+                                    color="primary.main">
                                     LexMedica
                                 </Typography>
                             </Box>
@@ -474,49 +493,13 @@ const QnAPage: React.FC = () => {
                                             </Button>
                                         </Link>
                                         <Link to="/register" style={{ textDecoration: "none" }}>
-                                            <Button variant="outlined" sx={{ border: "2px solid" }}>
+                                            <Button variant="outlined" sx={{ color: "primary.main", border: "2px solid", borderColor: "primary.main", mr: 3 }}>
                                                 Daftar
                                             </Button>
                                         </Link>
                                     </>
                                 ) : (
-                                    <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                                        <Typography
-                                            fontWeight="bold"
-                                            variant="body2"
-                                            color="white"
-                                        >
-                                            {user.email}
-                                        </Typography>
-                                        <Button
-                                            variant="contained"
-                                            onClick={() => setDialogLogoutOpen(true)}
-                                            sx={{ bgcolor: "error.main", "&:hover": { bgcolor: "error.dark" }, color: "white" }}
-                                        >
-                                            Logout
-                                        </Button>
-
-                                        {/* Confirmation Dialog */}
-                                        <Dialog open={dialogLogoutOpen} onClose={() => setDialogLogoutOpen(false)}>
-                                            <DialogTitle>Konfirmasi Logout</DialogTitle>
-                                            <DialogContent>
-                                                <Typography>Akses riwayat chat akan dihentikan, ingin tetap logout?</Typography>
-                                            </DialogContent>
-                                            <DialogActions>
-                                                <Button onClick={() => setDialogLogoutOpen(false)} color="primary">Batal</Button>
-                                                <Button
-                                                    onClick={() => {
-                                                        setDialogLogoutOpen(false);
-                                                        handleLogout();
-                                                    }}
-                                                    sx={{ bgcolor: "error.main", "&:hover": { bgcolor: "error.dark" }, color: "white" }}
-                                                    variant="contained"
-                                                >
-                                                    Logout
-                                                </Button>
-                                            </DialogActions>
-                                        </Dialog>
-                                    </Box>
+                                    <UserMenu user={user} />
                                 )}
                             </Box>
                         </Toolbar>
@@ -552,7 +535,7 @@ const QnAPage: React.FC = () => {
                                 </Typography>
                             </Box>
                         ) : (
-                            <Box sx={{ width: '70%' }}>
+                            <Box sx={{ width: isHistoryChatVisible ? '60%' : '50%' }}>
                                 <ChatMessages
                                     chatMessages={chatMessages}
                                     isBotQnALoading={botReplyQnARef.current === "" && isBotQnAResponding}
@@ -564,7 +547,7 @@ const QnAPage: React.FC = () => {
 
                     {/* Fifth Box: Fixed Chat Input */}
                     <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
-                        <Box sx={{ width: '80%', ml: -2 }}>
+                        <Box sx={{ width: isHistoryChatVisible ? '60%' : '50%', ml: -3 }}>
                             <ChatInput
                                 onNewChat={handleNewChat}
                                 onSendMessage={handleSendMessage}

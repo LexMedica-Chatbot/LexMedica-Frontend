@@ -13,6 +13,7 @@ import Tooltip from "@mui/material/Tooltip";
 // ** MUI Icons
 import SendIcon from "@mui/icons-material/Send";
 import CreateIcon from '@mui/icons-material/Create';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StopCircleIcon from '@mui/icons-material/StopCircle';
 import Typography from "@mui/material/Typography";
 
@@ -40,11 +41,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
-    const singleAgentUrl = process.env.REACT_APP_SINGLE_AGENT_URL || "";
-    const multiAgentUrl = process.env.REACT_APP_MULTI_AGENT_URL || "";
+    const simpleRAGUrl = process.env.REACT_APP_SIMPLE_RAG_URL || "";
+    const multiAgentRAGUrl = process.env.REACT_APP_MULTI_AGENT_RAG_URL || "";
 
     // Model options
-    const [selectedModelUrl, setSelectedModelUrl] = useState(singleAgentUrl);
+    const [selectedModelUrl, setSelectedModelUrl] = useState(simpleRAGUrl);
     // Embedding options
     const [selectedEmbedding, setSelectedEmbedding] = useState("small");
 
@@ -72,8 +73,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const models = [
-        { label: 'Single-Agent', value: singleAgentUrl },
-        { label: 'Multi-Agent', value: multiAgentUrl },
+        { label: 'Simple RAG', value: simpleRAGUrl },
+        { label: 'Multi-Agent RAG', value: multiAgentRAGUrl },
     ];
 
     const embeddings = [
@@ -90,116 +91,189 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
                 borderRadius: 2,
                 display: "flex",
-                alignItems: "center",
-                gap: 1,
+                flexDirection: "column", // vertical layout
             }}
         >
-            {/* New Chat Button */}
-            <Tooltip title="Chat Baru" arrow>
-                <IconButton
-                    onClick={handleNewChat}
-                    size="small"
-                    sx={{
-                        flexDirection: 'column',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        borderRadius: '8px',
-                        alignSelf: 'flex-start',
-                    }}
-                >
-                    <CreateIcon sx={{ color: 'white' }} />
-                    <Typography fontSize={"0.7rem"} color="white">
-                        New Chat
-                    </Typography>
-                </IconButton>
-            </Tooltip>
-
-            {/* Input Field */}
             <TextField
                 fullWidth
                 variant="outlined"
-                placeholder={isBotQnALoading || isBotDisharmonyLoading ? "Bot sedang menjawab..." : "Tulis pertanyaan hukum kesehatan Indonesia"}
+                placeholder={
+                    isBotQnALoading || isBotDisharmonyLoading
+                        ? "Bot sedang menjawab..."
+                        : "Tulis pertanyaan hukum kesehatan Indonesia"
+                }
                 disabled={isBotQnALoading || isBotDisharmonyLoading}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 multiline
                 maxRows={7}
-                inputRef={inputRef}
-                sx={{
-                    bgcolor: "grey.200",
+                inputRef={inputRef} sx={{
                     borderRadius: 1,
-                    decoration: "none",
-                    flexGrow: 1,
-                    "& .MuiOutlinedInput-root": {
-                        padding: "10px",
-                        borderRadius: 1,
+                    '& .MuiOutlinedInput-root': {
+                        backgroundColor: 'transparent',
+                        padding: 1,
+                        color: 'white',
+
                         '& fieldset': {
-                            borderColor: 'transparent',
+                            border: 'none',
                         },
                         '&:hover fieldset': {
-                            borderColor: 'primary.main',
+                            border: 'none',
                         },
                         '&.Mui-focused fieldset': {
-                            borderColor: 'primary.dark',
+                            border: 'none',
                         },
+                    },
+
+                    // Input text
+                    '& .MuiInputBase-input': {
+                        color: 'white',
+                    },
+
+                    // Placeholder color (enabled)
+                    '& .MuiInputBase-input::placeholder': {
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        opacity: 1,
+                    },
+
+                    // Force disabled input color (override default gray)
+                    '& .Mui-disabled': {
+                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.6)',
+                        color: 'white',
+                    },
+
+                    // Placeholder color (disabled)
+                    '& .Mui-disabled::placeholder': {
+                        color: 'rgba(255, 255, 255, 0.6)',
+                        opacity: 1,
                     },
                 }}
             />
 
-            <Box display={"flex"} alignItems={"center"} sx={{ height: "100%" }} gap={1}>
-                {/* Embedding Selector */}
-                <Select
-                    size="small"
-                    value={selectedEmbedding}
-                    onChange={(e) => setSelectedEmbedding(e.target.value)}
-                    variant="standard"
-                    disableUnderline
-                    sx={{
-                        fontWeight: 'bold',
-                        fontSize: '0.8rem',
-                        borderRadius: 1,
-                        py: 0.7,
-                        '& .MuiSelect-select': {
-                            py: 0.5,
-                            px: 1.5,
-                        }
-                    }}
-                >
-                    {embeddings.map((model) => (
-                        <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold" }}>
-                            {model.label}
-                        </MenuItem>
-                    ))}
-                </Select>
+            {/* Control Row */}
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                {/* Left Section: New Chat */}
+                <Tooltip title="Chat Baru" arrow>
+                    <IconButton
+                        onClick={handleNewChat}
+                        size="small"
+                        sx={{
+                            flexDirection: "column",
+                            justifyContent: "center",
+                            alignItems: "center",
+                            borderRadius: "8px",
+                            px: 1,
+                        }}
+                    >
+                        <CreateIcon sx={{ color: "white" }} />
+                        <Typography fontSize={"0.7rem"} color="white">
+                            New Chat
+                        </Typography>
+                    </IconButton>
+                </Tooltip>
 
-                {/* Model Selector */}
-                <Select
-                    size="small"
-                    value={selectedModelUrl}
-                    onChange={(e) => setSelectedModelUrl(e.target.value)}
-                    variant="standard"
-                    disableUnderline
-                    sx={{
-                        fontWeight: 'bold',
-                        fontSize: '0.8rem',
-                        borderRadius: 1,
-                        py: 0.7,
-                        '& .MuiSelect-select': {
-                            py: 0.5,
-                            px: 1.5,
-                        }
-                    }}
-                >
-                    {models.map((model) => (
-                        <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold" }}>
-                            {model.label}
-                        </MenuItem>
-                    ))}
-                </Select>
-                {isBotQnALoading || isBotDisharmonyLoading ? (
-                    <>
-                        {/* Send Button */}
+                {/* Right Section: Embedding + Model Selectors + Send/Stop */}
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                    {/* Embedding Selector */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 2 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
+                            <Typography sx={{ fontSize: "0.7rem", color: "white", fontWeight: "bold", mr: 0.5 }}>
+                                Tipe Embedding
+                            </Typography>
+                            <Tooltip arrow
+                                title={
+                                    <Typography variant={"body2"} sx={{ color: "white" }}>
+                                        <div>Model kemiripan semantik antara pertanyaan dengan dokumen.</div>
+                                        <Box display="flex">
+                                            <Box mr={1}><strong>Small</strong>:</Box>
+                                            <Box>Komputasi efisien namun lebih kurang akurat.</Box>
+                                        </Box>
+                                        <Box display="flex">
+                                            <Box mr={1}><strong>Large</strong>:</Box>
+                                            <Box>Lebih akurat namun memerlukan komputasi lebih banyak</Box>
+                                        </Box>
+                                    </Typography>
+                                }>
+                                <InfoOutlinedIcon sx={{ fontSize: 16, color: "white", cursor: "pointer" }} />
+                            </Tooltip>
+                        </Box>
+                        <Select
+                            size="small"
+                            value={selectedEmbedding}
+                            onChange={(e) => setSelectedEmbedding(e.target.value)}
+                            variant="standard"
+                            disableUnderline
+                            sx={{
+                                fontWeight: "bold",
+                                fontSize: "0.8rem",
+                                borderRadius: 1,
+                                height: "1.5rem",
+                                py: 0.7,
+                                '& .MuiSelect-select': {
+                                    py: 0.5,
+                                    px: 1.5,
+                                }
+                            }}
+                        >
+                            {embeddings.map((model) => (
+                                <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold" }}>
+                                    {model.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </Box>
+
+                    {/* Model Selector */}
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 1 }}>
+                        <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
+                            <Typography sx={{ fontSize: "0.7rem", color: "white", fontWeight: "bold", mr: 0.5 }}>
+                                Tipe Model
+                            </Typography>
+                            <Tooltip arrow title={
+                                <Typography variant={"body2"} sx={{ color: "white" }}>
+                                    <div>Agen pada model RAG yang digunakan.</div>
+                                    <Box display="flex" width={"100%"}>
+                                        <Box width={"28%"}><strong>Simple RAG</strong>:</Box>
+                                        <Box width={"72%"}>Model RAG dengan agen sederhana dengan komputasi lebih cepat</Box>
+                                    </Box>
+                                    <Box display="flex" width={"100%"}>
+                                        <Box width={"28%"}><strong>Multi-Agent</strong>:</Box>
+                                        <Box width={"72%"}>Melibatkan agen tambahan, hasil dapat lebih akurat namun memerlukan waktu lebih lama</Box>
+                                    </Box>
+                                </Typography>
+                            }>
+                                <InfoOutlinedIcon sx={{ fontSize: 16, color: "white", cursor: "pointer" }} />
+                            </Tooltip>
+                        </Box>
+                        <Select
+                            size="small"
+                            value={selectedModelUrl}
+                            onChange={(e) => setSelectedModelUrl(e.target.value)}
+                            variant="standard"
+                            disableUnderline
+                            sx={{
+                                fontWeight: "bold",
+                                fontSize: "0.8rem",
+                                borderRadius: 1,
+                                height: "1.5rem",
+                                py: 0.7,
+                                '& .MuiSelect-select': {
+                                    py: 0.5,
+                                    px: 1.5,
+                                }
+                            }}
+                        >
+                            {models.map((model) => (
+                                <MenuItem key={model.value} value={model.value} sx={{ fontWeight: "bold" }}>
+                                    {model.label}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </Box>
+
+                    {/* Send / Stop Button */}
+                    {isBotQnALoading || isBotDisharmonyLoading ? (
                         <Tooltip title="Stop" arrow>
                             <span>
                                 <IconButton
@@ -208,17 +282,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     onClick={() => {
                                         setIsBotQnALoading(false);
                                         setIsBotDisharmonyLoading(false);
-                                        if (controllerQnARef.current) controllerQnARef.current.abort();
-                                        controllerQnARef.current = null;
-                                        if (controllerDisharmonyRef.current) controllerDisharmonyRef.current.abort();
-                                        controllerDisharmonyRef.current = null;
+                                        controllerQnARef.current?.abort();
+                                        controllerDisharmonyRef.current?.abort();
                                     }}
                                     sx={{
-                                        flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        borderRadius: '8px',
-                                        alignSelf: 'flex-start',
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        borderRadius: "8px",
                                     }}
                                 >
                                     <StopCircleIcon />
@@ -228,33 +299,44 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 </IconButton>
                             </span>
                         </Tooltip>
-                    </>
-                ) : (
-                    <>
-                        {/* Send Button */}
-                        < Tooltip title="Kirim" arrow>
+                    ) : (
+                        <Tooltip title="Kirim" arrow>
                             <span>
                                 <IconButton
                                     onClick={handleSend}
                                     size="small"
-                                    disabled={!input.trim()}
+                                    disabled={!input.trim() || isBotQnALoading || isBotDisharmonyLoading}
                                     sx={{
-                                        flexDirection: 'column',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        borderRadius: '8px',
-                                        alignSelf: 'flex-start',
+                                        bgColor: "secondary.main",
+                                        flexDirection: "column",
+                                        justifyContent: "center",
+                                        alignItems: "center",
+                                        borderRadius: "8px",
+                                        px: 2,
                                     }}
                                 >
-                                    <SendIcon />
-                                    <Typography fontSize={"0.7rem"} color={!input.trim() ? "primary.dark" : "white"}>
+                                    <SendIcon sx={{
+                                        color:
+                                            !input.trim() || isBotQnALoading || isBotDisharmonyLoading
+                                                ? "rgba(255, 255, 255, 0.5)"
+                                                : "white",
+                                    }} />
+                                    <Typography
+                                        fontSize={"0.7rem"}
+                                        sx={{
+                                            color:
+                                                !input.trim() || isBotQnALoading || isBotDisharmonyLoading
+                                                    ? "rgba(255, 255, 255, 0.5)"
+                                                    : "white",
+                                        }}
+                                    >
                                         Send
                                     </Typography>
                                 </IconButton>
                             </span>
                         </Tooltip>
-                    </>
-                )}
+                    )}
+                </Box>
             </Box>
         </Box >
     );
