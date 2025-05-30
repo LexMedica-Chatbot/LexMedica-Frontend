@@ -108,7 +108,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 onKeyDown={handleKeyDown}
                 multiline
                 maxRows={7}
-                inputRef={inputRef} sx={{
+                inputRef={inputRef}
+                sx={{
                     borderRadius: 1,
                     '& .MuiOutlinedInput-root': {
                         backgroundColor: 'transparent',
@@ -131,20 +132,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
                         color: 'white',
                     },
 
-                    // Placeholder color (enabled)
+                    // Placeholder color (enabled and disabled)
                     '& .MuiInputBase-input::placeholder': {
                         color: 'rgba(255, 255, 255, 0.6)',
                         opacity: 1,
                     },
 
                     // Force disabled input color (override default gray)
-                    '& .Mui-disabled': {
-                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.6)',
-                        color: 'white',
+                    '& .Mui-disabled .MuiInputBase-input': {
+                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.6)', // for Safari
+                        color: 'rgba(255, 255, 255, 0.6)', // fallback for other browsers
                     },
 
-                    // Placeholder color (disabled)
-                    '& .Mui-disabled::placeholder': {
+                    '& .Mui-disabled .MuiInputBase-input::placeholder': {
                         color: 'rgba(255, 255, 255, 0.6)',
                         opacity: 1,
                     },
@@ -178,7 +178,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     {/* Embedding Selector */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 2 }}>
                         <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
-                            <Typography sx={{ fontSize: "0.7rem", color: "white", fontWeight: "bold", mr: 0.5 }}>
+                            <Typography sx={{ fontSize: "0.7rem", color: "white", mr: 0.5 }}>
                                 Tipe Embedding
                             </Typography>
                             <Tooltip arrow
@@ -227,7 +227,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     {/* Model Selector */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 1 }}>
                         <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
-                            <Typography sx={{ fontSize: "0.7rem", color: "white", fontWeight: "bold", mr: 0.5 }}>
+                            <Typography sx={{ fontSize: "0.7rem", color: "white", mr: 0.5 }}>
                                 Tipe Model
                             </Typography>
                             <Tooltip arrow title={
@@ -290,6 +290,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                         justifyContent: "center",
                                         alignItems: "center",
                                         borderRadius: "8px",
+                                        px: 2.15
                                     }}
                                 >
                                     <StopCircleIcon />
@@ -307,7 +308,6 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     size="small"
                                     disabled={!input.trim() || isBotQnALoading || isBotDisharmonyLoading}
                                     sx={{
-                                        bgColor: "secondary.main",
                                         flexDirection: "column",
                                         justifyContent: "center",
                                         alignItems: "center",
