@@ -546,8 +546,26 @@ const QnAPage: React.FC = () => {
                     </Box>
 
                     {/* Fifth Box: Fixed Chat Input */}
-                    <Box sx={{ justifyContent: "center", display: "flex", flex: 0.5, position: 'relative', px: 2, pb: 2 }}>
-                        <Box sx={{ width: isHistoryChatVisible ? '60%' : '50%', ml: -3 }}>
+                    {/* Fifth Box: Fixed Chat Input */}
+                    <Box
+                        sx={{
+                            justifyContent: "center",
+                            display: "flex",
+                            flex: 0.5,
+                            position: 'relative',
+                            px: 2,
+                            pb: 2,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                width: isHistoryChatVisible ? '60%' : '50%',
+                                ml: -3,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center', // Centers items horizontally
+                            }}
+                        >
                             <ChatInput
                                 onNewChat={handleNewChat}
                                 onSendMessage={handleSendMessage}
@@ -558,6 +576,9 @@ const QnAPage: React.FC = () => {
                                 controllerQnARef={controllerQnARef}
                                 controllerDisharmonyRef={controllerDisharmonyRef}
                             />
+                            <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
+                                Catatan: Jawaban digenerasi dengan AI sehingga mungkin melakukan kesalahan
+                            </Typography>
                         </Box>
                     </Box>
                 </Grid >
