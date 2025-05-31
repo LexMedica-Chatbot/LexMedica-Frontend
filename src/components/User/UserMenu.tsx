@@ -37,7 +37,14 @@ const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
     return (
         <>
             <IconButton onClick={handleOpenMenu}>
-                <Avatar sx={{ bgcolor: "primary.main" }}>
+                <Avatar
+                    sx={{
+                        bgcolor: { xs: "white", md: "primary.main" },
+                        color: { xs: "primary.main", md: "white" },
+                        width: { xs: 32 },
+                        height: { xs: 32 },
+                        fontSize: { xs: '1rem' }
+                    }}>
                     {user?.email?.charAt(0).toUpperCase()}
                 </Avatar>
             </IconButton>

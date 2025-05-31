@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 
 // ** Icons Imports
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 
 // ** Types Imports
 import { ChatSession } from "../../types/Chat";
@@ -17,17 +18,53 @@ interface HistoryMenuProps {
     chatSessionsRef: React.RefObject<HTMLDivElement | null>;
     chatSessions: ChatSession[];
     selectedChatSessionId: number | null;
+    onClose: () => void;
     onSelectChatSession: (chatId: number) => void;
     onMoreClick: (event: React.MouseEvent<HTMLElement>, index: number) => void;
 }
 
-const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions, selectedChatSessionId, onSelectChatSession, onMoreClick }) => {
+const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions, selectedChatSessionId, onClose, onSelectChatSession, onMoreClick }) => {
     return (
         <>
             <Box
+                sx={{
+                    py: 1,
+                    px: 2,
+                    display: "flex",
+                    alignItems: "center",
+                    position: "relative",
+                    minHeight: 48, // Optional: ensures consistent height
+                }}
+            >
+                {onClose && (
+                    <IconButton
+                        onClick={onClose}
+                        sx={{
+                            color: "white",
+                            position: "absolute",
+                            left: 8, // or px
+                        }}
+                    >
+                        <FormatListBulletedIcon />
+                    </IconButton>
+                )}
+                <Typography
+                    variant="h6"
+                    fontSize="0.9rem"
+                    fontWeight="bold"
+                    color="white"
+                    sx={{
+                        position: "absolute",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                    }}
+                >
+                    Riwayat Chat
+                </Typography>
+            </Box>
+            <Box
                 ref={chatSessionsRef}
                 sx={{
-                    flex: 9,
                     display: "flex",
                     flexDirection: "column",
                     padding: 2,
@@ -75,14 +112,14 @@ const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions
                             >
                                 <MoreHorizIcon />
                             </IconButton>
-                        </Box>
+                        </Box >
                     ))
                 ) : (
                     <Typography variant="body2" color="white" sx={{ textAlign: "center" }}>
                         Tidak ada riwayat chat
                     </Typography>
                 )}
-            </Box>
+            </Box >
         </>
     );
 };

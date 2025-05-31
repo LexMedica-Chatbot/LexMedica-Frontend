@@ -62,10 +62,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     };
 
     const loadingStages = [
-        "Menelusuri dokumen hukum ",
-        "Menganalisis hasil temuan ",
-        "Menggabungkan informasi ",
-        "Memverifikasi jawaban "
+        "Menelusuri dokumen hukum",
+        "Menganalisis hasil temuan",
+        "Menggabungkan informasi dari berbagai sumber",
+        "Memverifikasi jawaban",
+        "Menyusun jawaban akhir",
+        "Melakukan pengecekan akhir"
     ];
 
     const [loadingStageIndex, setLoadingStageIndex] = useState(0);
@@ -105,7 +107,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                             justifyContent: msg.sender === "user" ? "flex-end" : "flex-start",
                         }}
                     >
-                        {(isBotQnALoading && index === chatMessages.length - 1) ? (
+                        {((isBotQnALoading || isBotDisharmonyLoading) && index === chatMessages.length - 1) ? (
                             <Paper
                                 sx={{
                                     p: 1.5,
@@ -119,7 +121,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                 }}
                             >
                                 <CircularProgress size={24} sx={{ mr: 2 }} />
-                                <ListItemText primary={`${loadingStages[loadingStageIndex]}${dots}`}
+                                <ListItemText primary={isBotDisharmonyLoading ? `Menganalisis potensi disharmoni${dots}` : `${loadingStages[loadingStageIndex]}${dots}`}
                                     sx={{ wordWrap: "break-word" }}
                                 />
                             </Paper>
@@ -312,30 +314,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                     </Box>
                                                                 )}
 
-                                                                {isBotDisharmonyLoading &&
-                                                                    index === chatMessages.length - 1 ? (
-                                                                    <Paper
-                                                                        sx={{
-                                                                            p: 1.5,
-                                                                            maxWidth: "100%",
-                                                                            display: "flex",
-                                                                            alignItems: "center",
-                                                                            justifyContent: "center",
-                                                                            borderRadius: 2,
-                                                                            bgcolor: "grey.100",
-                                                                            color: "black",
-                                                                            mt: 1,
-                                                                            border: "2px solid",
-                                                                            borderColor: "primary.main",
-                                                                        }}
-                                                                    >
-                                                                        <CircularProgress size={16} sx={{ mr: 2 }} />
-                                                                        <ListItemText
-                                                                            primary={"Menganalisis potensi disharmoni regulasi ..."}
-                                                                            sx={{ wordWrap: "break-word" }}
-                                                                        />
-                                                                    </Paper>
-                                                                ) : (msg.disharmony && msg.disharmony.analysis && (
+                                                                {msg.disharmony && msg.disharmony.analysis && (
                                                                     <Box>
                                                                         <Box display={"flex"} alignItems={"center"} justifyContent={"space-between"} mr={3}>
                                                                             <Typography
@@ -368,7 +347,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                             />
                                                                         </Box>
                                                                     </Box>
-                                                                )
                                                                 )}
                                                             </Box>
                                                         </Collapse>

@@ -91,7 +91,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 boxShadow: "0px -2px 5px rgba(0, 0, 0, 0.1)",
                 borderRadius: 2,
                 display: "flex",
-                flexDirection: "column", // vertical layout
+                flexDirection: "column",
             }}
         >
             <TextField
@@ -130,18 +130,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     // Input text
                     '& .MuiInputBase-input': {
                         color: 'white',
+                        fontSize: { xs: '0.8rem', md: '0.9rem' },
                     },
 
-                    // Placeholder color (enabled and disabled)
+                    // Placeholder color
                     '& .MuiInputBase-input::placeholder': {
                         color: 'rgba(255, 255, 255, 0.6)',
                         opacity: 1,
                     },
 
-                    // Force disabled input color (override default gray)
+                    // Disabled input text
                     '& .Mui-disabled .MuiInputBase-input': {
-                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.6)', // for Safari
-                        color: 'rgba(255, 255, 255, 0.6)', // fallback for other browsers
+                        WebkitTextFillColor: 'rgba(255, 255, 255, 0.6)',
+                        color: 'rgba(255, 255, 255, 0.6)',
                     },
 
                     '& .Mui-disabled .MuiInputBase-input::placeholder': {
@@ -166,8 +167,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             px: 1,
                         }}
                     >
-                        <CreateIcon sx={{ color: "white" }} />
-                        <Typography fontSize={"0.7rem"} color="white">
+                        <CreateIcon sx={{ fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem" } }} />
+                        <Typography fontSize={{ xs: "0.5rem", sm: "0.6rem", md: "0.7rem" }} color="white">
                             New Chat
                         </Typography>
                     </IconButton>
@@ -178,8 +179,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     {/* Embedding Selector */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 2 }}>
                         <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
-                            <Typography sx={{ fontSize: "0.7rem", color: "white", mr: 0.5 }}>
-                                Tipe Embedding
+                            <Typography
+                                sx={{
+                                    fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.8rem" },
+                                    color: "white",
+                                    mr: 0.5
+                                }}>
+                                Embedding
                             </Typography>
                             <Tooltip arrow
                                 title={
@@ -195,7 +201,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                         </Box>
                                     </Typography>
                                 }>
-                                <InfoOutlinedIcon sx={{ fontSize: 16, color: "white", cursor: "pointer" }} />
+                                <InfoOutlinedIcon
+                                    sx={{
+                                        fontSize: { xs: "0.9rem", md: "1rem" },
+                                        color: "white",
+                                        cursor: "pointer"
+                                    }} />
                             </Tooltip>
                         </Box>
                         <Select
@@ -206,7 +217,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             disableUnderline
                             sx={{
                                 fontWeight: "bold",
-                                fontSize: "0.8rem",
+                                fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.8rem" },
                                 borderRadius: 1,
                                 height: "1.5rem",
                                 py: 0.7,
@@ -227,8 +238,13 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     {/* Model Selector */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 1 }}>
                         <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
-                            <Typography sx={{ fontSize: "0.7rem", color: "white", mr: 0.5 }}>
-                                Tipe Model
+                            <Typography
+                                sx={{
+                                    fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.8rem" },
+                                    color: "white",
+                                    mr: 0.5
+                                }}>
+                                Model
                             </Typography>
                             <Tooltip arrow title={
                                 <Typography variant={"body2"} sx={{ color: "white" }}>
@@ -243,7 +259,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     </Box>
                                 </Typography>
                             }>
-                                <InfoOutlinedIcon sx={{ fontSize: 16, color: "white", cursor: "pointer" }} />
+                                <InfoOutlinedIcon
+                                    sx={{
+                                        fontSize: { xs: "0.9rem", md: "1rem" },
+                                        color: "white",
+                                        cursor: "pointer"
+                                    }} />
                             </Tooltip>
                         </Box>
                         <Select
@@ -254,7 +275,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             disableUnderline
                             sx={{
                                 fontWeight: "bold",
-                                fontSize: "0.8rem",
+                                fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.8rem" },
                                 borderRadius: 1,
                                 height: "1.5rem",
                                 py: 0.7,
@@ -290,11 +311,11 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                         justifyContent: "center",
                                         alignItems: "center",
                                         borderRadius: "8px",
-                                        px: 2.15
+                                        px: { xs: 1, md: 2 },
                                     }}
                                 >
-                                    <StopCircleIcon />
-                                    <Typography fontSize={"0.7rem"} color="white">
+                                    <StopCircleIcon sx={{ fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem" } }} />
+                                    <Typography fontSize={{ xs: "0.5rem", sm: "0.6rem", md: "0.7rem" }} color="white">
                                         Stop
                                     </Typography>
                                 </IconButton>
@@ -312,17 +333,19 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                         justifyContent: "center",
                                         alignItems: "center",
                                         borderRadius: "8px",
-                                        px: 2,
+                                        px: { xs: 1, md: 2 },
                                     }}
                                 >
-                                    <SendIcon sx={{
-                                        color:
-                                            !input.trim() || isBotQnALoading || isBotDisharmonyLoading
-                                                ? "rgba(255, 255, 255, 0.5)"
-                                                : "white",
-                                    }} />
+                                    <SendIcon
+                                        sx={{
+                                            fontSize: { xs: "1.1rem", sm: "1.3rem", md: "1.5rem" },
+                                            color:
+                                                !input.trim() || isBotQnALoading || isBotDisharmonyLoading
+                                                    ? "rgba(255, 255, 255, 0.5)"
+                                                    : "white",
+                                        }} />
                                     <Typography
-                                        fontSize={"0.7rem"}
+                                        fontSize={{ xs: "0.5rem", sm: "0.6rem", md: "0.7rem" }}
                                         sx={{
                                             color:
                                                 !input.trim() || isBotQnALoading || isBotDisharmonyLoading

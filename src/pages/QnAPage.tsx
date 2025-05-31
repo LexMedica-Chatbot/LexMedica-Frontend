@@ -6,10 +6,13 @@ import { Link } from 'react-router-dom';
 // ** MUI Imports
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Drawer from "@mui/material/Drawer";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
+import useMediaQuery from "@mui/material/useMediaQuery";
+import { useTheme } from "@mui/material/styles";
 
 // ** MUI Icons
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
@@ -384,14 +387,24 @@ const QnAPage: React.FC = () => {
         }
     };
 
+    const theme = useTheme();
+    // Example: Define toolbar height for consistent spacing
+    const toolbarHeight = { xs: '56px' };
+
+    // This media query can be used for more drastic layout changes
+    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
     return (
         <>
-            <Grid container sx={{ height: "100vh", display: "flex" }}>
-                {/* Left Sidebar */}
-                {user && isHistoryChatVisible && (
+            <Grid container sx={{ height: "100vh", display: "flex", overflow: 'hidden' /* Prevent body scroll */ }}>
+                {/* Left Sidebar: Show only on md+ */}
+                {/* Desktop Sidebar */}
+                {user && isHistoryChatVisible && !isMobile && (
                     <Grid
                         item
-                        xs={2}
+                        xs={user && isHistoryChatVisible && !isMobile ? 3 : 0}
+                        sm={user && isHistoryChatVisible && !isMobile ? 3.5 : 0}
+                        lg={user && isHistoryChatVisible && !isMobile ? 2 : 0}
                         sx={{
                             height: "100vh",
                             bgcolor: '#160100',
@@ -400,51 +413,76 @@ const QnAPage: React.FC = () => {
                             zIndex: 11,
                         }}
                     >
-                        {/* First Box: History Chat Toggle Button */}
-                        <Box sx={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                            <IconButton onClick={toggleHistoryChat} sx={{ position: "absolute", left: 10, ml: 1, color: "white" }}>
-                                <FormatListBulletedIcon />
-                            </IconButton>
-                            <Typography variant="h6" color="white" fontWeight="bold">
-                                Riwayat Chat
-                            </Typography>
-                        </Box>
-
-                        {/* Third Box: History Chat List */}
                         <HistoryMenu
                             chatSessionsRef={chatHistoryRef}
                             chatSessions={chatSessions}
                             selectedChatSessionId={selectedChatSessionId}
                             onSelectChatSession={handleSelectChatSession}
-                            onMoreClick={handleClickChatSessionMoreOptions} />
+                            onMoreClick={handleClickChatSessionMoreOptions}
+                            onClose={toggleHistoryChat}
+                        />
                     </Grid>
                 )}
 
+                {/* Mobile Drawer */}
+                <Drawer
+                    anchor="left"
+                    open={isHistoryChatVisible && isMobile}
+                    onClose={toggleHistoryChat}
+                    PaperProps={{
+                        sx: {
+                            width: '65vw',
+                            maxWidth: 250,
+                            bgcolor: '#160100',
+                            color: 'white',
+                            display: 'flex',
+                            flexDirection: 'column',
+                        }
+                    }}
+                >
+                    <HistoryMenu
+                        chatSessionsRef={chatHistoryRef}
+                        chatSessions={chatSessions}
+                        selectedChatSessionId={selectedChatSessionId}
+                        onSelectChatSession={handleSelectChatSession}
+                        onMoreClick={handleClickChatSessionMoreOptions}
+                        onClose={toggleHistoryChat}
+                    />
+                </Drawer>
+
+                {/* HistoryMoreOptions - ensure this component is also responsive */}
                 <HistoryMoreOptions activeChatIndex={activeChatIndex} anchorElHistoryMoreOptions={anchorEl} chatSessions={chatSessions} onClose={handleCloseChatSessionMoreOptions} onDelete={handleDelete} />
 
                 {/* Right Content*/}
                 <Grid
                     item
-                    xs={isHistoryChatVisible ? 10 : 12}
+                    // Adjust based on sidebar visibility; this logic is generally fine.
+                    xs={user && isHistoryChatVisible && !isMobile ? 9 : 12}
+                    sm={user && isHistoryChatVisible && !isMobile ? 8.5 : 12}
+                    lg={user && isHistoryChatVisible && !isMobile ? 10 : 12}
                     sx={{
                         display: "flex",
                         height: "100vh",
                         flexDirection: "column",
+                        overflow: 'hidden', // Ensure this container manages its own overflow
                     }}
                 >
-                    {/* Second Box: Toolbar */}
+                    {/* Second Box: Toolbar (Fixed Header) */}
                     <Box
+                        component="header" // Semantic element
                         sx={{
-                            flex: 1,
-                            bgcolor: 'transparent',
+                            height: toolbarHeight, // Use defined height
+                            bgcolor: { xs: 'primary.main', md: 'transparent' },
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            position: "fixed",
+                            position: "fixed", // Stays at the top
                             top: 0,
-                            left: 0,
-                            right: 0,
-                            px: 2,
+                            // Adjust left offset if sidebar is visible and fixed (not drawer)
+                            left: { xs: 0 },
+                            width: { xs: '100%' },
+                            right: 0, // Ensure it spans to the right
+                            px: { xs: 1, sm: 2 },
                             zIndex: 10,
                         }}
                     >
@@ -452,21 +490,19 @@ const QnAPage: React.FC = () => {
                             disableGutters
                             sx={{
                                 width: "100%",
-                                height: "100%",
                                 display: "flex",
                                 justifyContent: "space-between",
+                                alignItems: "center", // Vertically align items
                             }}
                         >
-                            {/* Left Section: LexMedica App Name */}
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                            {/* Left Section: App Name & Optional History Toggle */}
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                                 {user && !isHistoryChatVisible && (
                                     <IconButton
                                         onClick={toggleHistoryChat}
                                         sx={{
-                                            position: "absolute",
-                                            left: 2,
-                                            color: "primary.main",
-                                            "&:hover": { color: "white" }
+                                            color: { xs: "white", md: "primary.main" },
+                                            "&:hover": { color: "text.primary" }
                                         }}
                                     >
                                         <FormatListBulletedIcon />
@@ -476,30 +512,37 @@ const QnAPage: React.FC = () => {
                                 {/* App Name */}
                                 <Typography
                                     fontWeight="bold"
-                                    variant="h5"
-                                    sx={{ ml: user ? (isHistoryChatVisible ? 33 : 7) : 3 }}
-                                    color="primary.main">
+                                    variant={isMobile ? "h6" : "h5"} // Responsive font size
+                                    sx={{ color: { xs: "white", md: "primary.main" }, ml: { xs: 2 } }}
+                                >
                                     LexMedica
                                 </Typography>
                             </Box>
 
                             {/* Right Section: Account Buttons */}
-                            <Box sx={{ display: "flex", gap: 2, marginLeft: "auto" }}>
+                            <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, mr: { xs: 3, md: 4 } }}>
                                 {!user ? (
                                     <>
                                         <Link to="/login" style={{ textDecoration: "none" }}>
-                                            <Button variant="contained">
+                                            <Button variant="contained" size={isMobile ? "small" : "medium"}>
                                                 Masuk
                                             </Button>
                                         </Link>
                                         <Link to="/register" style={{ textDecoration: "none" }}>
-                                            <Button variant="outlined" sx={{ color: "primary.main", border: "2px solid", borderColor: "primary.main", mr: 3 }}>
+                                            <Button variant="outlined" size={isMobile ? "small" : "medium"} sx={{
+                                                color: "primary.main",
+                                                border: "2px solid",
+                                                borderColor: "primary.main",
+                                                // mr: { xs: 1, sm: 2, md: 3 } // Margin already handled by gap
+                                            }}>
                                                 Daftar
                                             </Button>
                                         </Link>
                                     </>
                                 ) : (
-                                    <UserMenu user={user} />
+                                    <Box sx={{ mr: { xs: 2, sm: 4 } }}>
+                                        <UserMenu user={user} />
+                                    </Box>
                                 )}
                             </Box>
                         </Toolbar>
@@ -507,11 +550,11 @@ const QnAPage: React.FC = () => {
 
                     {/* Fourth Box: Chat Messages */}
                     <Box sx={{
-                        flex: 8.5,
+                        flexGrow: 1,
                         display: "flex",
-                        position: "relative",
-                        overflowY: "auto", // Only this box will be scrollable
-                        justifyContent: "center"
+                        overflowY: "auto",
+                        justifyContent: "center",
+                        pt: { xs: `calc(${toolbarHeight.xs})`, md: 0 },
                     }}
                         onScroll={(e) => {
                             const target = e.currentTarget;
@@ -525,17 +568,28 @@ const QnAPage: React.FC = () => {
                                     display: "flex",
                                     flexDirection: "column",
                                     justifyContent: "center",
+                                    alignItems: "center",
+                                    height: "100%",
+                                    px: 2,
                                 }}
                             >
-                                <Typography variant="h5" fontWeight="bold" color={"primary.main"}>
+                                <Typography variant={isMobile ? "h6" : "h5"} fontWeight="bold" color={"primary.main"}>
                                     Selamat datang di LexMedica!
                                 </Typography>
-                                <Typography variant="body1" fontWeight="bold">
+                                <Typography variant="body1" fontWeight="bold" sx={{ mt: 1 }}>
                                     Silakan ajukan pertanyaan seputar hukum kesehatan Indonesia
                                 </Typography>
                             </Box>
                         ) : (
-                            <Box sx={{ width: isHistoryChatVisible ? '60%' : '50%' }}>
+                            <Box sx={{
+                                width: {
+                                    xs: '90%',
+                                    md: isHistoryChatVisible && !isMobile ? '70%' : '60%',
+                                    lg: isHistoryChatVisible && !isMobile ? '60%' : '50%',
+                                },
+                                maxWidth: '900px',
+                                mx: 'auto',
+                            }}>
                                 <ChatMessages
                                     chatMessages={chatMessages}
                                     isBotQnALoading={botReplyQnARef.current === "" && isBotQnAResponding}
@@ -546,24 +600,26 @@ const QnAPage: React.FC = () => {
                     </Box>
 
                     {/* Fifth Box: Fixed Chat Input */}
-                    {/* Fifth Box: Fixed Chat Input */}
                     <Box
+                        component="footer"
                         sx={{
                             justifyContent: "center",
                             display: "flex",
-                            flex: 0.5,
-                            position: 'relative',
-                            px: 2,
-                            pb: 2,
+                            pb: 1,
                         }}
                     >
                         <Box
                             sx={{
-                                width: isHistoryChatVisible ? '60%' : '50%',
-                                ml: -3,
+                                width: {
+                                    xs: '90%',
+                                    md: isHistoryChatVisible && !isMobile ? '70%' : '60%',
+                                    lg: isHistoryChatVisible && !isMobile ? '60%' : '50%',
+                                },
+                                maxWidth: '900px',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                alignItems: 'center', // Centers items horizontally
+                                alignItems: 'center',
+                                mx: 'auto'
                             }}
                         >
                             <ChatInput
@@ -576,8 +632,14 @@ const QnAPage: React.FC = () => {
                                 controllerQnARef={controllerQnARef}
                                 controllerDisharmonyRef={controllerDisharmonyRef}
                             />
-                            <Typography variant="body2" sx={{ mt: 1, textAlign: 'center' }}>
-                                Catatan: Jawaban digenerasi dengan AI sehingga mungkin melakukan kesalahan
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    mt: 1,
+                                    fontSize: { xs: '0.55rem', sm: '0.7rem', md: '0.8rem' },
+                                    textAlign: 'center', color: theme.palette.text.secondary
+                                }}>
+                                Jawaban digenerasi dengan AI sehingga mungkin melakukan kesalahan
                             </Typography>
                         </Box>
                     </Box>
