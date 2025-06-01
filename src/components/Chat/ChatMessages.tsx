@@ -96,6 +96,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         return () => clearInterval(interval);
     }, [isBotQnALoading]);
 
+    console.log(chatMessages);
+
     return (
         <>
             <List>
