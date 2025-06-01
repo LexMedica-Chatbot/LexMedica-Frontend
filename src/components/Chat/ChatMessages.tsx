@@ -96,8 +96,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         return () => clearInterval(interval);
     }, [isBotQnALoading]);
 
-    console.log(chatMessages);
-
     return (
         <>
             <List>
@@ -349,8 +347,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                 </Typography>
                                                                                                 <Typography
                                                                                                     sx={{
+                                                                                                        color: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
                                                                                                         whiteSpace: 'pre-wrap',
-                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" }
+                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" },
+                                                                                                        fontWeight: 'bold'
                                                                                                     }}>
                                                                                                     {document.source.status}
                                                                                                 </Typography>
