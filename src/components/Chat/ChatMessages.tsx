@@ -347,7 +347,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                 >
                                                                                                     Status
                                                                                                 </Typography>
-                                                                                                <Chip
+                                                                                                <Typography
+                                                                                                    sx={{
+                                                                                                        whiteSpace: 'pre-wrap',
+                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" }
+                                                                                                    }}>
+                                                                                                    {document.source.status}
+                                                                                                </Typography>
+                                                                                                {/* <Chip
                                                                                                     label={document.source.status}
                                                                                                     sx={{
                                                                                                         fontWeight: 'bold',
@@ -356,7 +363,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                         color: 'white',
                                                                                                         borderRadius: '4px'
                                                                                                     }}
-                                                                                                />
+                                                                                                /> */}
                                                                                             </Box>
                                                                                         </Box>
 
