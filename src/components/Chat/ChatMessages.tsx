@@ -164,7 +164,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                 </Box>
                                 <ListItemText
                                     primary={
-                                        isBotDisharmonyLoading
+                                        msg.message !== "" && isBotDisharmonyLoading
                                             ? `Menganalisis potensi disharmoni${dots}`
                                             : `${loadingStages[loadingStageIndex]}${dots}`
                                     }

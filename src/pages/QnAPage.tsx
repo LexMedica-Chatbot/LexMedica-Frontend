@@ -141,9 +141,11 @@ const QnAPage: React.FC = () => {
             historyPairs,
             async (data) => {
                 botReplyQnARef.current += data.answer;
+                console.log(data)
 
                 const resolvedDocuments = await Promise.all(
                     (data.referenced_documents || []).map(async (doc: any) => {
+                        console.log(doc.metadata)
                         const type = doc.metadata?.jenis_peraturan;
                         const number = doc.metadata?.nomor_peraturan;
                         const year = doc.metadata?.tahun_peraturan;
