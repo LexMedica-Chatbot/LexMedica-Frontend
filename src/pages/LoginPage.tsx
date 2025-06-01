@@ -39,39 +39,45 @@ const LoginPage = () => {
     };
 
     return (
-        <Box
+        <Box // Outermost container for the page
             sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "100vh",
+                minHeight: "100vh",
                 flexDirection: "column",
-                gap: 1,
+                p: { xs: 2, sm: 3, md: 4 },
+                // Removed page background color
             }}
         >
-            <Box
+            <Box // Form container
                 sx={{
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
                     flexDirection: "column",
-                    gap: 1,
+                    gap: { xs: 1.25, md: 1.5 },
                     backgroundColor: "white",
-                    padding: 4,
+                    padding: { xs: 2.5, sm: 3, md: 4 },
                     borderRadius: 2,
-                    boxShadow: 2,
-                    maxWidth: 500,
+                    boxShadow: { xs: 1, sm: 2, md: 3 },
+                    width: '100%',
+                    maxWidth: { xs: '100%', sm: 450, md: 500 },
                 }}
             >
 
-                {/* Custom title for LexMedica */}
-                <Typography variant="h5" gutterBottom>
+                <Typography
+                    variant="h5"
+                    gutterBottom
+                    sx={{
+                        fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+                        textAlign: 'center',
+                    }}
+                >
                     Masuk ke LexMedica
                 </Typography>
 
-                {/* Form */}
                 <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
-                    {/* Email input */}
                     <TextField
                         label="Email"
                         variant="outlined"
@@ -87,7 +93,6 @@ const LoginPage = () => {
                         helperText={!isEmailValid ? "Format email tidak valid" : ""}
                     />
 
-                    {/* Password input */}
                     <TextField
                         label="Password"
                         type={showPassword ? "text" : "password"}
@@ -112,15 +117,13 @@ const LoginPage = () => {
                         }}
                     />
 
-                    {/* Error message */}
                     {error && (
-                        <Alert severity="error" sx={{ marginBottom: 2 }}>
+                        <Alert severity="error" sx={{ mt: 1, mb: { xs: 1.5, sm: 2 } }}>
                             {error}
                         </Alert>
                     )}
 
-                    {/* Submit button */}
-                    <Button
+                    <Button // Submit button
                         variant="contained"
                         fullWidth
                         type="submit"
@@ -128,38 +131,47 @@ const LoginPage = () => {
                             loading ||
                             email === "" ||
                             !isEmailValid ||
-                            password === ""}
-                        sx={{ mt: 1 }}
+                            password === ""
+                        }
+                        sx={{
+                            mt: { xs: 2, sm: 2, md: 1.5 }, // Adjusted margin from last form element/error
+                            py: { xs: 1, sm: 1.25 },
+                            fontSize: { xs: '0.875rem', sm: '0.9375rem' }
+                        }}
                     >
                         {loading ? "Loading" : "Masuk"}
                     </Button>
-                </Box>
+                </Box> {/* End of component="form" Box */}
 
                 {/* Link to Register */}
-                <Grid container justifyContent="center" sx={{ mt: 1 }}>
+                <Grid container justifyContent="center" sx={{ mt: 0 }}> {/* mt removed/set to 0, parent gap controls spacing */}
                     <Grid item>
-                        <Typography variant="body1">
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
                             Belum punya akun?{" "}
-                            <Link to="/register" style={{ textDecoration: "none", color: "#1976d2" }}>
+                            <Link to="/register" style={{ textDecoration: "none", color: "#1976d2", fontWeight: 'medium' }}>
                                 Daftar di sini
                             </Link>
                         </Typography>
                     </Grid>
                 </Grid>
 
-                <Grid container justifyContent="center">
-                    <Grid item>
-                        <Link to={'/'} >
+                {/* Akses Tanpa Akun Button */}
+                <Grid container justifyContent="center" sx={{ mt: 0, width: '100%' }}> {/* mt removed/set to 0 */}
+                    <Grid item sx={{ width: { xs: '100%', sm: 'auto' } }}>
+                        <Link to={'/'} style={{ textDecoration: 'none', display: 'block' }}>
                             <Button
                                 variant="contained"
+                                fullWidth
                                 sx={{
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     gap: 1,
+                                    py: { xs: 1, sm: 1.25 },
+                                    fontSize: { xs: '0.875rem', sm: '0.9375rem' },
                                 }}
                             >
                                 Akses Tanpa Akun
-                                <ArrowForwardIcon />
+                                <ArrowForwardIcon sx={{ fontSize: { xs: '1rem', sm: '1.125rem' } }} />
                             </Button>
                         </Link>
                     </Grid>

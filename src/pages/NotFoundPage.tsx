@@ -24,10 +24,22 @@ const NotFoundPage = () => {
             }}
         >
             <Card sx={{ p: 4, bgcolor: "white", borderRadius: 2 }}>
-                <Typography variant="h3" gutterBottom>
+                <Typography
+                    sx={{
+                        fontWeight: 700,
+                        fontSize: { xs: "2rem", sm: "2.5rem", md: "3rem" },
+                        mb: 2,
+                    }}
+                >
                     404 Not Found
                 </Typography>
-                <Typography variant="h5" gutterBottom>
+                <Typography
+                    sx={{
+                        fontWeight: 500,
+                        fontSize: { xs: "1.25rem", sm: "1.5rem", md: "1.75rem" },
+                        mb: 2,
+                    }}
+                >
                     Halaman tidak ditemukan
                 </Typography>
                 <Button sx={{ mt: 2 }} variant="contained" onClick={() => navigate("/")}>

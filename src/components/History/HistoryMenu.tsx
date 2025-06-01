@@ -42,7 +42,7 @@ const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions
                         sx={{
                             color: "white",
                             position: "absolute",
-                            left: 8, // or px
+                            left: 14,
                         }}
                     >
                         <FormatListBulletedIcon />
@@ -106,7 +106,7 @@ const HistoryMenu: React.FC<HistoryMenuProps> = ({ chatSessionsRef, chatSessions
                                 sx={{
                                     position: "absolute",
                                     right: 8,
-                                    visibility: "hidden",
+                                    visibility: {xs: 'block', md: "hidden"},
                                     color: "white",
                                 }}
                             >

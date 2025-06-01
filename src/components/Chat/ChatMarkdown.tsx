@@ -42,28 +42,30 @@ function parseMarkdownParagraph(text: string): React.ReactNode {
                     <Box
                         key={idx}
                         sx={{
-                            display: "flex",
-                            alignItems: "flex-start",
-                            ml: `${1.5 * indentLevel}em`,
+                            display: "grid",
+                            gridTemplateColumns: bullet ? "auto 1fr" : "1fr",
+                            gap: 1,
+                            alignItems: "start",
+                            ml: `${1.25 * indentLevel}em`,
                             mb: 1,
                         }}
                     >
                         {bullet && (
-                            <Box
+                            <Typography
                                 component="span"
                                 sx={{
-                                    minWidth: "1.5em",
                                     fontWeight: "bold",
-                                    lineHeight: "1.5rem",
+                                    fontSize: { xs: "0.75rem", sm: "1rem" },
+                                    lineHeight: 1.5,
                                 }}
                             >
                                 {bullet}
-                            </Box>
+                            </Typography>
                         )}
                         <Typography
                             component="div"
                             sx={{
-                                fontSize: "0.95rem",
+                                fontSize: { xs: "0.75rem", sm: "1rem" },
                                 flex: 1,
                                 whiteSpace: "pre-wrap",
                             }}

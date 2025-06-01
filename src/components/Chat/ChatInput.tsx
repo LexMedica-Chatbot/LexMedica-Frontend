@@ -130,7 +130,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                     // Input text
                     '& .MuiInputBase-input': {
                         color: 'white',
-                        fontSize: { xs: '0.8rem', md: '0.9rem' },
+                        fontSize: { xs: '0.75rem', md: '0.9rem' },
                     },
 
                     // Placeholder color

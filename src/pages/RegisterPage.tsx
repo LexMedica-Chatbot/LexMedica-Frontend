@@ -69,6 +69,7 @@ const RegisterPage = () => {
         e.preventDefault();
         if (password !== confirmPassword) {
             alert("Passwords do not match");
+            setIsConfirmPasswordValid(false);
             return;
         }
 
@@ -79,41 +80,47 @@ const RegisterPage = () => {
     };
 
     return (
-        <Box
+        <Box // Outermost container for the page
             sx={{
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                height: "100vh",
+                minHeight: "100vh",
                 flexDirection: "column",
+                p: { xs: 2, sm: 3 },
+                // Removed page background color
             }}
         >
-            <Box
+            <Box // Form container
                 sx={{
                     display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
                     flexDirection: "column",
-                    backgroundColor: "white",
-                    px: 4,
-                    py: 3,
+                    alignItems: "center",
+                    gap: { xs: 1.25, md: 1.5 }, // Reduced gap between elements inside this box
+                    backgroundColor: "white", // Kept form container background white
+                    padding: { xs: 2.5, sm: 3, md: 4 },
                     borderRadius: 2,
-                    boxShadow: 2,
-                    maxWidth: 500,
+                    boxShadow: { xs: 1, sm: 2, md: 3 },
+                    width: '100%',
+                    maxWidth: { xs: '100%', sm: 500, md: 550 },
                 }}
             >
-                <Typography variant="h5" gutterBottom>
+                <Typography
+                    variant="h5"
+                    gutterBottom
+                    sx={{
+                        fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
+                        textAlign: 'center',
+                    }}
+                >
                     Daftar Akun LexMedica
                 </Typography>
 
-                {/* Registration Form */}
-                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%" }}>
-                    {/* Email input */}
+                <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", display: 'flex', flexDirection: 'column', gap: { xs: 1.25, sm: 1.5 } }}> {/* Consistent gap for form elements */}
                     <TextField
                         label="Email"
                         variant="outlined"
                         fullWidth
-                        margin="normal"
                         value={email}
                         onChange={(e) => {
                             const value = e.target.value;
@@ -122,20 +129,20 @@ const RegisterPage = () => {
                         }}
                         error={!isEmailValid}
                         helperText={!isEmailValid ? "Format email tidak valid" : ""}
+                        size="small"
                     />
 
-                    {/* Password input */}
                     <TextField
                         label="Password"
                         type={showPassword ? "text" : "password"}
                         variant="outlined"
                         fullWidth
-                        margin="normal"
                         value={password}
                         onChange={(e) => {
                             const value = e.target.value;
                             setPassword(value);
                             validatePassword(value);
+                            if (confirmPassword) validateConfirmPassword(confirmPassword);
                         }}
                         InputProps={{
                             endAdornment: (
@@ -144,18 +151,19 @@ const RegisterPage = () => {
                                         aria-label="toggle password visibility"
                                         onClick={() => setShowPassword(!showPassword)}
                                         edge="end"
-                                        sx={{ color: "primary.main" }}
                                     >
                                         {showPassword ? <VisibilityOff /> : <Visibility />}
                                     </IconButton>
                                 </InputAdornment>
                             ),
                         }}
+                        size="small"
                     />
 
-                    {/* Password validation criteria */}
-                    <Box>
-                        <Typography variant="subtitle2" gutterBottom>Password harus terdiri dari minimal:</Typography>
+                    <Box sx={{ my: { xs: 0.5, sm: 0.75 } }}> {/* Reduced margin for this section for tighter fit */}
+                        <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
+                            Password harus terdiri dari minimal:
+                        </Typography>
                         {[
                             { label: "8 karakter", valid: passwordValidations.length },
                             { label: "1 huruf besar", valid: passwordValidations.uppercase },
@@ -167,10 +175,12 @@ const RegisterPage = () => {
                                 key={index}
                                 variant="body2"
                                 sx={{
-                                    color: item.valid ? "green" : "gray",
+                                    color: item.valid ? "success.main" : "text.secondary",
                                     display: "flex",
                                     alignItems: "center",
-                                    gap: 1,
+                                    gap: 0.5,
+                                    fontSize: { xs: '0.75rem', sm: '0.8rem' },
+                                    lineHeight: { xs: 1.4, sm: 1.5 }
                                 }}
                             >
                                 {item.valid ? "✅" : "❌"} {item.label}
@@ -183,7 +193,6 @@ const RegisterPage = () => {
                         type={showConfirmPassword ? "text" : "password"}
                         variant="outlined"
                         fullWidth
-                        margin="normal"
                         value={confirmPassword}
                         onChange={(e) => {
                             const value = e.target.value;
@@ -191,14 +200,12 @@ const RegisterPage = () => {
                             validateConfirmPassword(value);
                         }}
                         error={!isConfirmPasswordValid}
-                        helperText={
-                            !isConfirmPasswordValid ? "Password tidak cocok" : ""
-                        }
+                        helperText={!isConfirmPasswordValid ? "Password tidak cocok" : ""}
                         InputProps={{
                             endAdornment: (
                                 <InputAdornment position="end">
                                     <IconButton
-                                        aria-label="toggle password visibility"
+                                        aria-label="toggle confirm password visibility"
                                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                         edge="end"
                                     >
@@ -207,86 +214,102 @@ const RegisterPage = () => {
                                 </InputAdornment>
                             ),
                         }}
+                        size="small"
                     />
 
-                    {/* Error or Success Message */}
                     {error && (
-                        <Alert severity="error" sx={{ marginBottom: 2 }}>
+                        <Alert severity="error" sx={{ width: '100%', mt: 0.5 }}> {/* Adjusted margin */}
                             {error}
                         </Alert>
                     )}
-                    {successRegistration && (
-                        <Dialog
-                            open={successRegistration}
-                            onClose={() => { }}
-                            disableEscapeKeyDown
-                            BackdropProps={{ onClick: () => { } }}
-                        >
-                            <DialogTitle>Registrasi Berhasil</DialogTitle>
-                            <DialogContent>
-                                <Typography>
-                                    Silakan cek email untuk verifikasi akun Anda. Jika tidak menemukan email, periksa folder spam.
-                                </Typography>
-                            </DialogContent>
-                            <DialogActions sx={{ p: 2 }}>
-                                <Button onClick={() => navigate("/login")} variant="contained" autoFocus>
-                                    Masuk
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
-                    )}
 
-                    {/* Submit button */}
-                    <Button
+                    <Button // Submit Button
                         variant="contained"
                         fullWidth
                         type="submit"
-                        sx={{ mt: 1 }}
+                        sx={{
+                            // mt: { xs: 1, sm: 1.5 }, // Top margin handled by form's gap
+                            py: { xs: 0.8, sm: 1, md: 1.25 },
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '0.9375rem' }
+                        }}
                         disabled={
-                            loading ||
-                            email === "" ||
-                            !isEmailValid ||
-                            password === "" ||
-                            !isValidPassword ||
-                            confirmPassword === "" ||
-                            !isConfirmPasswordValid
+                            loading || email === "" || !isEmailValid ||
+                            password === "" || !isValidPassword ||
+                            confirmPassword === "" || !isConfirmPasswordValid
                         }
                     >
-                        {loading ? "Loading" : "Daftar"}
+                        {loading ? "Loading..." : "Daftar"}
                     </Button>
-                </Box>
+                </Box> {/* End of component="form" Box */}
 
-                {/* Link to Login */}
-                <Grid container justifyContent="center" sx={{ mt: 1 }}>
+
+                <Grid container justifyContent="center" sx={{ mt: 0 }}> {/* mt removed/set to 0 */}
                     <Grid item>
-                        <Typography variant="body1">
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' }, textAlign: 'center' }}>
                             Sudah punya akun?{" "}
-                            <Link to="/login" style={{ textDecoration: "none", color: "#1976d2" }}>
+                            <Link to="/login" style={{ textDecoration: "none", color: "primary.main", fontWeight: 'medium' }}>
                                 Masuk di sini
                             </Link>
                         </Typography>
                     </Grid>
                 </Grid>
 
-                <Grid container justifyContent="center">
-                    <Grid item>
-                        <Link to={"/"}>
+                <Grid container justifyContent="center" sx={{ mt: 0, width: '100%' }}> {/* mt removed/set to 0 */}
+                    <Grid item sx={{ width: { xs: '100%', sm: 'auto' } }}>
+                        <Link to={"/"} style={{ textDecoration: 'none', display: 'block' }}>
                             <Button
                                 variant="contained"
+                                fullWidth
                                 sx={{
-                                    mt: 1,
                                     justifyContent: "center",
                                     alignItems: "center",
                                     gap: 1,
+                                    py: { xs: 0.8, sm: 1, md: 1.25 },
+                                    fontSize: { xs: '0.8rem', sm: '0.875rem', md: '0.9375rem' },
+                                    borderColor: 'primary.main',
+                                    color: 'primary.main'
                                 }}
                             >
                                 Akses Tanpa Akun
-                                <ArrowForwardIcon />
+                                <ArrowForwardIcon sx={{ fontSize: { xs: '1rem', sm: '1.125rem' } }} />
                             </Button>
                         </Link>
                     </Grid>
                 </Grid>
-            </Box>
+            </Box> {/* End of form container Box */}
+
+            {successRegistration && (
+                <Dialog
+                    open={successRegistration}
+                    onClose={() => { }}
+                    disableEscapeKeyDown
+                    PaperProps={{
+                        sx: {
+                            width: { xs: '90%', sm: 'auto' },
+                            maxWidth: { sm: 400, md: 500 }
+                        }
+                    }}
+                >
+                    <DialogTitle sx={{ textAlign: 'center', fontSize: { xs: '1.2rem', sm: '1.35rem' } }}>
+                        Registrasi Berhasil
+                    </DialogTitle>
+                    <DialogContent>
+                        <Typography sx={{ fontSize: { xs: '0.875rem', sm: '1rem' }, textAlign: 'center' }}>
+                            Silakan cek email untuk verifikasi akun Anda. Jika tidak menemukan email, periksa folder spam.
+                        </Typography>
+                    </DialogContent>
+                    <DialogActions sx={{ p: { xs: 1.5, sm: 2 }, justifyContent: 'center' }}>
+                        <Button
+                            onClick={() => navigate("/login")}
+                            variant="contained"
+                            autoFocus
+                            sx={{ py: { xs: 0.8, sm: 1 }, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                        >
+                            Masuk
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
         </Box>
     );
 };

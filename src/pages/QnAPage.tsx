@@ -225,8 +225,8 @@ const QnAPage: React.FC = () => {
                     } else {
                         try {
                             const trimmedTitle =
-                                message.trim().length > 25
-                                    ? message.trim().slice(0, 25) + "..."
+                                message.trim().length > 20
+                                    ? message.trim().slice(0, 20) + "..."
                                     : message.trim();
 
                             const newSessionId = await createChatSession(user.id, trimmedTitle);
@@ -431,7 +431,7 @@ const QnAPage: React.FC = () => {
                     onClose={toggleHistoryChat}
                     PaperProps={{
                         sx: {
-                            width: '65vw',
+                            width: { xs: '75vw', sm: '65vw' },
                             maxWidth: 250,
                             bgcolor: '#160100',
                             color: 'white',
@@ -482,7 +482,7 @@ const QnAPage: React.FC = () => {
                             left: { xs: 0 },
                             width: { xs: '100%' },
                             right: 0, // Ensure it spans to the right
-                            px: { xs: 1, sm: 2 },
+                            px: 2,
                             zIndex: 10,
                         }}
                     >
@@ -513,14 +513,14 @@ const QnAPage: React.FC = () => {
                                 <Typography
                                     fontWeight="bold"
                                     variant={isMobile ? "h6" : "h5"} // Responsive font size
-                                    sx={{ color: { xs: "white", md: "primary.main" }, ml: { xs: 2 } }}
+                                    sx={{ color: { xs: "white", md: "primary.main" } }}
                                 >
                                     LexMedica
                                 </Typography>
                             </Box>
 
                             {/* Right Section: Account Buttons */}
-                            <Box sx={{ display: "flex", gap: { xs: 1, md: 2 }, mr: { xs: 3, md: 4 } }}>
+                            <Box sx={{ display: "flex", gap: { xs: 1, md: 2 } }}>
                                 {!user ? (
                                     <>
                                         <Link to="/login" style={{ textDecoration: "none" }}>
@@ -532,30 +532,29 @@ const QnAPage: React.FC = () => {
                                             <Button variant="outlined" size={isMobile ? "small" : "medium"} sx={{
                                                 color: "primary.main",
                                                 border: "2px solid",
-                                                borderColor: "primary.main",
-                                                // mr: { xs: 1, sm: 2, md: 3 } // Margin already handled by gap
+                                                borderColor: "primary.main"
                                             }}>
                                                 Daftar
                                             </Button>
                                         </Link>
                                     </>
                                 ) : (
-                                    <Box sx={{ mr: { xs: 2, sm: 4 } }}>
-                                        <UserMenu user={user} />
-                                    </Box>
+                                    <UserMenu user={user} />
                                 )}
                             </Box>
                         </Toolbar>
                     </Box>
 
                     {/* Fourth Box: Chat Messages */}
-                    <Box sx={{
-                        flexGrow: 1,
-                        display: "flex",
-                        overflowY: "auto",
-                        justifyContent: "center",
-                        pt: { xs: `calc(${toolbarHeight.xs})`, md: 0 },
-                    }}
+                    <Box
+                        sx={{
+                            flexGrow: 1,
+                            display: "flex",
+                            overflowY: "auto",
+                            // scrollbarWidth: "none",
+                            justifyContent: "center",
+                            pt: { xs: `calc(${toolbarHeight.xs})`, md: 0 },
+                        }}
                         onScroll={(e) => {
                             const target = e.currentTarget;
                             const isNearBottom = target.scrollHeight - target.scrollTop - target.clientHeight < 10;
@@ -603,8 +602,9 @@ const QnAPage: React.FC = () => {
                     <Box
                         component="footer"
                         sx={{
-                            justifyContent: "center",
                             display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                             pb: 1,
                         }}
                     >

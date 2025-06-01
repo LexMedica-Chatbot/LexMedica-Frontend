@@ -16,6 +16,7 @@ code {
 * {
   scrollbar-width: thin; /* For Firefox */
   scrollbar-color: #888 transparent; /* Thumb color, track transparent */
+  box-sizing: border-box; /* Ensure padding + scrollbar don't break layout */
 }
 
 /* Webkit-based Browsers (Chrome, Edge, Safari) */
