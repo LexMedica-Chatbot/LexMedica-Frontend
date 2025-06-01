@@ -44,7 +44,7 @@ const LoginPage = () => {
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
-                minHeight: "100vh",
+                minHeight: "calc(var(--vh, 1vh) * 100)",
                 flexDirection: "column",
                 p: { xs: 2, sm: 3, md: 4 },
                 // Removed page background color

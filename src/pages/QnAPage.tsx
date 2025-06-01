@@ -396,7 +396,13 @@ const QnAPage: React.FC = () => {
 
     return (
         <>
-            <Grid container sx={{ height: "100vh", display: "flex", overflow: 'hidden' /* Prevent body scroll */ }}>
+            <Grid
+                container
+                sx={{
+                    height: "calc(var(--vh, 1vh) * 100)",
+                    display: "flex",
+                    overflow: 'hidden' /* Prevent body scroll */
+                }}>
                 {/* Left Sidebar: Show only on md+ */}
                 {/* Desktop Sidebar */}
                 {user && isHistoryChatVisible && !isMobile && (
@@ -406,7 +412,7 @@ const QnAPage: React.FC = () => {
                         sm={user && isHistoryChatVisible && !isMobile ? 3.5 : 0}
                         lg={user && isHistoryChatVisible && !isMobile ? 2 : 0}
                         sx={{
-                            height: "100vh",
+                            height: "calc(var(--vh, 1vh) * 100)",
                             bgcolor: '#160100',
                             display: "flex",
                             flexDirection: "column",
@@ -462,7 +468,7 @@ const QnAPage: React.FC = () => {
                     lg={user && isHistoryChatVisible && !isMobile ? 10 : 12}
                     sx={{
                         display: "flex",
-                        height: "100vh",
+                        height: "calc(var(--vh, 1vh) * 100)",
                         flexDirection: "column",
                         overflow: 'hidden', // Ensure this container manages its own overflow
                     }}

@@ -14,7 +14,7 @@ const NotFoundPage = () => {
     return (
         <Box
             sx={{
-                height: "100vh",
+                height: "calc(var(--vh, 1vh) * 100)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
