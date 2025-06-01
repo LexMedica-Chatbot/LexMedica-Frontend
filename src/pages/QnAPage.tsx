@@ -140,6 +140,9 @@ const QnAPage: React.FC = () => {
             embedding,
             historyPairs,
             async (data) => {
+                // Ensure the ref is initialized
+                if (!regulationsRef.current) regulationsRef.current = "";
+
                 botReplyQnARef.current += data.answer;
 
                 const resolvedDocuments = await Promise.all(
@@ -147,7 +150,7 @@ const QnAPage: React.FC = () => {
                         const type = doc.metadata?.jenis_peraturan;
                         const number = doc.metadata?.nomor_peraturan;
                         const year = doc.metadata?.tahun_peraturan;
-                        const data = type && number && year ? await getDocument(type, number, year) : null;
+                        const fetchedDoc = type && number && year ? await getDocument(type, number, year) : null;
 
                         regulationsRef.current += JSON.stringify({
                             dokumen: doc.description,
@@ -156,42 +159,38 @@ const QnAPage: React.FC = () => {
                         });
 
                         return {
-                            document_id: data?.id || 0,
+                            document_id: fetchedDoc?.id ?? 0,
                             clause: doc.metadata?.tipe_bagian,
                             snippet: normalizeLegalText(doc.content),
                             source: {
-                                about: data?.about,
-                                type: data?.type,
-                                number: data?.number,
-                                year: data?.year,
-                                status: data?.status,
-                                url: data?.url,
+                                about: fetchedDoc?.about,
+                                type: fetchedDoc?.type,
+                                number: fetchedDoc?.number,
+                                year: fetchedDoc?.year,
+                                status: fetchedDoc?.status,
+                                url: fetchedDoc?.url,
                             },
                         };
                     })
                 );
 
-                // Update the documents for display
                 resolvedDocumentsRef.current = resolvedDocuments;
 
-                // Also update in chatMessages
+                // Update chat messages
                 setChatMessages((prev) => {
                     const updated = [...prev];
                     const lastIndex = updated.length - 1;
-                    if (lastIndex < 0) return updated;
-
-                    if (updated[lastIndex].sender === "bot") {
+                    if (lastIndex >= 0 && updated[lastIndex].sender === "bot") {
                         updated[lastIndex] = {
                             ...updated[lastIndex],
                             message: botReplyQnARef.current,
                             documents: resolvedDocuments,
                         };
                     }
-
                     return updated;
                 });
 
-                // Bot QNA response completed
+                // End bot response
                 setIsBotQnAResponding(false);
                 controllerQnARef.current = null;
 

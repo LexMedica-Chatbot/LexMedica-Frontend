@@ -113,7 +113,7 @@ export const fetchDisharmonyAnalysis = async (
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ regulations, method: "zero-shot" }),
+        body: JSON.stringify({ regulations, method: "few-shot" }),
         signal, // Attach abort signal here
       }
     );
