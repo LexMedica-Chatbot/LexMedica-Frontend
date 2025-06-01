@@ -70,7 +70,7 @@ export const fetchQnaAnswer = async (
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": process.env.REACT_APP_QNA_API_KEY || "", // Use env variable
+          "x-api-key": process.env.REACT_APP_QNA_API_KEY || "",
         },
         body: JSON.stringify({
           query: question,

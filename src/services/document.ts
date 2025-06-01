@@ -29,7 +29,8 @@ export const getDocument = async (
   year: string
 ): Promise<LinkDocument> => {
   try {
-    return await api.get(`/api/document/${type}/${number}/${year}`);
+    const data = await api.get(`/api/document/${type}/${number}/${year}`);
+    return data[0];
   } catch (err) {
     console.error(err);
     return {} as LinkDocument;

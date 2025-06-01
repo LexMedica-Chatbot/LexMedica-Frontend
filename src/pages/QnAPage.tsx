@@ -82,13 +82,22 @@ const QnAPage: React.FC = () => {
     }, [chatMessages, scrollBehavior, shouldAutoScroll]);
 
     // Send Message
+    const botReplyQnARef = useRef("");
+    const regulationsRef = useRef("");
+    const resolvedDocumentsRef = useRef<Document[]>([]);
+    const botReplyDisharmonyRef = useRef<ChatDisharmony>({ result: false, analysis: "" });
     const controllerQnARef = useRef<AbortController | null>(null);
     const controllerDisharmonyRef = useRef<AbortController | null>(null);
 
     const handleSendMessage = async (message: string, modelUrl: string, embedding: string) => {
-        if (!message.trim() || modelUrl === "") return;
+        if (!message.trim()) return;
+        if (modelUrl === "") return;
 
-        controllerQnARef.current?.abort(); // Abort any in-progress QnA
+        // Abort previous request if still streaming
+        if (controllerQnARef.current) {
+            controllerQnARef.current.abort();
+        }
+
         const controllerQnA = new AbortController();
         controllerQnARef.current = controllerQnA;
 
@@ -97,156 +106,195 @@ const QnAPage: React.FC = () => {
         setIsBotQnAResponding(true);
         setIsBotDisharmonyResponding(true);
 
-        let resolvedDocuments: Document[] = [];
-        let regulations = "";
-        let botReplyQnA = "";
-        let botReplyDisharmony: ChatDisharmony = { analysis: "", result: false };
-        let botMessageId = 0;
+        botReplyQnARef.current = "";
+        botReplyDisharmonyRef.current.analysis = "";
+        botReplyDisharmonyRef.current.result = false;
+        regulationsRef.current = "";
 
-        // Add empty bot message to show loading
-        setChatMessages((prev) => [...prev, { message: "", sender: "bot" }]);
+        const newBotMessage: ChatMessage = { message: "", sender: "bot" };
+        setChatMessages((prev) => [...prev, newBotMessage]);
 
-        // Scroll to bottom after bot "typing" shows
         setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+            }
         }, 100);
 
-        // Construct history pairs
         const historyPairs: string[] = [];
         let pairsFound = 0;
+
         for (let i = chatMessages.length - 1; i >= 1 && pairsFound < 3; i--) {
-            const botMsg = chatMessages[i];
-            const userMsg = chatMessages[i - 1];
-            if (botMsg.sender === "bot" && userMsg.sender === "user") {
-                historyPairs.unshift(`Question: ${userMsg.message}\nAnswer: ${botMsg.message}`);
+            const botMessage = chatMessages[i];
+            const userMessage = chatMessages[i - 1];
+
+            if (botMessage.sender === "bot" && userMessage.sender === "user") {
+                historyPairs.unshift(`Question: ${userMessage.message}\nAnswer: ${botMessage.message}`);
                 pairsFound++;
-                i--;
+                i--; // Skip the user message we just processed
             }
         }
 
-        // Fetch QnA Answer
         fetchQnaAnswer(
             message,
             modelUrl,
             embedding,
             historyPairs,
             async (data) => {
-                botReplyQnA = data.answer;
+                botReplyQnARef.current += data.answer;
 
-                resolvedDocuments = await Promise.all(
+                const resolvedDocuments = await Promise.all(
                     (data.referenced_documents || []).map(async (doc: any) => {
-                        const { jenis_peraturan: type, nomor_peraturan: number, tahun_peraturan: year } = doc.metadata || {};
-                        const fetchedDoc = type && number && year ? await getDocument(type, number, year) : null;
+                        const type = doc.metadata?.jenis_peraturan;
+                        const number = doc.metadata?.nomor_peraturan;
+                        const year = doc.metadata?.tahun_peraturan;
+                        const data = type && number && year ? await getDocument(type, number, year) : null;
 
-                        regulations += JSON.stringify({
+                        regulationsRef.current += JSON.stringify({
                             dokumen: doc.description,
                             pasal: doc.metadata?.tipe_bagian,
                             ayat: doc.content,
                         });
 
                         return {
-                            document_id: fetchedDoc?.id ?? 0,
+                            document_id: data?.id || 0,
                             clause: doc.metadata?.tipe_bagian,
                             snippet: normalizeLegalText(doc.content),
                             source: {
-                                about: fetchedDoc?.about,
-                                type: fetchedDoc?.type,
-                                number: fetchedDoc?.number,
-                                year: fetchedDoc?.year,
-                                status: fetchedDoc?.status,
-                                url: fetchedDoc?.url,
+                                about: data?.about,
+                                type: data?.type,
+                                number: data?.number,
+                                year: data?.year,
+                                status: data?.status,
+                                url: data?.url,
                             },
                         };
                     })
                 );
 
-                // Update bot message in chat
+                // Update the documents for display
+                resolvedDocumentsRef.current = resolvedDocuments;
+
+                // Also update in chatMessages
                 setChatMessages((prev) => {
                     const updated = [...prev];
-                    const lastIdx = updated.length - 1;
-                    if (lastIdx >= 0 && updated[lastIdx].sender === "bot") {
-                        updated[lastIdx] = {
-                            ...updated[lastIdx],
-                            message: botReplyQnA,
+                    const lastIndex = updated.length - 1;
+                    if (lastIndex < 0) return updated;
+
+                    if (updated[lastIndex].sender === "bot") {
+                        updated[lastIndex] = {
+                            ...updated[lastIndex],
+                            message: botReplyQnARef.current,
                             documents: resolvedDocuments,
                         };
                     }
+
                     return updated;
                 });
 
+                // Bot QNA response completed
                 setIsBotQnAResponding(false);
                 controllerQnARef.current = null;
 
                 const finalMessages: ChatMessage[] = [
                     ...chatMessages,
                     userMessage,
-                    { message: botReplyQnA, sender: "bot", documents: resolvedDocuments },
+                    { message: botReplyQnARef.current, sender: "bot", documents: resolvedDocumentsRef.current },
                 ];
 
-                // Save QnA chat
+                let botMessageId = 0;
+
                 if (user) {
-                    try {
-                        if (selectedChatSessionId) {
-                            const session = chatSessions.find((chat) => chat.id === selectedChatSessionId);
-                            if (!session?.id) return;
+                    if (selectedChatSessionId) {
+                        const session = chatSessions.find((chat) => chat.id === selectedChatSessionId);
+                        if (!session || !session.id) return;
+                        try {
                             await createChatMessage(session.id, "user", message);
-                            botMessageId = await createChatMessage(session.id, "bot", botReplyQnA);
-                            await createChatMessageDocuments(botMessageId, resolvedDocuments);
+                            botMessageId = await createChatMessage(session.id, "bot", botReplyQnARef.current);
+                            await createChatMessageDocuments(botMessageId, resolvedDocumentsRef.current);
+
                             setChatSessions((prev) =>
                                 prev.map((chat) =>
-                                    chat.id === selectedChatSessionId ? { ...chat, chatMessages: finalMessages } : chat
+                                    chat.id === selectedChatSessionId
+                                        ? { ...chat, chatMessages: finalMessages }
+                                        : chat
                                 )
                             );
-                        } else {
-                            const trimmedTitle = message.trim().slice(0, 20) + (message.trim().length > 20 ? "..." : "");
+                        } catch (error) {
+                            console.error("Error saving chatMessages:", error);
+                        }
+                    } else {
+                        try {
+                            const trimmedTitle =
+                                message.trim().length > 20
+                                    ? message.trim().slice(0, 20) + "..."
+                                    : message.trim();
+
                             const newSessionId = await createChatSession(user.id, trimmedTitle);
+
                             if (newSessionId) {
                                 await createChatMessage(newSessionId, "user", message);
-                                botMessageId = await createChatMessage(newSessionId, "bot", botReplyQnA);
-                                await createChatMessageDocuments(botMessageId, resolvedDocuments);
+                                botMessageId = await createChatMessage(newSessionId, "bot", botReplyQnARef.current);
+                                await createChatMessageDocuments(botMessageId, resolvedDocumentsRef.current);
+
                                 await fetchChatHistory(user.id);
                                 setSelectedChatSessionId(newSessionId);
-                                setTimeout(() => {
-                                    chatHistoryRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-                                }, 100);
                             }
+
+                            setTimeout(() => {
+                                if (chatHistoryRef.current) {
+                                    chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
+                                }
+                            }, 100);
+                        } catch (error) {
+                            console.error("Failed to create chat session or chatMessages:", error);
                         }
-                    } catch (err) {
-                        console.error("Error saving chat messages:", err);
                     }
                 }
 
-                // Run disharmony analysis if any regulation info exists
-                if (regulations !== "") {
-                    controllerDisharmonyRef.current?.abort();
+                // Check the disharmony after getting the regulations
+                if (regulationsRef.current !== "") {
+
+                    // Abort previous request if still streaming
+                    if (controllerDisharmonyRef.current) {
+                        controllerDisharmonyRef.current.abort();
+                    }
+
                     const controllerDisharmony = new AbortController();
                     controllerDisharmonyRef.current = controllerDisharmony;
 
+                    // Fetch disharmony analysis
                     fetchDisharmonyAnalysis(
-                        regulations,
+                        regulationsRef.current,
                         async (data) => {
-                            botReplyDisharmony = data;
+                            botReplyDisharmonyRef.current.analysis += data.analysis;
+                            botReplyDisharmonyRef.current.result = data.result;
 
                             setChatMessages((prev) => {
                                 const updated = [...prev];
-                                const lastIdx = updated.length - 1;
-                                if (lastIdx >= 0 && updated[lastIdx].sender === "bot") {
-                                    updated[lastIdx] = {
-                                        ...updated[lastIdx],
-                                        disharmony: botReplyDisharmony,
+                                const lastIndex = updated.length - 1;
+                                if (updated[lastIndex]?.sender === "bot") {
+                                    updated[lastIndex] = {
+                                        ...updated[lastIndex],
+                                        disharmony: {
+                                            ...updated[lastIndex].disharmony,
+                                            analysis: data.analysis,
+                                            result: data.result,
+                                        }
                                     };
                                 }
                                 return updated;
                             });
 
-                            if (user && botReplyDisharmony.analysis) {
-                                await createDisharmonyResult(botMessageId, botReplyDisharmony);
+                            if (user) {
+                                if (botReplyDisharmonyRef.current.analysis !== "") {
+                                    await createDisharmonyResult(botMessageId, botReplyDisharmonyRef.current);
+                                }
                             }
-
                             setIsBotDisharmonyResponding(false);
+
                         },
                         (err) => {
-                            console.error("Disharmony fetch error:", err);
+                            console.error("Disharmony streaming error:", err);
                             setIsBotDisharmonyResponding(false);
                             controllerDisharmonyRef.current = null;
                         },
@@ -257,7 +305,7 @@ const QnAPage: React.FC = () => {
                 }
             },
             (err) => {
-                console.error("QnA fetch error:", err);
+                console.error("Streaming error:", err);
                 setIsBotQnAResponding(false);
                 controllerQnARef.current = null;
             },
