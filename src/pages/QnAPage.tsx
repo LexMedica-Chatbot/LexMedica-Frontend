@@ -151,6 +151,7 @@ const QnAPage: React.FC = () => {
                         const number = doc.metadata?.nomor_peraturan;
                         const year = doc.metadata?.tahun_peraturan;
                         const fetchedDoc = type && number && year ? await getDocument(type, number, year) : null;
+                        console.log(fetchedDoc)
 
                         regulationsRef.current += JSON.stringify({
                             dokumen: doc.description,
