@@ -247,7 +247,7 @@ const RegisterPage = () => {
                     <Grid item>
                         <Typography variant="body1" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' }, textAlign: 'center' }}>
                             Sudah punya akun?{" "}
-                            <Link to="/login" style={{ textDecoration: "none", color: "primary.main", fontWeight: 'medium' }}>
+                            <Link to="/login" style={{ textDecoration: "none", color: "#1976d2", fontWeight: 'medium' }}>
                                 Masuk di sini
                             </Link>
                         </Typography>

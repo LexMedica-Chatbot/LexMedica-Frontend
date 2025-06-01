@@ -13,14 +13,24 @@ import NotFoundPage from './pages/NotFoundPage'
 
 // Auth Context
 import { useAuthContext } from './context/authContext'
+import { useEffect } from 'react'
 
 function App() {
   const theme = createTheme(themeOptions);
   const { session } = useAuthContext();
 
+  useEffect(() => {
+    const setVH = () => {
+      document.documentElement.style.setProperty('--vh', `${window.innerHeight * 0.01}px`);
+    };
+    setVH();
+    window.addEventListener('resize', setVH);
+    return () => window.removeEventListener('resize', setVH);
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
-      <div>
+      <div className="app-container">
         {/* Background Image Layer */}
         <div className="background-image" />
 
