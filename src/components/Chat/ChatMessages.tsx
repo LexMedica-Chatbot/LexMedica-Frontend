@@ -309,7 +309,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                 mr: 1,
                                                                                                 fontSize: { xs: "1rem", sm: "1.2rem" }
                                                                                             }} />
-                                                                                            {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year}`}
+                                                                                            {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year} ${document.clause}`}
                                                                                         </Button>
 
                                                                                         {/* Metadata Box */}
@@ -351,7 +351,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                     label={document.source.status}
                                                                                                     sx={{
                                                                                                         fontWeight: 'bold',
-                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" },
+                                                                                                        fontSize: { xs: '0.5rem', sm: '0.6rem', md: "0.7rem" },
                                                                                                         bgcolor: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
                                                                                                         color: 'white',
                                                                                                         borderRadius: '4px'
@@ -431,7 +431,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                 }
                                                                                 sx={{
                                                                                     fontWeight: "bold",
-                                                                                    fontSize: "0.7rem",
+                                                                                    fontSize: { xs: '0.5rem', sm: '0.6rem', md: "0.7rem" },
                                                                                     bgcolor: msg.disharmony.result ? "error.main" : "success.light",
                                                                                     color: "white",
                                                                                     borderRadius: "4px",
