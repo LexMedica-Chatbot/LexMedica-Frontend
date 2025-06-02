@@ -300,20 +300,20 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                             }}
                                                                                             sx={{
                                                                                                 bgcolor: "secondary.main",
-                                                                                                fontSize: { xs: "0.7rem", sm: "0.9rem" }
+                                                                                                fontSize: { xs: "0.6rem", sm: "0.9rem" }
                                                                                             }}
                                                                                         >
                                                                                             <DescriptionIcon sx={{
                                                                                                 mr: 1,
-                                                                                                fontSize: { xs: "1rem", sm: "1.2rem" }
+                                                                                                fontSize: { xs: "0.9rem", sm: "1.2rem" }
                                                                                             }} />
-                                                                                            {`${document.source.type} Nomor ${document.source.number} Tahun ${document.source.year} ${document.clause}`}
+                                                                                            {`${document.source.type} No. ${document.source.number} Tahun ${document.source.year} ${document.clause}`}
                                                                                         </Button>
 
                                                                                         {/* Metadata Box */}
                                                                                         <Box mt={1}>
                                                                                             {/* Tentang */}
-                                                                                            <Box display="flex" alignItems="flex-start" mb={0.8}>
+                                                                                            <Box display="flex" alignItems="flex-start" mb={0.8} sx={{ pr: { xs: 2, sm: 3, md: 4 } }}>
                                                                                                 <Typography
                                                                                                     fontWeight="bold"
                                                                                                     sx={{
