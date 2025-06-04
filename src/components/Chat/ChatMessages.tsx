@@ -22,6 +22,7 @@ import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
 // ** Types Import
 import { ChatMessage } from "../../types/Chat";
+import { Document } from "../../types/Document";
 
 // ** Components Import
 import ChatMarkdown from "./ChatMarkdown";
@@ -95,6 +96,23 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 
         return () => clearInterval(interval);
     }, [isBotQnALoading]);
+
+    const isDocumentSourceComplete = (document: Document) => {
+        // Check if document and document.source exist first
+        if (!document || !document.source) {
+            return false;
+        }
+
+        const { url, type, number, year, about, status } = document.source;
+        return (
+            url !== undefined &&
+            type !== undefined &&
+            number !== undefined &&
+            year !== undefined &&
+            about !== undefined &&
+            status !== undefined
+        );
+    };
 
     return (
         <>
@@ -181,9 +199,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                 {(msg.message !== "") && (
                                     <Paper
                                         sx={{
-                                            pt: msg.sender === "user" ? 1 : {xs: 0.5, sm: 3},
-                                            pb: msg.sender === "user" ? 1 : {xs: 2, sm: 4},
-                                            px: msg.sender === "user" ? 2 : {xs: 2, sm: 4},
+                                            pt: msg.sender === "user" ? 1 : { xs: 0.5, sm: 3 },
+                                            pb: msg.sender === "user" ? 1 : { xs: 2, sm: 4 },
+                                            px: msg.sender === "user" ? 2 : { xs: 2, sm: 4 },
                                             borderRadius: 2,
                                             bgcolor: msg.sender === "user" ? "secondary.light" : "grey.100",
                                             color: msg.sender === "user" ? "white" : "black",
@@ -259,102 +277,104 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                     mt: 2
                                                                 }}
                                                             >
-                                                                {msg.documents && msg.documents.length > 0 && (
-                                                                    <Box width={"100%"}>
-                                                                        <Typography
-                                                                            fontWeight={"bold"}
-                                                                            variant={"h6"}
-                                                                            px={2}
-                                                                            py={1}
-                                                                            sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-                                                                        >
-                                                                            Sumber Rujukan
-                                                                        </Typography>
+                                                                {msg.documents &&
+                                                                    msg.documents.length > 0 &&
+                                                                    msg.documents.every(isDocumentSourceComplete) && (
+                                                                        <Box width={"100%"}>
+                                                                            <Typography
+                                                                                fontWeight={"bold"}
+                                                                                variant={"h6"}
+                                                                                px={2}
+                                                                                py={1}
+                                                                                sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
+                                                                            >
+                                                                                Sumber Rujukan
+                                                                            </Typography>
 
-                                                                        <List sx={{ color: "black", pl: { xs: 3, sm: 4 } }}>
-                                                                            {msg.documents.map((document, index) => (
-                                                                                <Box key={index}>
-                                                                                    <ListItem
-                                                                                        disableGutters
-                                                                                        alignItems="center"
-                                                                                        sx={{
-                                                                                            display: "list-item",
-                                                                                            listStyleType: "decimal",
-                                                                                            py: 0,
-                                                                                            pl: 1.5,
-                                                                                            ml: 0.5,
-                                                                                            width: "100%",
-                                                                                            '&::marker': {
-                                                                                                fontSize: { xs: "0.7rem", sm: "0.9rem" },
-                                                                                                fontWeight: 'bold'
-                                                                                            },
-                                                                                        }}
-                                                                                    >
-                                                                                        {/* Document Button */}
-                                                                                        <Button
-                                                                                            variant="contained"
-                                                                                            disabled={document.source.url === undefined}
-                                                                                            onClick={() => {
-                                                                                                handleOpenDocumentViewer(document.source.url ?? "");
-                                                                                                // setPageNumber(document.source.pageNumber);
-                                                                                            }}
+                                                                            <List sx={{ color: "black", pl: { xs: 3, sm: 4 } }}>
+                                                                                {msg.documents.map((document, index) => (
+                                                                                    <Box key={index}>
+                                                                                        <ListItem
+                                                                                            disableGutters
+                                                                                            alignItems="center"
                                                                                             sx={{
-                                                                                                bgcolor: "secondary.main",
-                                                                                                fontSize: { xs: "0.6rem", sm: "0.9rem" }
+                                                                                                display: "list-item",
+                                                                                                listStyleType: "decimal",
+                                                                                                py: 0,
+                                                                                                pl: 1.5,
+                                                                                                ml: 0.5,
+                                                                                                width: "100%",
+                                                                                                '&::marker': {
+                                                                                                    fontSize: { xs: "0.7rem", sm: "0.9rem" },
+                                                                                                    fontWeight: 'bold'
+                                                                                                },
                                                                                             }}
                                                                                         >
-                                                                                            <DescriptionIcon sx={{
-                                                                                                mr: 1,
-                                                                                                fontSize: { xs: "0.9rem", sm: "1.2rem" }
-                                                                                            }} />
-                                                                                            {`${document.source.type} No. ${document.source.number} Tahun ${document.source.year} ${document.clause}`}
-                                                                                        </Button>
+                                                                                            {/* Document Button */}
+                                                                                            <Button
+                                                                                                variant="contained"
+                                                                                                disabled={document.source.url === undefined}
+                                                                                                onClick={() => {
+                                                                                                    handleOpenDocumentViewer(document.source.url ?? "");
+                                                                                                    // setPageNumber(document.source.pageNumber);
+                                                                                                }}
+                                                                                                sx={{
+                                                                                                    bgcolor: "secondary.main",
+                                                                                                    fontSize: { xs: "0.6rem", sm: "0.9rem" }
+                                                                                                }}
+                                                                                            >
+                                                                                                <DescriptionIcon sx={{
+                                                                                                    mr: 1,
+                                                                                                    fontSize: { xs: "0.9rem", sm: "1.2rem" }
+                                                                                                }} />
+                                                                                                {`${document.source.type} No. ${document.source.number} Tahun ${document.source.year} ${document.clause}`}
+                                                                                            </Button>
 
-                                                                                        {/* Metadata Box */}
-                                                                                        <Box mt={1}>
-                                                                                            {/* Tentang */}
-                                                                                            <Box display="flex" alignItems="flex-start" mb={0.8} sx={{ pr: { xs: 2, sm: 3, md: 4 } }}>
-                                                                                                <Typography
-                                                                                                    fontWeight="bold"
-                                                                                                    sx={{
-                                                                                                        minWidth: { xs: '60px', sm: '80px' },
-                                                                                                        flexShrink: 0,
-                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" }
-                                                                                                    }}
-                                                                                                >
-                                                                                                    Tentang
-                                                                                                </Typography>
-                                                                                                <Typography
-                                                                                                    sx={{
-                                                                                                        whiteSpace: 'pre-wrap',
-                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" }
-                                                                                                    }}>
-                                                                                                    {document.source.about}
-                                                                                                </Typography>
-                                                                                            </Box>
+                                                                                            {/* Metadata Box */}
+                                                                                            <Box mt={1}>
+                                                                                                {/* Tentang */}
+                                                                                                <Box display="flex" alignItems="flex-start" mb={0.8} sx={{ pr: { xs: 2, sm: 3, md: 4 } }}>
+                                                                                                    <Typography
+                                                                                                        fontWeight="bold"
+                                                                                                        sx={{
+                                                                                                            minWidth: { xs: '60px', sm: '80px' },
+                                                                                                            flexShrink: 0,
+                                                                                                            fontSize: { xs: "0.7rem", sm: "0.9rem" }
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        Tentang
+                                                                                                    </Typography>
+                                                                                                    <Typography
+                                                                                                        sx={{
+                                                                                                            whiteSpace: 'pre-wrap',
+                                                                                                            fontSize: { xs: "0.7rem", sm: "0.9rem" }
+                                                                                                        }}>
+                                                                                                        {document.source.about}
+                                                                                                    </Typography>
+                                                                                                </Box>
 
-                                                                                            {/* Status */}
-                                                                                            <Box display="flex" alignItems="center">
-                                                                                                <Typography
-                                                                                                    fontWeight="bold"
-                                                                                                    sx={{
-                                                                                                        minWidth: { xs: '60px', sm: '80px' },
-                                                                                                        flexShrink: 0,
-                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" }
-                                                                                                    }}
-                                                                                                >
-                                                                                                    Status
-                                                                                                </Typography>
-                                                                                                <Typography
-                                                                                                    sx={{
-                                                                                                        color: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
-                                                                                                        whiteSpace: 'pre-wrap',
-                                                                                                        fontSize: { xs: "0.7rem", sm: "0.9rem" },
-                                                                                                        fontWeight: 'bold'
-                                                                                                    }}>
-                                                                                                    {document.source.status}
-                                                                                                </Typography>
-                                                                                                {/* <Chip
+                                                                                                {/* Status */}
+                                                                                                <Box display="flex" alignItems="center">
+                                                                                                    <Typography
+                                                                                                        fontWeight="bold"
+                                                                                                        sx={{
+                                                                                                            minWidth: { xs: '60px', sm: '80px' },
+                                                                                                            flexShrink: 0,
+                                                                                                            fontSize: { xs: "0.7rem", sm: "0.9rem" }
+                                                                                                        }}
+                                                                                                    >
+                                                                                                        Status
+                                                                                                    </Typography>
+                                                                                                    <Typography
+                                                                                                        sx={{
+                                                                                                            color: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
+                                                                                                            whiteSpace: 'pre-wrap',
+                                                                                                            fontSize: { xs: "0.7rem", sm: "0.9rem" },
+                                                                                                            fontWeight: 'bold'
+                                                                                                        }}>
+                                                                                                        {document.source.status}
+                                                                                                    </Typography>
+                                                                                                    {/* <Chip
                                                                                                     label={document.source.status}
                                                                                                     sx={{
                                                                                                         fontWeight: 'bold',
@@ -364,10 +384,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                         borderRadius: '4px'
                                                                                                     }}
                                                                                                 /> */}
+                                                                                                </Box>
                                                                                             </Box>
-                                                                                        </Box>
 
-                                                                                        {/* <Typography
+                                                                                            {/* <Typography
                                                                                         display="flex"
                                                                                         justifyContent={"center"}
                                                                                         fontWeight="bold"
@@ -401,16 +421,16 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         );
                                                                                     })} */}
 
-                                                                                    </ListItem>
+                                                                                        </ListItem>
 
-                                                                                    <Box my={2} ml={-1} sx={{ pr: { xs: 2, sm: 3, md: 4 } }}>
-                                                                                        <Divider sx={{ borderBottomWidth: 3 }} />
+                                                                                        <Box my={2} ml={-1} sx={{ pr: { xs: 2, sm: 3, md: 4 } }}>
+                                                                                            <Divider sx={{ borderBottomWidth: 3 }} />
+                                                                                        </Box>
                                                                                     </Box>
-                                                                                </Box>
-                                                                            ))}
-                                                                        </List>
-                                                                    </Box>
-                                                                )}
+                                                                                ))}
+                                                                            </List>
+                                                                        </Box>
+                                                                    )}
 
                                                                 {msg.disharmony && msg.disharmony.analysis && (
                                                                     <Box mt={1}>

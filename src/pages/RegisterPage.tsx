@@ -111,6 +111,8 @@ const RegisterPage = () => {
                     sx={{
                         fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
                         textAlign: 'center',
+                        fontWeight: 'bold',
+                        color: 'primary.main'
                     }}
                 >
                     Daftar Akun LexMedica
@@ -265,9 +267,7 @@ const RegisterPage = () => {
                                     alignItems: "center",
                                     gap: 1,
                                     py: { xs: 0.8, sm: 1, md: 1.25 },
-                                    fontSize: { xs: '0.8rem', sm: '0.875rem', md: '0.9375rem' },
-                                    borderColor: 'primary.main',
-                                    color: 'primary.main'
+                                    fontSize: { xs: '0.8rem', sm: '0.875rem', md: '0.9375rem' }
                                 }}
                             >
                                 Akses Tanpa Akun
@@ -290,7 +290,7 @@ const RegisterPage = () => {
                         }
                     }}
                 >
-                    <DialogTitle sx={{ textAlign: 'center', fontSize: { xs: '1.2rem', sm: '1.35rem' } }}>
+                    <DialogTitle sx={{ textAlign: 'center', fontSize: { xs: '1.2rem', sm: '1.35rem' }, color: "primary.main" }}>
                         Registrasi Berhasil
                     </DialogTitle>
                     <DialogContent>

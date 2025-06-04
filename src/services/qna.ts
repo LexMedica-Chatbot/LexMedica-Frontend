@@ -1,3 +1,41 @@
+import { api } from "../utils/api";
+
+export const fetchQnaAnswer = async (
+  question: string,
+  modelUrl: string,
+  embedding: string,
+  history: string[],
+  onResult: (data: any) => void,
+  onError: (err: any) => void,
+  signal: AbortSignal
+) => {
+  try {
+    const response = await api.post(
+      "/api/qna",
+      {
+        query: question,
+        embedding_model: embedding,
+        previous_responses: history,
+        model_url: modelUrl,
+      },
+      { signal }
+    );
+
+    if (!response) {
+      throw new Error("No response from QnA backend");
+    }
+
+    onResult(response);
+  } catch (err: any) {
+    if (err.name === "AbortError") {
+      console.log("Fetch aborted by user");
+    } else {
+      console.error("QnA fetch error:", err);
+      onError(err);
+    }
+  }
+};
+
 // /**
 //  * Stream the chat completion response from the server.
 //  * @param question The user's question.
@@ -54,49 +92,49 @@
 //   }
 // };
 
-export const fetchQnaAnswer = async (
-  question: string,
-  modelUrl: string,
-  embedding: string,
-  history: string[],
-  onResult: (data: any) => void,
-  onError: (err: any) => void,
-  signal: AbortSignal
-) => {
-  try {
-    const response = await fetch(
-      `${modelUrl || "http://localhost:8080"}/api/chat`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.REACT_APP_QNA_API_KEY || "",
-        },
-        body: JSON.stringify({
-          query: question,
-          embedding_model: embedding,
-          previous_responses: history,
-        }),
-        signal,
-      }
-    );
+// export const fetchQnaAnswer = async (
+//   question: string,
+//   modelUrl: string,
+//   embedding: string,
+//   history: string[],
+//   onResult: (data: any) => void,
+//   onError: (err: any) => void,
+//   signal: AbortSignal
+// ) => {
+//   try {
+//     const response = await fetch(
+//       `${modelUrl || "http://localhost:8080"}/api/chat`,
+//       {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//           "x-api-key": process.env.REACT_APP_QNA_API_KEY || "",
+//         },
+//         body: JSON.stringify({
+//           query: question,
+//           embedding_model: embedding,
+//           previous_responses: history,
+//         }),
+//         signal,
+//       }
+//     );
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch from QnA endpoint");
-    }
+//     if (!response.ok) {
+//       throw new Error("Failed to fetch from QnA endpoint");
+//     }
 
-    const data = await response.json();
-    if (!data) {
-      throw new Error("No data received from QnA endpoint");
-    }
+//     const data = await response.json();
+//     if (!data) {
+//       throw new Error("No data received from QnA endpoint");
+//     }
 
-    onResult(data);
-  } catch (err) {
-    if ((err as any).name === "AbortError") {
-      console.log("Fetch aborted by user");
-    } else {
-      console.error("Fetch error:", err);
-      onError(err);
-    }
-  }
-};
+//     onResult(data);
+//   } catch (err) {
+//     if ((err as any).name === "AbortError") {
+//       console.log("Fetch aborted by user");
+//     } else {
+//       console.error("Fetch error:", err);
+//       onError(err);
+//     }
+//   }
+// };

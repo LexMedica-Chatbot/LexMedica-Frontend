@@ -72,6 +72,8 @@ const LoginPage = () => {
                     sx={{
                         fontSize: { xs: '1rem', sm: '1.25rem', md: '1.5rem' },
                         textAlign: 'center',
+                        fontWeight: 'bold',
+                        color: 'primary.main'
                     }}
                 >
                     Masuk ke LexMedica
@@ -166,7 +168,7 @@ const LoginPage = () => {
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     gap: 1,
-                                    py: { xs: 1, sm: 1.25 },
+                                    py: { xs: 0.8, sm: 1, md: 1.25 },
                                     fontSize: { xs: '0.875rem', sm: '0.9375rem' },
                                 }}
                             >
