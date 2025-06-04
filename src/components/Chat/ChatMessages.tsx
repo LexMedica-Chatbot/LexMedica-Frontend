@@ -65,10 +65,10 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
     const loadingStages = [
         "Menelusuri dokumen hukum",
         "Menganalisis hasil temuan",
-        "Menggabungkan informasi dari berbagai sumber",
+        "Menggabungkan informasi",
         "Memverifikasi jawaban",
         "Menyusun jawaban akhir",
-        "Melakukan pengecekan akhir"
+        "Melakukan validasi akhir"
     ];
 
     const [loadingStageIndex, setLoadingStageIndex] = useState(0);
