@@ -41,11 +41,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const [input, setInput] = useState<string>("");
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
-    const simpleRAGUrl = process.env.REACT_APP_SIMPLE_RAG_URL || "";
-    const multiAgentRAGUrl = process.env.REACT_APP_MULTI_AGENT_RAG_URL || "";
-
     // Model options
-    const [selectedModelUrl, setSelectedModelUrl] = useState(simpleRAGUrl);
+    const [selectedModelUrl, setSelectedModelUrl] = useState('simple');
     // Embedding options
     const [selectedEmbedding, setSelectedEmbedding] = useState("small");
 
@@ -73,8 +70,8 @@ const ChatInput: React.FC<ChatInputProps> = ({
     };
 
     const models = [
-        { label: 'Simple RAG', value: simpleRAGUrl },
-        { label: 'Multi-Agent RAG', value: multiAgentRAGUrl },
+        { label: 'Simple RAG', value: 'simple' },
+        { label: 'Multi-Agent RAG', value: 'multi' },
     ];
 
     const embeddings = [

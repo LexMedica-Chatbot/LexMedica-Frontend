@@ -458,7 +458,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                 }
                                                                                 sx={{
                                                                                     fontWeight: "bold",
-                                                                                    fontSize: { xs: '0.5rem', sm: '0.6rem', md: "0.7rem" },
+                                                                                    fontSize: { xs: "0.7rem", sm: "0.9rem" },
                                                                                     bgcolor: msg.disharmony.result ? "error.main" : "success.light",
                                                                                     color: "white",
                                                                                     borderRadius: "4px",
