@@ -195,7 +195,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                         }}
                                     >
                                         {/* QNA Message */}
-                                        <Box sx={{ px: { xs: 0, md: 2 } }}>
+                                        <Box>
                                             {msg.sender === "bot" ? (
                                                 <ChatMarkdown message={msg.message} />
                                             ) : (
