@@ -11,7 +11,7 @@ export const fetchQnaAnswer = async (
 ) => {
   try {
     const response = await api.post(
-      "/api/qna",
+      "/api/chat/qna",
       {
         query: question,
         embedding_model: embedding,
