@@ -181,9 +181,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                 {(msg.message !== "") && (
                                     <Paper
                                         sx={{
-                                            pt: { xs: msg.sender === "user" ? 1 : 0.5, sm: msg.sender === "user" ? 1 : 3 },
-                                            pb: { xs: msg.sender === "user" ? 1 : 2, sm: msg.sender === "user" ? 1 : 4 },
-                                            px: { xs: msg.sender === "user" ? 2 : 2, sm: msg.sender === "user" ? 2 : 4 },
+                                            pt: { xs: msg.sender === "user" ? 1 : 0.5, sm: msg.sender === "user" ? 1 : 2 },
+                                            pb: msg.sender === "user" ? 1 : 2,
+                                            px: 2,
                                             borderRadius: 2,
                                             bgcolor: msg.sender === "user" ? "secondary.light" : "grey.100",
                                             color: msg.sender === "user" ? "white" : "black",
