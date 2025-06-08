@@ -15,6 +15,7 @@ export type ChatMessage = {
   disharmony?: ChatDisharmony;
   documents?: Document[];
   created_at?: string;
+  processing_time_ms?: number;
 };
 
 export type ChatDisharmony = {
@@ -22,5 +23,5 @@ export type ChatDisharmony = {
   message_id?: number;
   result: boolean;
   analysis: string;
-  created_at?: string;
+  processing_time_ms?: number;
 };

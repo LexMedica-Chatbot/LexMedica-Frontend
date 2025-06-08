@@ -9,9 +9,9 @@ export const createDisharmonyResult = async (
     message_id: messageId,
     analysis: disharmony.analysis,
     result: disharmony.result,
+    processing_time_ms: disharmony.processing_time_ms,
   });
 };
-
 
 /**
  * Stream the chat completion response from the server.

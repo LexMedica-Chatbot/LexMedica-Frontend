@@ -187,14 +187,14 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             <Tooltip arrow
                                 title={
                                     <Typography variant={"body2"} sx={{ color: "white" }}>
-                                        <div>Model kemiripan semantik antara pertanyaan dengan dokumen.</div>
+                                        <div>Dimensi model pencocokan semantik antara pertanyaan dengan dokumen.</div>
                                         <Box display="flex">
                                             <Box mr={1}><strong>Small</strong>:</Box>
-                                            <Box>Komputasi efisien namun lebih kurang akurat.</Box>
+                                            <Box>Dimensi kecil sehingga lebih efisien.</Box>
                                         </Box>
                                         <Box display="flex">
                                             <Box mr={1}><strong>Large</strong>:</Box>
-                                            <Box>Lebih akurat namun memerlukan komputasi lebih banyak</Box>
+                                            <Box>Dimensi besar sehingga lebih akurat, namun kurang efisien</Box>
                                         </Box>
                                     </Typography>
                                 }>
@@ -248,7 +248,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     <div>Agen pada model RAG yang digunakan.</div>
                                     <Box display="flex" width={"100%"}>
                                         <Box width={"28%"}><strong>Simple RAG</strong>:</Box>
-                                        <Box width={"72%"}>Model RAG dengan agen sederhana dengan komputasi lebih cepat</Box>
+                                        <Box width={"72%"}>Model RAG dengan agen sederhana yang lebih efisien</Box>
                                     </Box>
                                     <Box display="flex" width={"100%"}>
                                         <Box width={"28%"}><strong>Multi-Agent</strong>:</Box>

@@ -4,12 +4,14 @@ import { ChatMessage } from "../types/Chat";
 export const createChatMessage = async (
   sessionId: number,
   sender: string,
-  message: string
+  message: string,
+  processingTimeMs: number
 ): Promise<number> => {
   const res = await api.post("/api/chat/message", {
     session_id: sessionId,
     sender,
     message,
+    processing_time_ms: processingTimeMs,
   });
 
   return res.id;

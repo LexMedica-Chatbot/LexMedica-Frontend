@@ -81,7 +81,6 @@ const QnAPage: React.FC = () => {
         }
     }, [chatMessages, scrollBehavior, shouldAutoScroll]);
 
-    // Send Message
     const botReplyQnARef = useRef("");
     const regulationsRef = useRef("");
     const resolvedDocumentsRef = useRef<Document[]>([]);
@@ -89,14 +88,18 @@ const QnAPage: React.FC = () => {
     const controllerQnARef = useRef<AbortController | null>(null);
     const controllerDisharmonyRef = useRef<AbortController | null>(null);
 
-    const handleSendMessage = async (message: string, modelUrl: string, embedding: string) => {
-        if (!message.trim()) return;
-        if (modelUrl === "") return;
+    const qnaSuccessRef = useRef(false);
+    const disharmonySuccessRef = useRef(false);
+    const qnaProcessingTimeRef = useRef(0);
+    const newSessionIdRef = useRef<number | null>(null);
+    const botMessageIdRef = useRef(0);
 
-        // Abort previous request if still streaming
-        if (controllerQnARef.current) {
-            controllerQnARef.current.abort();
-        }
+    const handleSendMessage = async (message: string, modelUrl: string, embedding: string) => {
+        if (!message.trim() || modelUrl === "") return;
+
+        // Abort previous requests if any
+        controllerQnARef.current?.abort();
+        controllerDisharmonyRef.current?.abort();
 
         const controllerQnA = new AbortController();
         controllerQnARef.current = controllerQnA;
@@ -106,31 +109,29 @@ const QnAPage: React.FC = () => {
         setIsBotQnAResponding(true);
         setIsBotDisharmonyResponding(true);
 
+        // Reset refs
         botReplyQnARef.current = "";
-        botReplyDisharmonyRef.current.analysis = "";
-        botReplyDisharmonyRef.current.result = false;
+        botReplyDisharmonyRef.current = { result: false, analysis: "" };
         regulationsRef.current = "";
+        qnaSuccessRef.current = false;
+        disharmonySuccessRef.current = false;
 
         const newBotMessage: ChatMessage = { message: "", sender: "bot" };
         setChatMessages((prev) => [...prev, newBotMessage]);
 
         setTimeout(() => {
-            if (messagesEndRef.current) {
-                messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
-            }
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, 100);
 
         const historyPairs: string[] = [];
         let pairsFound = 0;
-
         for (let i = chatMessages.length - 1; i >= 1 && pairsFound < 3; i--) {
             const botMessage = chatMessages[i];
             const userMessage = chatMessages[i - 1];
-
             if (botMessage.sender === "bot" && userMessage.sender === "user") {
                 historyPairs.unshift(`Question: ${userMessage.message}\nAnswer: ${botMessage.message}`);
                 pairsFound++;
-                i--; // Skip the user message we just processed
+                i--;
             }
         }
 
@@ -141,6 +142,7 @@ const QnAPage: React.FC = () => {
             historyPairs,
             async (data) => {
                 botReplyQnARef.current += data.answer;
+                qnaProcessingTimeRef.current = data.processing_time_ms;
 
                 const resolvedDocuments = await Promise.all(
                     (data.referenced_documents || []).map(async (doc: any) => {
@@ -171,103 +173,38 @@ const QnAPage: React.FC = () => {
                     })
                 );
 
-                // Update the documents for display
                 resolvedDocumentsRef.current = resolvedDocuments;
 
-                // Also update in chatMessages
                 setChatMessages((prev) => {
                     const updated = [...prev];
                     const lastIndex = updated.length - 1;
                     if (lastIndex < 0) return updated;
-
                     if (updated[lastIndex].sender === "bot") {
                         updated[lastIndex] = {
                             ...updated[lastIndex],
                             message: botReplyQnARef.current,
+                            processing_time_ms: data.processing_time_ms,
                             documents: resolvedDocuments,
                         };
                     }
-
                     return updated;
                 });
 
-                // Bot QNA response completed
                 setIsBotQnAResponding(false);
                 controllerQnARef.current = null;
 
-                const finalMessages: ChatMessage[] = [
-                    ...chatMessages,
-                    userMessage,
-                    { message: botReplyQnARef.current, sender: "bot", documents: resolvedDocumentsRef.current },
-                ];
+                qnaSuccessRef.current = true;
 
-                let botMessageId = 0;
-
-                if (user) {
-                    if (selectedChatSessionId) {
-                        const session = chatSessions.find((chat) => chat.id === selectedChatSessionId);
-                        if (!session || !session.id) return;
-                        try {
-                            await createChatMessage(session.id, "user", message);
-                            botMessageId = await createChatMessage(session.id, "bot", botReplyQnARef.current);
-                            await createChatMessageDocuments(botMessageId, resolvedDocumentsRef.current);
-
-                            setChatSessions((prev) =>
-                                prev.map((chat) =>
-                                    chat.id === selectedChatSessionId
-                                        ? { ...chat, chatMessages: finalMessages }
-                                        : chat
-                                )
-                            );
-                        } catch (error) {
-                            console.error("Error saving chatMessages:", error);
-                        }
-                    } else {
-                        try {
-                            const trimmedTitle =
-                                message.trim().length > 20
-                                    ? message.trim().slice(0, 20) + "..."
-                                    : message.trim();
-
-                            const newSessionId = await createChatSession(user.id, trimmedTitle);
-
-                            if (newSessionId) {
-                                await createChatMessage(newSessionId, "user", message);
-                                botMessageId = await createChatMessage(newSessionId, "bot", botReplyQnARef.current);
-                                await createChatMessageDocuments(botMessageId, resolvedDocumentsRef.current);
-
-                                await fetchChatHistory(user.id);
-                                setSelectedChatSessionId(newSessionId);
-                            }
-
-                            setTimeout(() => {
-                                if (chatHistoryRef.current) {
-                                    chatHistoryRef.current.scrollTo({ top: 0, behavior: "smooth" });
-                                }
-                            }, 100);
-                        } catch (error) {
-                            console.error("Failed to create chat session or chatMessages:", error);
-                        }
-                    }
-                }
-
-                // Check the disharmony after getting the regulations
                 if (regulationsRef.current !== "") {
-
-                    // Abort previous request if still streaming
-                    if (controllerDisharmonyRef.current) {
-                        controllerDisharmonyRef.current.abort();
-                    }
-
                     const controllerDisharmony = new AbortController();
                     controllerDisharmonyRef.current = controllerDisharmony;
 
-                    // Fetch disharmony analysis
                     fetchDisharmonyAnalysis(
                         regulationsRef.current,
                         async (data) => {
                             botReplyDisharmonyRef.current.analysis += data.analysis;
                             botReplyDisharmonyRef.current.result = data.result;
+                            botReplyDisharmonyRef.current.processing_time_ms = data.processing_time_ms;
 
                             setChatMessages((prev) => {
                                 const updated = [...prev];
@@ -276,22 +213,73 @@ const QnAPage: React.FC = () => {
                                     updated[lastIndex] = {
                                         ...updated[lastIndex],
                                         disharmony: {
-                                            ...updated[lastIndex].disharmony,
                                             analysis: data.analysis,
                                             result: data.result,
-                                        }
+                                            processing_time_ms: data.processing_time_ms,
+                                        },
                                     };
                                 }
                                 return updated;
                             });
 
-                            if (user) {
-                                if (botReplyDisharmonyRef.current.analysis !== "") {
-                                    await createDisharmonyResult(botMessageId, botReplyDisharmonyRef.current);
+                            setIsBotDisharmonyResponding(false);
+                            disharmonySuccessRef.current = true;
+
+                            if (user && qnaSuccessRef.current && disharmonySuccessRef.current) {
+                                try {
+                                    if (selectedChatSessionId) {
+                                        const session = chatSessions.find((chat) => chat.id === selectedChatSessionId);
+                                        if (!session || !session.id) return;
+
+                                        await createChatMessage(session.id, "user", message, 0);
+                                        const botMsgId = await createChatMessage(
+                                            session.id,
+                                            "bot",
+                                            botReplyQnARef.current,
+                                            qnaProcessingTimeRef.current
+                                        );
+                                        botMessageIdRef.current = botMsgId;
+
+                                        await createChatMessageDocuments(botMsgId, resolvedDocumentsRef.current);
+
+                                        if (botReplyDisharmonyRef.current.analysis !== "") {
+                                            await createDisharmonyResult(botMsgId, botReplyDisharmonyRef.current);
+                                        }
+                                    } else {
+                                        const trimmedTitle =
+                                            message.trim().length > 20 ? message.trim().slice(0, 20) + "..." : message.trim();
+
+                                        const newSessionId = await createChatSession(user.id, trimmedTitle);
+                                        newSessionIdRef.current = newSessionId;
+
+                                        if (newSessionId) {
+                                            await createChatMessage(newSessionId, "user", message, 0);
+                                            const botMsgId = await createChatMessage(
+                                                newSessionId,
+                                                "bot",
+                                                botReplyQnARef.current,
+                                                qnaProcessingTimeRef.current
+                                            );
+                                            botMessageIdRef.current = botMsgId;
+
+                                            await createChatMessageDocuments(botMsgId, resolvedDocumentsRef.current);
+
+                                            if (botReplyDisharmonyRef.current.analysis !== "") {
+                                                await createDisharmonyResult(botMsgId, botReplyDisharmonyRef.current);
+                                            }
+
+                                            await fetchChatHistory(user.id);
+                                            setSelectedChatSessionId(newSessionId);
+
+                                            setTimeout(() => {
+                                                chatHistoryRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+                                            }, 100);
+                                        }
+                                    }
+                                } catch (error) {
+                                    console.error("Failed to create or save chat session/messages:", error);
                                 }
                             }
-                            setIsBotDisharmonyResponding(false);
-
                         },
                         (err) => {
                             console.error("Disharmony streaming error:", err);
@@ -312,6 +300,7 @@ const QnAPage: React.FC = () => {
             controllerQnA.signal
         );
     };
+
 
     const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
 
