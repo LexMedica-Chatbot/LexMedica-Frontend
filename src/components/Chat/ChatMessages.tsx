@@ -116,7 +116,6 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         );
     };
 
-    console.log(chatMessages)
     return (
         <>
             <List>
@@ -480,7 +479,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                     </>
                                                 )}
 
-                                                {msg.processing_time_ms || msg.disharmony?.processing_time_ms && (
+                                                {(msg.processing_time_ms || msg.disharmony?.processing_time_ms) && (
                                                     <Tooltip arrow
                                                         title={
                                                             <Typography variant={"body2"} sx={{ color: "white" }}>
@@ -491,7 +490,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                         <Box>{msg.processing_time_ms} ms</Box>
                                                                     </Box>
                                                                 )}
-                                                                {msg.disharmony.processing_time_ms && (
+                                                                {msg.disharmony?.processing_time_ms && (
                                                                     <Box display="flex">
                                                                         <Box mr={1}><strong>Analisis Potensi Disharmoni</strong>:</Box>
                                                                         <Box>{msg.disharmony.processing_time_ms} ms</Box>
