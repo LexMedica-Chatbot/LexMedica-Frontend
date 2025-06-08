@@ -122,7 +122,6 @@ export const fetchDisharmonyAnalysis = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    // ✅ Backend already returns JSON object, so just parse it directly
     const parsed: ChatDisharmony = await response.json();
 
     onResult(parsed);
