@@ -202,7 +202,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                     <Paper
                                         sx={{
                                             position: 'relative',
-                                            pt: msg.sender === "user" ? 1 : { xs: 0.5, sm: 3 },
+                                            pt: msg.sender === "user" ? 1 : { xs: 0.5, sm: 2 },
                                             pb: msg.sender === "user" ? 1 : { xs: 2, sm: 4 },
                                             px: msg.sender === "user" ? 2 : { xs: 2, sm: 4 },
                                             borderRadius: 2,
@@ -216,31 +216,27 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                         }}
                                     >
                                         {/* Info Icon */}
-                                        {(msg.processing_time_ms || msg.disharmony?.processing_time_ms) && (
-                                            <Box sx={{ position: "absolute", top: 4, right: 4 }}>
+                                        {((msg.processing_time_ms && msg.processing_time_ms !== 0) || (msg.disharmony?.processing_time_ms && msg.disharmony.processing_time_ms !== 0)) && (
+                                            <Box sx={{ position: "absolute", top: 6, right: 6 }}>
                                                 <Tooltip
                                                     arrow
                                                     title={
                                                         <Typography variant="body2" sx={{ color: "white" }}>
                                                             <div>Waktu Pemrosesan</div>
-                                                            {msg.processing_time_ms && (
-                                                                <Box display="flex">
-                                                                    <Box mr={1}><strong>Tanya Jawab Hukum RAG</strong>:</Box>
-                                                                    <Box>{msg.processing_time_ms} ms</Box>
-                                                                </Box>
-                                                            )}
-                                                            {msg.disharmony?.processing_time_ms && (
-                                                                <Box display="flex">
-                                                                    <Box mr={1}><strong>Analisis Potensi Disharmoni</strong>:</Box>
-                                                                    <Box>{msg.disharmony.processing_time_ms} ms</Box>
-                                                                </Box>
-                                                            )}
+                                                            <Box display="flex">
+                                                                <Box mr={1}><strong>Tanya Jawab Hukum RAG</strong>:</Box>
+                                                                <Box>{msg.processing_time_ms ?? 0} ms</Box>
+                                                            </Box>
+                                                            <Box display="flex">
+                                                                <Box mr={1}><strong>Analisis Potensi Disharmoni</strong>:</Box>
+                                                                <Box>{msg.disharmony?.processing_time_ms ?? 0} ms</Box>
+                                                            </Box>
                                                         </Typography>
                                                     }
                                                 >
                                                     <InfoOutlinedIcon
                                                         sx={{
-                                                            fontSize: { xs: "0.9rem", md: "1.2rem" },
+                                                            fontSize: { xs: "0.9rem", md: "1.1rem" },
                                                             color: "primary.main",
                                                             cursor: "pointer"
                                                         }}
