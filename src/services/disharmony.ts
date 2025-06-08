@@ -114,7 +114,7 @@ export const fetchDisharmonyAnalysis = async (
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ regulations, method: "few-shot" }),
-        signal, // Attach abort signal here
+        signal,
       }
     );
 
@@ -122,24 +122,11 @@ export const fetchDisharmonyAnalysis = async (
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
-    const content = data.choices[0].message.content;
+    // ✅ Backend already returns JSON object, so just parse it directly
+    const parsed: ChatDisharmony = await response.json();
 
-    try {
-      const cleaned = content
-        .replace(/^```json\s*/i, "")
-        .replace(/^```/, "")
-        .replace(/```$/, "")
-        .trim();
-
-      const parsed: ChatDisharmony = JSON.parse(cleaned);
-
-      onResult(parsed);
-
-      return parsed;
-    } catch (err) {
-      throw new Error("Failed to parse JSON from LLM response");
-    }
+    onResult(parsed);
+    return parsed;
   } catch (err: any) {
     if (err.name === "AbortError") {
       console.log("Fetch aborted by user");
