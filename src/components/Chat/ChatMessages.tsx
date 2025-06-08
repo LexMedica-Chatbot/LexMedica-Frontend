@@ -116,6 +116,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         );
     };
 
+    console.log(chatMessages)
     return (
         <>
             <List>
@@ -501,7 +502,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                         <InfoOutlinedIcon
                                                             sx={{
                                                                 fontSize: { xs: "0.9rem", md: "1rem" },
-                                                                color: "white",
+                                                                color: "black",
                                                                 cursor: "pointer"
                                                             }} />
                                                     </Tooltip>
