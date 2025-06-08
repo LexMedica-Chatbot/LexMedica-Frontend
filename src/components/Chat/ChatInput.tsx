@@ -192,7 +192,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     </Box>
                                 </Typography>
                             }>
-                            <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", pb: 0.2, userSelect: "none" }}>
                                 <Typography
                                     sx={{
                                         fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.8rem" },
@@ -254,7 +254,7 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                     </Box>
                                 </Typography>
                             }>
-                            <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
+                            <Box sx={{ display: "flex", alignItems: "center", pb: 0.2, userSelect: "none" }}>
                                 <Typography
                                     sx={{
                                         fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.8rem" },
