@@ -175,40 +175,40 @@ const ChatInput: React.FC<ChatInputProps> = ({
                 <Box sx={{ display: "flex", alignItems: "center" }}>
                     {/* Embedding Selector */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 2 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
-                            <Typography
-                                sx={{
-                                    fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.8rem" },
-                                    color: "white",
-                                    mr: 0.5
-                                }}>
-                                Embedding
-                            </Typography>
-                            <Tooltip
-                                arrow
-                                enterTouchDelay={0}
-                                leaveTouchDelay={5000}
-                                title={
-                                    <Typography variant={"body2"} sx={{ color: "white" }}>
-                                        <div>Dimensi model pencocokan semantik antara pertanyaan dengan dokumen.</div>
-                                        <Box display="flex">
-                                            <Box mr={1}><strong>Small</strong>:</Box>
-                                            <Box>Dimensi kecil sehingga lebih efisien.</Box>
-                                        </Box>
-                                        <Box display="flex">
-                                            <Box mr={1}><strong>Large</strong>:</Box>
-                                            <Box>Dimensi besar sehingga lebih akurat, namun kurang efisien</Box>
-                                        </Box>
-                                    </Typography>
-                                }>
+                        <Tooltip
+                            arrow
+                            enterTouchDelay={0}
+                            leaveTouchDelay={5000}
+                            title={
+                                <Typography variant={"body2"} sx={{ color: "white" }}>
+                                    <div>Dimensi model pencocokan semantik antara pertanyaan dengan dokumen.</div>
+                                    <Box display="flex">
+                                        <Box mr={1}><strong>Small</strong>:</Box>
+                                        <Box>Dimensi kecil sehingga lebih efisien.</Box>
+                                    </Box>
+                                    <Box display="flex">
+                                        <Box mr={1}><strong>Large</strong>:</Box>
+                                        <Box>Dimensi besar sehingga lebih akurat, namun kurang efisien</Box>
+                                    </Box>
+                                </Typography>
+                            }>
+                            <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.8rem" },
+                                        color: "white",
+                                        mr: 0.5
+                                    }}>
+                                    Embedding
+                                </Typography>
                                 <InfoOutlinedIcon
                                     sx={{
-                                        fontSize: { xs: "0.9rem", md: "1rem" },
+                                        fontSize: "1rem",
                                         color: "white",
                                         cursor: "pointer"
                                     }} />
-                            </Tooltip>
-                        </Box>
+                            </Box>
+                        </Tooltip>
                         <Select
                             size="small"
                             value={selectedEmbedding}
@@ -237,40 +237,40 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
                     {/* Model Selector */}
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.3, mr: 1 }}>
-                        <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
-                            <Typography
-                                sx={{
-                                    fontSize: { xs: "0.6rem", sm: "0.7rem", md: "0.8rem" },
-                                    color: "white",
-                                    mr: 0.5
-                                }}>
-                                Model
-                            </Typography>
-                            <Tooltip
-                                arrow
-                                enterTouchDelay={0}
-                                leaveTouchDelay={5000}
-                                title={
-                                    <Typography variant={"body2"} sx={{ color: "white" }}>
-                                        <div>Agen pada model RAG yang digunakan.</div>
-                                        <Box display="flex" width={"100%"}>
-                                            <Box width={"28%"}><strong>Simple RAG</strong>:</Box>
-                                            <Box width={"72%"}>Model RAG dengan agen sederhana yang lebih efisien</Box>
-                                        </Box>
-                                        <Box display="flex" width={"100%"}>
-                                            <Box width={"28%"}><strong>Multi-Agent</strong>:</Box>
-                                            <Box width={"72%"}>Melibatkan agen tambahan, hasil dapat lebih akurat namun memerlukan waktu lebih lama</Box>
-                                        </Box>
-                                    </Typography>
-                                }>
+                        <Tooltip
+                            arrow
+                            enterTouchDelay={0}
+                            leaveTouchDelay={5000}
+                            title={
+                                <Typography variant={"body2"} sx={{ color: "white" }}>
+                                    <div>Agen pada model RAG yang digunakan.</div>
+                                    <Box display="flex" width={"100%"}>
+                                        <Box width={"28%"}><strong>Simple RAG</strong>:</Box>
+                                        <Box width={"72%"}>Model RAG dengan agen sederhana yang lebih efisien</Box>
+                                    </Box>
+                                    <Box display="flex" width={"100%"}>
+                                        <Box width={"28%"}><strong>Multi-Agent</strong>:</Box>
+                                        <Box width={"72%"}>Melibatkan agen tambahan, hasil dapat lebih akurat namun memerlukan waktu lebih lama</Box>
+                                    </Box>
+                                </Typography>
+                            }>
+                            <Box sx={{ display: "flex", alignItems: "center", pb: 0.2 }}>
+                                <Typography
+                                    sx={{
+                                        fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.8rem" },
+                                        color: "white",
+                                        mr: 0.5
+                                    }}>
+                                    Model
+                                </Typography>
                                 <InfoOutlinedIcon
                                     sx={{
-                                        fontSize: { xs: "0.9rem", md: "1rem" },
+                                        fontSize: "1rem",
                                         color: "white",
                                         cursor: "pointer"
                                     }} />
-                            </Tooltip>
-                        </Box>
+                            </Box>
+                        </Tooltip>
                         <Select
                             size="small"
                             value={selectedModelUrl}
