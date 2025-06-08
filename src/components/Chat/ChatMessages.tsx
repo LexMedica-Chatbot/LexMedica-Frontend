@@ -220,6 +220,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                             <Box sx={{ position: "absolute", top: 6, right: 6 }}>
                                                 <Tooltip
                                                     arrow
+                                                    enterTouchDelay={0}
+                                                    leaveTouchDelay={5000}
                                                     title={
                                                         <Typography variant="body2" sx={{ color: "white" }}>
                                                             <div>Waktu Pemrosesan</div>

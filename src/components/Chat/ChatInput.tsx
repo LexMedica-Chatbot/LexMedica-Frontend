@@ -184,7 +184,10 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 }}>
                                 Embedding
                             </Typography>
-                            <Tooltip arrow
+                            <Tooltip
+                                arrow
+                                enterTouchDelay={0}
+                                leaveTouchDelay={5000}
                                 title={
                                     <Typography variant={"body2"} sx={{ color: "white" }}>
                                         <div>Dimensi model pencocokan semantik antara pertanyaan dengan dokumen.</div>
@@ -243,19 +246,23 @@ const ChatInput: React.FC<ChatInputProps> = ({
                                 }}>
                                 Model
                             </Typography>
-                            <Tooltip arrow title={
-                                <Typography variant={"body2"} sx={{ color: "white" }}>
-                                    <div>Agen pada model RAG yang digunakan.</div>
-                                    <Box display="flex" width={"100%"}>
-                                        <Box width={"28%"}><strong>Simple RAG</strong>:</Box>
-                                        <Box width={"72%"}>Model RAG dengan agen sederhana yang lebih efisien</Box>
-                                    </Box>
-                                    <Box display="flex" width={"100%"}>
-                                        <Box width={"28%"}><strong>Multi-Agent</strong>:</Box>
-                                        <Box width={"72%"}>Melibatkan agen tambahan, hasil dapat lebih akurat namun memerlukan waktu lebih lama</Box>
-                                    </Box>
-                                </Typography>
-                            }>
+                            <Tooltip
+                                arrow
+                                enterTouchDelay={0}
+                                leaveTouchDelay={5000}
+                                title={
+                                    <Typography variant={"body2"} sx={{ color: "white" }}>
+                                        <div>Agen pada model RAG yang digunakan.</div>
+                                        <Box display="flex" width={"100%"}>
+                                            <Box width={"28%"}><strong>Simple RAG</strong>:</Box>
+                                            <Box width={"72%"}>Model RAG dengan agen sederhana yang lebih efisien</Box>
+                                        </Box>
+                                        <Box display="flex" width={"100%"}>
+                                            <Box width={"28%"}><strong>Multi-Agent</strong>:</Box>
+                                            <Box width={"72%"}>Melibatkan agen tambahan, hasil dapat lebih akurat namun memerlukan waktu lebih lama</Box>
+                                        </Box>
+                                    </Typography>
+                                }>
                                 <InfoOutlinedIcon
                                     sx={{
                                         fontSize: { xs: "0.9rem", md: "1rem" },
@@ -292,7 +299,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
 
                     {/* Send / Stop Button */}
                     {isBotQnALoading || isBotDisharmonyLoading ? (
-                        <Tooltip title="Stop" arrow>
+                        <Tooltip
+                            title="Stop"
+                            arrow
+                            enterTouchDelay={0}
+                            leaveTouchDelay={5000}
+                        >
                             <span>
                                 <IconButton
                                     color="error"
@@ -319,7 +331,12 @@ const ChatInput: React.FC<ChatInputProps> = ({
                             </span>
                         </Tooltip>
                     ) : (
-                        <Tooltip title="Kirim" arrow>
+                        <Tooltip
+                            title="Kirim"
+                            arrow
+                            enterTouchDelay={0}
+                            leaveTouchDelay={5000}
+                        >
                             <span>
                                 <IconButton
                                     onClick={handleSend}
