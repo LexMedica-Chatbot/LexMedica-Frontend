@@ -424,6 +424,9 @@ const QnAPage: React.FC = () => {
                     anchor="left"
                     open={isHistoryChatVisible && isMobile}
                     onClose={toggleHistoryChat}
+                    ModalProps={{
+                        disableAutoFocus: true,
+                    }}
                     PaperProps={{
                         sx: {
                             width: { xs: '75vw', sm: '65vw' },
