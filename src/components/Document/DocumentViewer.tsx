@@ -33,7 +33,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ isDocumentViewerOpened,
                 }}>
                     {pdfUrl && (
                         <iframe
-                            src={`${pdfUrl}#page=${pageNumber || 1}`}
+                            src={`${pdfUrl}#page=10`}
                             title="PDF Viewer"
                             width="100%"
                             height="100%"
