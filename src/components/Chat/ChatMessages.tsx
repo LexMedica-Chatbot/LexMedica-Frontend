@@ -116,6 +116,15 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         );
     };
 
+    const formatProcessingTime = (ms = 0) => {
+        if (ms === 0) {
+            return '0.0'; // Handle zero case directly
+        }
+        const seconds = ms / 1000;
+        const roundedUpSeconds = Math.ceil(seconds * 10) / 10;
+        return roundedUpSeconds.toFixed(1);
+    };
+
     return (
         <>
             <List>
@@ -227,11 +236,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                             <div>Waktu Pemrosesan</div>
                                                             <Box display="flex">
                                                                 <Box mr={1}><strong>Tanya Jawab Hukum RAG</strong>:</Box>
-                                                                <Box>{msg.processing_time_ms ?? 0} ms</Box>
+                                                                <Box>{formatProcessingTime(msg.processing_time_ms) ?? 0} ms</Box>
                                                             </Box>
                                                             <Box display="flex">
                                                                 <Box mr={1}><strong>Analisis Potensi Disharmoni</strong>:</Box>
-                                                                <Box>{msg.disharmony?.processing_time_ms ?? 0} ms</Box>
+                                                                <Box>{formatProcessingTime(msg.disharmony?.processing_time_ms) ?? 0} ms</Box>
                                                             </Box>
                                                         </Typography>
                                                     }
