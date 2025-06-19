@@ -40,6 +40,7 @@ import { Document } from "../types/Document";
 
 // ** Utility Imports
 import { normalizeLegalText } from "../utils/formatter";
+import Slide from "@mui/material/Slide";
 
 const QnAPage: React.FC = () => {
     const { user } = useAuthContext();
@@ -161,6 +162,7 @@ const QnAPage: React.FC = () => {
                             document_id: data?.id || 0,
                             clause: doc.metadata?.tipe_bagian,
                             snippet: normalizeLegalText(doc.content),
+                            page_number: doc.metadata?.nomor_halaman || 1,
                             source: {
                                 about: data?.about,
                                 type: data?.type,
@@ -301,7 +303,6 @@ const QnAPage: React.FC = () => {
         );
     };
 
-
     const [isHistoryChatVisible, setIsHistoryChatVisible] = useState(false);
 
     const toggleHistoryChat = () => {
@@ -395,28 +396,30 @@ const QnAPage: React.FC = () => {
                 {/* Left Sidebar: Show only on md+ */}
                 {/* Desktop Sidebar */}
                 {user && isHistoryChatVisible && !isMobile && (
-                    <Grid
-                        item
-                        xs={user && isHistoryChatVisible && !isMobile ? 3 : 0}
-                        sm={user && isHistoryChatVisible && !isMobile ? 3.5 : 0}
-                        lg={user && isHistoryChatVisible && !isMobile ? 2 : 0}
-                        sx={{
-                            height: "calc(var(--vh, 1vh) * 100)",
-                            bgcolor: '#160100',
-                            display: "flex",
-                            flexDirection: "column",
-                            zIndex: 11,
-                        }}
-                    >
-                        <HistoryMenu
-                            chatSessionsRef={chatHistoryRef}
-                            chatSessions={chatSessions}
-                            selectedChatSessionId={selectedChatSessionId}
-                            onSelectChatSession={handleSelectChatSession}
-                            onMoreClick={handleClickChatSessionMoreOptions}
-                            onClose={toggleHistoryChat}
-                        />
-                    </Grid>
+                    <Slide direction="right" in={user && isHistoryChatVisible && !isMobile} mountOnEnter unmountOnExit>
+                        <Grid
+                            item
+                            xs={3}
+                            sm={3.5}
+                            lg={2}
+                            sx={{
+                                height: "calc(var(--vh, 1vh) * 100)",
+                                bgcolor: '#160100',
+                                display: "flex",
+                                flexDirection: "column",
+                                zIndex: 11,
+                            }}
+                        >
+                            <HistoryMenu
+                                chatSessionsRef={chatHistoryRef}
+                                chatSessions={chatSessions}
+                                selectedChatSessionId={selectedChatSessionId}
+                                onSelectChatSession={handleSelectChatSession}
+                                onMoreClick={handleClickChatSessionMoreOptions}
+                                onClose={toggleHistoryChat}
+                            />
+                        </Grid>
+                    </Slide>
                 )}
 
                 {/* Mobile Drawer */}
@@ -500,7 +503,7 @@ const QnAPage: React.FC = () => {
                                         onClick={toggleHistoryChat}
                                         sx={{
                                             color: { xs: "white", md: "primary.main" },
-                                            "&:hover": { color: "text.primary" }
+                                            "&:hover": { color: "white" }
                                         }}
                                     >
                                         <FormatListBulletedIcon />

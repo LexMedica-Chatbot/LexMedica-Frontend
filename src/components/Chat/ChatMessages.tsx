@@ -351,7 +351,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                 disabled={document.source.url === undefined}
                                                                                                 onClick={() => {
                                                                                                     handleOpenDocumentViewer(document.source.url ?? "");
-                                                                                                    // setPageNumber(document.source.pageNumber);
+                                                                                                    setPageNumber(document.page_number);
                                                                                                 }}
                                                                                                 sx={{
                                                                                                     bgcolor: "secondary.main",

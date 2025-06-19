@@ -13,6 +13,7 @@ export const createChatMessageDocuments = async (
     document_id: doc.document_id!,
     clause: doc.clause,
     snippet: doc.snippet,
+    page_number: doc.page_number
   }));
 
   if (inserts.length === 0) {

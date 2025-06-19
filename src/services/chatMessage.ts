@@ -30,6 +30,7 @@ export const getChatMessages = async (
       document_id: rel.document_id,
       clause: rel.clause,
       snippet: rel.snippet,
+      page_number: rel.page_number,
       source: {
         id: rel.link_documents.id,
         type: rel.link_documents.type,

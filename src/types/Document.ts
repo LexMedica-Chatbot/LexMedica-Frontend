@@ -10,6 +10,7 @@ export type Document = {
   clause: string;
   snippet: string;
   source: LinkDocument;
+  page_number: number;
 };
 
 export type LinkDocument = {
