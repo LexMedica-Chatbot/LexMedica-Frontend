@@ -162,7 +162,7 @@ const QnAPage: React.FC = () => {
                             document_id: data?.id || 0,
                             clause: doc.metadata?.tipe_bagian,
                             snippet: normalizeLegalText(doc.content),
-                            page_number: doc.metadata?.nomor_halaman || 1,
+                            page_number: parseInt(doc.metadata?.nomor_halaman, 10) || 1,
                             source: {
                                 about: data?.about,
                                 type: data?.type,
