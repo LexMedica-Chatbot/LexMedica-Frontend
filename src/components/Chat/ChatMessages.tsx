@@ -236,11 +236,11 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                             <div>Waktu Pemrosesan</div>
                                                             <Box display="flex">
                                                                 <Box mr={1}><strong>Tanya Jawab Hukum RAG</strong>:</Box>
-                                                                <Box>{formatProcessingTime(msg.processing_time_ms) ?? 0} ms</Box>
+                                                                <Box>{formatProcessingTime(msg.processing_time_ms) ?? 0} s</Box>
                                                             </Box>
                                                             <Box display="flex">
                                                                 <Box mr={1}><strong>Analisis Potensi Disharmoni</strong>:</Box>
-                                                                <Box>{formatProcessingTime(msg.disharmony?.processing_time_ms) ?? 0} ms</Box>
+                                                                <Box>{formatProcessingTime(msg.disharmony?.processing_time_ms) ?? 0} s</Box>
                                                             </Box>
                                                         </Typography>
                                                     }
