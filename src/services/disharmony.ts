@@ -98,7 +98,7 @@ export const streamChatCompletionDisharmonyAnalysis = async (
 };
 
 export const fetchDisharmonyAnalysis = async (
-  regulations: string[],
+  regulations: string,
   onResult: (data: ChatDisharmony) => void,
   onError: (err: any) => void,
   signal: AbortSignal
