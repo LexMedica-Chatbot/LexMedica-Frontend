@@ -42,9 +42,9 @@ const ChatInput: React.FC<ChatInputProps> = ({
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference input field
 
     // Model options
-    const [selectedModelUrl, setSelectedModelUrl] = useState('simple');
+    const [selectedModelUrl, setSelectedModelUrl] = useState('multi');
     // Embedding options
-    const [selectedEmbedding, setSelectedEmbedding] = useState("small");
+    const [selectedEmbedding, setSelectedEmbedding] = useState("large");
 
     // Handle sending message
     const handleSend = () => {
