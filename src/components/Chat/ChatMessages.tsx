@@ -17,6 +17,7 @@ import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 
 // ** MUI Icons
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import DescriptionIcon from "@mui/icons-material/Description";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
@@ -227,37 +228,18 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                         {/* Info Icon */}
                                         {((msg.processing_time_ms && msg.processing_time_ms !== 0) || (msg.disharmony?.processing_time_ms && msg.disharmony.processing_time_ms !== 0)) && (
                                             <Box sx={{ position: "absolute", top: 6, right: 6 }}>
-                                                <Tooltip
-                                                    arrow
-                                                    enterTouchDelay={0}
-                                                    leaveTouchDelay={5000}
-                                                    title={
-                                                        <Typography variant="body2" sx={{ color: "white" }}>
-                                                            <div>Waktu Pemrosesan</div>
-                                                            <Box display="flex">
-                                                                <Box mr={1}><strong>Tanya Jawab Hukum RAG</strong>:</Box>
-                                                                <Box>{formatProcessingTime(msg.processing_time_ms) ?? 0} s</Box>
-                                                            </Box>
-                                                            <Box display="flex">
-                                                                <Box mr={1}><strong>Analisis Potensi Disharmoni</strong>:</Box>
-                                                                <Box>{formatProcessingTime(msg.disharmony?.processing_time_ms) ?? 0} s</Box>
-                                                            </Box>
-                                                        </Typography>
-                                                    }
-                                                >
-                                                    <InfoOutlinedIcon
+                                                {/* Copy Icon */}
+                                                <Tooltip title="Salin Jawaban">
+                                                    <ContentCopyIcon
                                                         sx={{
                                                             fontSize: { xs: "0.9rem", md: "1.1rem" },
                                                             color: "primary.main",
                                                             cursor: "pointer"
                                                         }}
+                                                        onClick={() => navigator.clipboard.writeText(msg.message)}
                                                     />
                                                 </Tooltip>
-                                            </Box>
-                                        )}
-                                        {/* Info Icon */}
-                                        {((msg.processing_time_ms && msg.processing_time_ms !== 0) || (msg.disharmony?.processing_time_ms && msg.disharmony.processing_time_ms !== 0)) && (
-                                            <Box sx={{ position: "absolute", top: 6, right: 6 }}>
+
                                                 <Tooltip
                                                     arrow
                                                     enterTouchDelay={0}
