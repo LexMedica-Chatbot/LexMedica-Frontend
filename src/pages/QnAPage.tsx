@@ -145,38 +145,37 @@ const QnAPage: React.FC = () => {
                 botReplyQnARef.current += data.answer;
                 qnaProcessingTimeRef.current = data.processing_time_ms;
 
-                const resolvedDocuments = await Promise.all([
-                    ...(data.referenced_documents).map(async (doc: any) => {
+                const resolvedDocuments = await Promise.all(
+                    (data.referenced_documents || []).map(async (doc: any) => {
                         const type = doc.metadata?.jenis_peraturan;
                         const number = doc.metadata?.nomor_peraturan;
                         const year = doc.metadata?.tahun_peraturan;
-                        const fetchedData = type && number && year ? await getDocument(type, number, year) : null;
+                        const data = type && number && year ? await getDocument(type, number, year) : null;
 
                         return {
-                            document_id: fetchedData?.id || 0,
+                            document_id: data?.id || 0,
                             clause: doc.metadata?.tipe_bagian,
                             snippet: normalizeLegalText(doc.content),
                             page_number: parseInt(doc.metadata?.nomor_halaman, 10) || 1,
                             source: {
-                                about: fetchedData?.about,
-                                type: fetchedData?.type,
-                                number: fetchedData?.number,
-                                year: fetchedData?.year,
-                                status: fetchedData?.status,
-                                url: fetchedData?.url,
+                                about: data?.about,
+                                type: data?.type,
+                                number: data?.number,
+                                year: data?.year,
+                                status: data?.status,
+                                url: data?.url,
                             },
                         };
-                    }),
-
-                    ...(data.all_retrieved_documents).map(async (doc: any) => {
-                        regulationsRef.current += JSON.stringify({
-                            dokumen: doc.metadata?.jenis_peraturan + " Nomor " + doc.metadata?.nomor_peraturan + " Tahun " + doc.metadata?.tahun_peraturan + " " + doc.metadata?.judul_peraturan,
-                            pasal: doc.metadata?.tipe_bagian,
-                            ayat: doc.content,
-                        });
                     })
-                ]);
+                );
 
+                data.all_retrieved_documents.map(async (doc: any) => {
+                    regulationsRef.current += JSON.stringify({
+                        dokumen: doc.metadata?.jenis_peraturan + " Nomor " + doc.metadata?.nomor_peraturan + " Tahun " + doc.metadata?.tahun_peraturan + " " + doc.metadata?.judul_peraturan,
+                        pasal: doc.metadata?.tipe_bagian,
+                        ayat: doc.content,
+                    });
+                })
 
                 resolvedDocumentsRef.current = resolvedDocuments;
 
