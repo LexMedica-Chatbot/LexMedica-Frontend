@@ -126,6 +126,9 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
         return roundedUpSeconds.toFixed(1);
     };
 
+    const [copyAnswerTooltip, setCopyAnswerTooltip] = React.useState("Salin");
+    const [copyDisharmonyTooltip, setCopyDisharmonyTooltip] = React.useState("Salin");
+
     return (
         <>
             <List>
@@ -227,16 +230,25 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                     >
                                         {/* Info Icon */}
                                         {((msg.processing_time_ms && msg.processing_time_ms !== 0) || (msg.disharmony?.processing_time_ms && msg.disharmony.processing_time_ms !== 0)) && (
-                                            <Box sx={{ position: "absolute", top: 6, right: 6 }}>
-                                                {/* Copy Icon */}
-                                                <Tooltip title="Salin Jawaban">
+                                            <Box sx={{ position: "absolute", top: 6, right: 6, display: "flex", gap: 1 }}>
+                                                {/* Copy Answer Icon */}
+                                                <Tooltip title={copyAnswerTooltip}>
                                                     <ContentCopyIcon
                                                         sx={{
                                                             fontSize: { xs: "0.9rem", md: "1.1rem" },
                                                             color: "primary.main",
                                                             cursor: "pointer"
                                                         }}
-                                                        onClick={() => navigator.clipboard.writeText(msg.message)}
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(msg.message);
+                                                            setCopyAnswerTooltip("Jawaban disalin!");
+
+                                                            // Reset back to default after 2-3 seconds
+                                                            setTimeout(() => {
+                                                                setCopyAnswerTooltip("Salin");
+                                                            }, 3000);
+                                                        }
+                                                        }
                                                     />
                                                 </Tooltip>
 
@@ -431,53 +443,8 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                                         }}>
                                                                                                         {document.source.status}
                                                                                                     </Typography>
-                                                                                                    {/* <Chip
-                                                                                                    label={document.source.status}
-                                                                                                    sx={{
-                                                                                                        fontWeight: 'bold',
-                                                                                                        fontSize: { xs: '0.5rem', sm: '0.6rem', md: "0.7rem" },
-                                                                                                        bgcolor: document.source.status === "Berlaku" ? 'success.light' : 'error.light',
-                                                                                                        color: 'white',
-                                                                                                        borderRadius: '4px'
-                                                                                                    }}
-                                                                                                /> */}
                                                                                                 </Box>
                                                                                             </Box>
-
-                                                                                            {/* <Typography
-                                                                                        display="flex"
-                                                                                        justifyContent={"center"}
-                                                                                        fontWeight="bold"
-                                                                                        fontSize={"0.85rem"}
-                                                                                        gutterBottom
-                                                                                    >
-                                                                                        {document.clause}
-                                                                                    </Typography>
-                                                                                    
-                                                                                    {document.snippet.split("\n").map((line, idx) => {
-                                                                                        const isBullet = /^[a-z]\.|^\d+\.|^[•]/.test(line.trim());
-                                                                                        const match = line.match(/^(\(\d+\))\s?(.*)/);
-                                                                                        return (
-                                                                                            <Typography
-                                                                                                key={idx}
-                                                                                                component="div"
-                                                                                                sx={{
-                                                                                                    fontSize: "0.9rem",
-                                                                                                    marginLeft: isBullet ? "1.5em" : 0,
-                                                                                                    mb: 0.75,
-                                                                                                }}
-                                                                                            >
-                                                                                                {match ? (
-                                                                                                    <>
-                                                                                                        <strong>{match[1]}</strong> {match[2]}
-                                                                                                    </>
-                                                                                                ) : (
-                                                                                                    line
-                                                                                                )}
-                                                                                            </Typography>
-                                                                                        );
-                                                                                    })} */}
-
                                                                                         </ListItem>
 
                                                                                         <Box my={2} ml={-1} sx={{ pr: { xs: 2, sm: 3, md: 4 } }}>
@@ -499,13 +466,36 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                             gap={1}
                                                                             px={2}
                                                                         >
-                                                                            <Typography
-                                                                                fontWeight="bold"
-                                                                                variant="h6"
-                                                                                sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
-                                                                            >
-                                                                                Hasil Analisis Potensi Disharmoni Regulasi
-                                                                            </Typography>
+                                                                            <Box display={'flex'} gap={1}>
+                                                                                <Typography
+                                                                                    fontWeight="bold"
+                                                                                    variant="h6"
+                                                                                    sx={{ fontSize: { xs: "0.8rem", sm: "1rem" } }}
+                                                                                >
+                                                                                    Analisis Potensi Disharmoni
+                                                                                </Typography>
+
+                                                                                {/* Copy Disharmony Icon */}
+                                                                                <Tooltip title={copyDisharmonyTooltip}>
+                                                                                    <ContentCopyIcon
+                                                                                        sx={{
+                                                                                            fontSize: { xs: "0.9rem", md: "1.1rem" },
+                                                                                            color: "primary.main",
+                                                                                            cursor: "pointer"
+                                                                                        }}
+                                                                                        onClick={() => {
+                                                                                            navigator.clipboard.writeText(msg.disharmony!.analysis);
+                                                                                            setCopyDisharmonyTooltip("Analisis berhasil disalin!");
+
+                                                                                            // Reset back to default after 2-3 seconds
+                                                                                            setTimeout(() => {
+                                                                                                setCopyDisharmonyTooltip("Salin");
+                                                                                            }, 3000);
+                                                                                        }
+                                                                                        }
+                                                                                    />
+                                                                                </Tooltip>
+                                                                            </Box>
 
                                                                             <Chip
                                                                                 label={
