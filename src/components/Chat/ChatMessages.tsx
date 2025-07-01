@@ -466,7 +466,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                             gap={1}
                                                                             px={2}
                                                                         >
-                                                                            <Box display={'flex'} gap={1}>
+                                                                            <Box display={'flex'} gap={1} alignItems={"center"}>
                                                                                 <Typography
                                                                                     fontWeight="bold"
                                                                                     variant="h6"
@@ -485,7 +485,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                                                                                         }}
                                                                                         onClick={() => {
                                                                                             navigator.clipboard.writeText(msg.disharmony!.analysis);
-                                                                                            setCopyDisharmonyTooltip("Analisis berhasil disalin!");
+                                                                                            setCopyDisharmonyTooltip("Analisis disalin!");
 
                                                                                             // Reset back to default after 2-3 seconds
                                                                                             setTimeout(() => {
